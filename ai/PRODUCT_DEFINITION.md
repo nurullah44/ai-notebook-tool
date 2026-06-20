@@ -12,6 +12,8 @@ The product is optimized for low-friction ADHD-style capture, not complex organi
 
 One person using the app as a private thinking inbox.
 
+V1 is for the founder's own use only. There is no public signup, no guest access, and no support for multiple users.
+
 They may save:
 
 - messy brain dumps
@@ -64,6 +66,8 @@ The app should make this easier:
 
 - SaaS
 - Multi-tenant accounts
+- Public signup
+- Guest access
 - Teams
 - Billing
 - Sharing
@@ -117,6 +121,8 @@ The later product idea is a private "wise actor" that learns from the user's not
 That is not V1.
 
 V1 should build the foundation for that future by preserving notes cleanly, keeping timestamps, supporting reliable retrieval, and grounding AI answers in actual saved text.
+
+Another possible future direction is allowing other people to use the product. That is also not V1. If the product becomes public, the app will need a deliberate multi-user design with separated data, stronger account flows, rate limits, privacy policy, and cost controls.
 
 ## Success Test
 
