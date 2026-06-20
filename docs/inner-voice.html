@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI Notebook Build Methodology</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f7f4ef;
+        --paper: #fffdf8;
+        --ink: #1f2933;
+        --muted: #5d6875;
+        --line: #ddd6ca;
+        --accent: #256f6c;
+        --accent-soft: #e3f1ee;
+        --warn: #8a5a17;
+        --warn-soft: #fff1d6;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        line-height: 1.55;
+        color: var(--ink);
+        background: var(--bg);
+      }
+
+      main {
+        width: min(980px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 48px 0 64px;
+      }
+
+      header {
+        margin-bottom: 32px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .eyebrow {
+        margin: 0 0 8px;
+        color: var(--accent);
+        font-size: 0.78rem;
+        font-weight: 750;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        max-width: 760px;
+        font-size: clamp(2.1rem, 5vw, 4rem);
+        line-height: 1.02;
+        letter-spacing: 0;
+      }
+
+      .lede {
+        max-width: 760px;
+        margin: 18px 0 0;
+        color: var(--muted);
+        font-size: 1.12rem;
+      }
+
+      .panel {
+        margin: 28px 0;
+        padding: 22px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--paper);
+      }
+
+      .panel h2 {
+        margin: 0 0 10px;
+        font-size: 1.2rem;
+      }
+
+      .panel p {
+        margin: 0 0 12px;
+      }
+
+      .panel p:last-child {
+        margin-bottom: 0;
+      }
+
+      blockquote {
+        margin: 18px 0 0;
+        padding: 14px 18px;
+        border-left: 4px solid var(--accent);
+        background: var(--accent-soft);
+        border-radius: 0 8px 8px 0;
+        font-weight: 650;
+      }
+
+      .stages {
+        display: grid;
+        gap: 14px;
+        margin: 28px 0;
+        padding: 0;
+        list-style: none;
+        counter-reset: stage;
+      }
+
+      .stage {
+        counter-increment: stage;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 16px;
+        padding: 20px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--paper);
+      }
+
+      .stage::before {
+        content: counter(stage);
+        display: grid;
+        place-items: center;
+        width: 38px;
+        height: 38px;
+        border-radius: 999px;
+        color: #ffffff;
+        background: var(--accent);
+        font-weight: 800;
+      }
+
+      .stage h2 {
+        margin: 2px 0 8px;
+        font-size: 1.18rem;
+      }
+
+      .stage p {
+        margin: 0 0 10px;
+      }
+
+      .stage ul {
+        margin: 8px 0 0;
+        padding-left: 20px;
+      }
+
+      .stage li {
+        margin: 4px 0;
+      }
+
+      .label {
+        color: var(--accent);
+        font-weight: 760;
+      }
+
+      .warning {
+        border-color: #e8c98e;
+        background: var(--warn-soft);
+      }
+
+      .warning .label {
+        color: var(--warn);
+      }
+
+      footer {
+        margin-top: 32px;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      @media (max-width: 640px) {
+        main {
+          width: min(100% - 24px, 980px);
+          padding-top: 28px;
+        }
+
+        .stage {
+          grid-template-columns: 1fr;
+          gap: 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">Inner voice</p>
+        <h1>How we build the single-user AI notebook</h1>
+        <p class="lede">
+          A tiny real product should be built in small verified slices. We will
+          keep the scope narrow, learn every decision, and avoid turning this
+          into SaaS, teams, billing, multi-tenancy, or agents.
+        </p>
+      </header>
+
+      <section class="panel">
+        <h2>Methodology</h2>
+        <p>
+          We should build this with a
+          <strong>small-slice, risk-driven methodology</strong>.
+        </p>
+        <p>
+          That means we do not design the whole perfect app upfront, and we do
+          not generate the whole product at once. We build one working slice at
+          a time, verify it, then add the next slice.
+        </p>
+        <p>
+          For this project, the right methodology is:
+        </p>
+        <blockquote>
+          Vertical slice development + test-first for risky behavior + staged
+          production hardening.
+        </blockquote>
+      </section>
+
+      <section class="panel">
+        <h2>What a vertical slice means</h2>
+        <p>
+          A vertical slice means each stage creates something usable end-to-end,
+          even if tiny.
+        </p>
+        <p>
+          Example: login -> create one note -> save to database -> read it back
+          in UI.
+        </p>
+        <p>
+          That teaches frontend, backend, auth, database, and verification in
+          one small loop.
+        </p>
+      </section>
+
+      <ol class="stages" aria-label="Build stages">
+        <li class="stage">
+          <div>
+            <h2>Product Definition</h2>
+            <p>Define exactly what "single-user AI notebook" means.</p>
+            <p><span class="label">Output:</span></p>
+            <ul>
+              <li>user workflow</li>
+              <li>non-goals</li>
+              <li>data model</li>
+              <li>deployment target</li>
+              <li>security assumptions</li>
+            </ul>
+          </div>
+        </li>
+
+        <li class="stage">
+          <div>
+            <h2>Stack Choice</h2>
+            <p>Pick the boring stack.</p>
+            <p>
+              We will compare 2-3 options, then choose one based on:
+            </p>
+            <ul>
+              <li>easy local development</li>
+              <li>easy deploy to your domain</li>
+              <li>simple auth</li>
+              <li>database support</li>
+              <li>AI API integration</li>
+              <li>backup story</li>
+            </ul>
+          </div>
+        </li>
+
+        <li class="stage">
+          <div>
+            <h2>Project Skeleton</h2>
+            <p>Create the smallest runnable app.</p>
+            <p><span class="label">Goal:</span></p>
+            <ul>
+              <li>app opens locally</li>
+              <li>one page loads</li>
+              <li>environment variables are documented</li>
+              <li>basic lint/test command exists</li>
+            </ul>
+          </div>
+        </li>
+
+        <li class="stage warning">
+          <div>
+            <h2>Authentication Slice</h2>
+            <p>Add login before notes.</p>
+            <p><span class="label">Why early:</span></p>
+            <ul>
+              <li>this app contains private personal notes</li>
+              <li>auth affects routing, database access, deployment, and tests</li>
+            </ul>
+            <p><span class="label">Success:</span></p>
+            <ul>
+              <li>unauthenticated user cannot see notebook</li>
+              <li>correct login works</li>
+              <li>wrong login fails safely</li>
+            </ul>
+          </div>
+        </li>
+
+        <li class="stage">
+          <div>
+            <h2>Notes Slice</h2>
+            <p>Add create/read notes.</p>
+            <p><span class="label">Keep it tiny:</span></p>
+            <ul>
+              <li>title</li>
+              <li>body</li>
+              <li>created/updated timestamp</li>
+            </ul>
+            <p><span class="label">Success:</span></p>
+            <ul>
+              <li>logged-in user can create a note</li>
+              <li>note persists after refresh</li>
+              <li>database schema is clear</li>
+            </ul>
+          </div>
+        </li>
+
+        <li class="stage">
+          <div>
+            <h2>Search Slice</h2>
+            <p>Add simple note search before AI.</p>
+            <p><span class="label">Start boring:</span></p>
+            <ul>
+              <li>database text search or simple keyword search</li>
+              <li>no vector database yet unless needed</li>
+            </ul>
+            <p><span class="label">Success:</span></p>
+            <ul>
+              <li>search finds notes by title/body</li>
+              <li>empty results behave clearly</li>
+            </ul>
+          </div>
+        </li>
+
+        <li class="stage warning">
+          <div>
+            <h2>AI Question Slice</h2>
+            <p>Add "ask questions about my notes."</p>
+            <p><span class="label">First version:</span></p>
+            <ul>
+              <li>retrieve relevant notes</li>
+              <li>send only those notes to the AI model</li>
+              <li>answer with citations or note references</li>
+            </ul>
+            <p><span class="label">Important risks:</span></p>
+            <ul>
+              <li>prompt injection inside notes</li>
+              <li>leaking private text into logs</li>
+              <li>uncontrolled API cost</li>
+              <li>weak retrieval producing bad answers</li>
+            </ul>
+          </div>
+        </li>
+
+        <li class="stage">
+          <div>
+            <h2>Logging Slice</h2>
+            <p>Add useful logs.</p>
+            <p><span class="label">Log:</span></p>
+            <ul>
+              <li>auth events</li>
+              <li>note operations</li>
+              <li>AI request metadata</li>
+            </ul>
+            <p><span class="label">Do not blindly log:</span></p>
+            <ul>
+              <li>passwords</li>
+              <li>full private notes</li>
+              <li>full AI prompts unless intentionally redacted</li>
+            </ul>
+          </div>
+        </li>
+
+        <li class="stage">
+          <div>
+            <h2>Backup Slice</h2>
+            <p>Add a real backup path.</p>
+            <p>For a tiny single-user app, this might be:</p>
+            <ul>
+              <li>database dump command</li>
+              <li>scheduled backup</li>
+              <li>restore instructions</li>
+            </ul>
+            <p><span class="label">Success:</span></p>
+            <ul>
+              <li>we can explain how to restore data after failure</li>
+            </ul>
+          </div>
+        </li>
+
+        <li class="stage">
+          <div>
+            <h2>Tests Slice</h2>
+            <p>Add 5-10 targeted tests.</p>
+            <p><span class="label">Test the risky paths:</span></p>
+            <ul>
+              <li>login failure</li>
+              <li>protected route</li>
+              <li>create note</li>
+              <li>search</li>
+              <li>AI retrieval input construction</li>
+              <li>backup command or documented restore path if practical</li>
+            </ul>
+          </div>
+        </li>
+
+        <li class="stage">
+          <div>
+            <h2>Deployment Slice</h2>
+            <p>Deploy to your domain.</p>
+            <p><span class="label">Success:</span></p>
+            <ul>
+              <li>app is reachable on your domain</li>
+              <li>secrets are stored safely</li>
+              <li>database is production-backed</li>
+              <li>logs are visible</li>
+              <li>README explains setup</li>
+            </ul>
+          </div>
+        </li>
+
+        <li class="stage">
+          <div>
+            <h2>Shipping Review</h2>
+            <p>Final review before calling it real.</p>
+            <p><span class="label">Check:</span></p>
+            <ul>
+              <li>auth</li>
+              <li>secrets</li>
+              <li>database backups</li>
+              <li>AI cost control</li>
+              <li>tests</li>
+              <li>deployment notes</li>
+              <li>README</li>
+            </ul>
+          </div>
+        </li>
+      </ol>
+
+      <section class="panel">
+        <h2>Why this order</h2>
+        <p>
+          This project looks tiny, but it touches real production concerns:
+          private data, authentication, database durability, paid AI API calls,
+          deployment, logs, and backups.
+        </p>
+        <p>
+          So the danger is not that the app is hard to build. The danger is
+          building a flashy demo that is unsafe, untested, or hard to deploy.
+          The methodology protects us from that.
+        </p>
+      </section>
+
+      <section class="panel">
+        <h2>Tradeoff</h2>
+        <p>This will feel slower at the start.</p>
+        <p>
+          But the benefit is that every stage teaches a real engineering
+          decision, and every stage leaves the project in a working state.
+        </p>
+        <p>
+          We are optimizing for understanding, correctness,
+          production-readiness, small progress, and no unnecessary SaaS
+          complexity.
+        </p>
+      </section>
+
+      <footer>
+        Next checkpoint: define the product boundary before choosing the stack.
+      </footer>
+    </main>
+  </body>
+</html>
