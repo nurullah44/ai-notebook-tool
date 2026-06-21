@@ -89,6 +89,21 @@ Use after a slice or before shipping.
 - Focus on bugs, security, simplicity, missing tests, deployment risk, and unnecessary complexity.
 - Do not rewrite the whole change unless approved.
 
+## Branch, Review, And PR Workflow
+
+Use this workflow for meaningful code changes:
+
+1. Create a feature branch from `main`.
+2. Build one small slice.
+3. Run the smallest useful checks.
+4. Run Codex review on uncommitted changes before committing.
+5. Fix actionable review findings.
+6. Commit the reviewed slice on the feature branch.
+7. Push the branch and open a pull request.
+8. Review the PR again after CI or GitHub feedback if available.
+
+Do not push directly to `main` unless the human explicitly asks for it.
+
 ## Project Scope Discipline
 
 The human may choose any project. Codex must keep the first version small.
