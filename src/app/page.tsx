@@ -100,7 +100,7 @@ export default function Home() {
             </button>
             <p className={styles.savedStatus}>
               <span />
-              All changes saved
+              Draft preview only
             </p>
           </div>
         </header>

@@ -1,5 +1,6 @@
 .appShell {
   min-height: 100vh;
+  height: 100vh;
   display: grid;
   grid-template-columns: 148px minmax(560px, 1fr) 390px;
   overflow: hidden;
@@ -127,6 +128,7 @@
 
 .editorPane {
   min-width: 0;
+  overflow-y: auto;
   padding: 40px 56px 66px 38px;
 }
 
@@ -302,6 +304,7 @@
 
 .inspector {
   min-width: 0;
+  overflow-y: auto;
   padding: 76px 40px 40px 26px;
   background: rgba(255, 255, 255, 0.48);
 }
@@ -484,6 +487,7 @@
 @media (max-width: 1180px) {
   .appShell {
     grid-template-columns: 128px minmax(0, 1fr);
+    height: auto;
     overflow: auto;
   }
 
