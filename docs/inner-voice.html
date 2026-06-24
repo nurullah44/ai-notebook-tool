@@ -135,6 +135,26 @@
         font-size: 1.18rem;
       }
 
+      .stageStatus {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0 0 10px;
+        color: var(--muted);
+        font-size: 0.86rem;
+        font-weight: 700;
+      }
+
+      .stageStatus input {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--accent);
+      }
+
+      .stageStatus.done {
+        color: var(--accent);
+      }
+
       .stage p {
         margin: 0 0 10px;
       }
@@ -232,6 +252,10 @@
       <ol class="stages" aria-label="Build stages">
         <li class="stage">
           <div>
+            <label class="stageStatus done">
+              <input type="checkbox" checked disabled />
+              Done
+            </label>
             <h2>Product Definition</h2>
             <p>Define exactly what "single-user AI notebook" means.</p>
             <p><span class="label">Output:</span></p>
@@ -247,6 +271,10 @@
 
         <li class="stage">
           <div>
+            <label class="stageStatus done">
+              <input type="checkbox" checked disabled />
+              Done
+            </label>
             <h2>Stack Choice</h2>
             <p>Pick the boring stack.</p>
             <p>
@@ -265,6 +293,10 @@
 
         <li class="stage">
           <div>
+            <label class="stageStatus done">
+              <input type="checkbox" checked disabled />
+              Done
+            </label>
             <h2>Project Skeleton</h2>
             <p>Create the smallest runnable app.</p>
             <p><span class="label">Goal:</span></p>
@@ -279,6 +311,10 @@
 
         <li class="stage warning">
           <div>
+            <label class="stageStatus">
+              <input type="checkbox" disabled />
+              Not started
+            </label>
             <h2>Authentication Slice</h2>
             <p>Add login before notes.</p>
             <p><span class="label">Why early:</span></p>
@@ -297,6 +333,10 @@
 
         <li class="stage">
           <div>
+            <label class="stageStatus">
+              <input type="checkbox" disabled />
+              Not started
+            </label>
             <h2>Notes Slice</h2>
             <p>Add create/read notes.</p>
             <p><span class="label">Keep it tiny:</span></p>
@@ -316,6 +356,10 @@
 
         <li class="stage">
           <div>
+            <label class="stageStatus">
+              <input type="checkbox" disabled />
+              Not started
+            </label>
             <h2>Search Slice</h2>
             <p>Add simple note search before AI.</p>
             <p><span class="label">Start boring:</span></p>
@@ -333,6 +377,10 @@
 
         <li class="stage warning">
           <div>
+            <label class="stageStatus">
+              <input type="checkbox" disabled />
+              Not started
+            </label>
             <h2>AI Question Slice</h2>
             <p>Add "ask questions about my notes."</p>
             <p><span class="label">First version:</span></p>
@@ -353,6 +401,10 @@
 
         <li class="stage">
           <div>
+            <label class="stageStatus">
+              <input type="checkbox" disabled />
+              Not started
+            </label>
             <h2>Logging Slice</h2>
             <p>Add useful logs.</p>
             <p><span class="label">Log:</span></p>
@@ -372,6 +424,10 @@
 
         <li class="stage">
           <div>
+            <label class="stageStatus">
+              <input type="checkbox" disabled />
+              Not started
+            </label>
             <h2>Backup Slice</h2>
             <p>Add a real backup path.</p>
             <p>For a tiny single-user app, this might be:</p>
@@ -389,6 +445,10 @@
 
         <li class="stage">
           <div>
+            <label class="stageStatus">
+              <input type="checkbox" disabled />
+              Not started
+            </label>
             <h2>Tests Slice</h2>
             <p>Add 5-10 targeted tests.</p>
             <p><span class="label">Test the risky paths:</span></p>
@@ -405,6 +465,10 @@
 
         <li class="stage">
           <div>
+            <label class="stageStatus">
+              <input type="checkbox" disabled />
+              Not started
+            </label>
             <h2>Deployment Slice</h2>
             <p>Deploy to your domain.</p>
             <p><span class="label">Success:</span></p>
@@ -420,6 +484,10 @@
 
         <li class="stage">
           <div>
+            <label class="stageStatus">
+              <input type="checkbox" disabled />
+              Not started
+            </label>
             <h2>Shipping Review</h2>
             <p>Final review before calling it real.</p>
             <p><span class="label">Check:</span></p>
