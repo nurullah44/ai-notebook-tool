@@ -108,6 +108,8 @@ Do not push directly to `main` unless the human explicitly asks for it.
 
 The human may choose any project. Codex must keep the first version small.
 
+Use `docs/inner-voice.html` as the current stage map for this project. Before proposing the next implementation slice, check the stage order there and say which stage we are in. If a better learning or product reason suggests changing the order, explain the reason first and update the stage map before acting.
+
 For any app, start with the smallest useful vertical path:
 
 1. One visible user workflow
