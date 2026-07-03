@@ -6,6 +6,11 @@ export const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
 
 const SESSION_PAYLOAD = "single-user";
 
+type SessionPayload = {
+  sub: typeof SESSION_PAYLOAD;
+  exp: number;
+};
+
 function getRequiredEnv(name: string) {
   const value = process.env[name];
 
@@ -29,10 +34,14 @@ function signSessionPayload(payload: string, secret: string) {
 }
 
 export function createSessionToken() {
-  return `${SESSION_PAYLOAD}.${signSessionPayload(
-    SESSION_PAYLOAD,
-    getRequiredEnv("SESSION_SECRET"),
-  )}`;
+  const payload = Buffer.from(
+    JSON.stringify({
+      sub: SESSION_PAYLOAD,
+      exp: Date.now() + SESSION_MAX_AGE_SECONDS * 1000,
+    } satisfies SessionPayload),
+  ).toString("base64url");
+
+  return `${payload}.${signSessionPayload(payload, getRequiredEnv("SESSION_SECRET"))}`;
 }
 
 export function isPasswordValid(password: string) {
@@ -43,11 +52,23 @@ export function isSessionTokenValid(token: string) {
   const sessionSecret = process.env.SESSION_SECRET;
   const [payload, signature, extra] = token.split(".");
 
-  if (!sessionSecret || extra || payload !== SESSION_PAYLOAD || !signature) {
+  if (!sessionSecret || extra || !payload || !signature) {
     return false;
   }
 
-  return constantTimeEqual(signature, signSessionPayload(payload, sessionSecret));
+  if (!constantTimeEqual(signature, signSessionPayload(payload, sessionSecret))) {
+    return false;
+  }
+
+  try {
+    const parsedPayload = JSON.parse(
+      Buffer.from(payload, "base64url").toString("utf8"),
+    ) as Partial<SessionPayload>;
+
+    return parsedPayload.sub === SESSION_PAYLOAD && Date.now() < Number(parsedPayload.exp);
+  } catch {
+    return false;
+  }
 }
 
 export async function isAuthenticated() {
