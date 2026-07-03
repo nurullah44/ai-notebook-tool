@@ -42,6 +42,7 @@
 
 .navItem,
 .newNoteButton,
+.logoutButton,
 .iconButton,
 .layoutButton,
 .saveButton,
@@ -99,6 +100,19 @@
   color: #435a78;
   border-top: 1px solid #dce6f3;
   padding-top: 28px;
+  background: transparent;
+  font-size: 0.82rem;
+}
+
+.logoutForm {
+  display: contents;
+}
+
+.logoutButton {
+  display: grid;
+  place-items: center;
+  gap: 8px;
+  color: #435a78;
   background: transparent;
   font-size: 0.82rem;
 }
