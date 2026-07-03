@@ -2,11 +2,11 @@
 
 ## Current Stage
 
-Prototype | Public demo | Real product
+Prototype
 
 ## Minimum Checks
 
-- Auth required for saved user data
+- One-password auth is required before viewing the notebook
 - Secrets are in environment variables, never committed
 - Inputs are validated
 - AI calls have cost/rate limits
@@ -24,4 +24,5 @@ Prototype | Public demo | Real product
 
 ## Open Risks
 
-- 
+- `AUTH_PASSWORD` is stored as a plain environment variable for prototype simplicity. Before real production use, consider switching to a password hash.
+- Login has no application-level rate limit yet. Before accepting public traffic, add app throttling or enforce an equivalent proxy-level limit.

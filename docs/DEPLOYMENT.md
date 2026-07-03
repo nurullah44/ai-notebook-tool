@@ -10,7 +10,8 @@
 ## Environment Variables
 
 ```text
-# Add names only. Do not commit secret values.
+AUTH_PASSWORD
+SESSION_SECRET
 ```
 
 ## Deploy Steps

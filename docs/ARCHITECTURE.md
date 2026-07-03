@@ -49,6 +49,23 @@ This is more operational work than Vercel plus Supabase. We become responsible f
 Date:
 2026-06-20
 
+### Decision: V1 auth
+
+Context:
+The app is founder-only for V1 and protects private notes before note persistence exists.
+
+Decision:
+Use one server-checked password from `AUTH_PASSWORD` and a signed HTTP-only session cookie using `SESSION_SECRET`.
+
+Reason:
+This keeps auth understandable while still avoiding fake browser-only security. The password and session signing secret stay out of committed code.
+
+Tradeoff:
+This is not a multi-user account system and has no email reset or public signup path. If the product becomes public, auth should be redesigned.
+
+Date:
+2026-07-01
+
 ## Deferred Complexity
 
 List things intentionally not used yet.
