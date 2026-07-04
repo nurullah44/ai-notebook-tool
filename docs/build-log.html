@@ -59,6 +59,10 @@
         background: var(--paper);
       }
 
+      article + article {
+        margin-top: 18px;
+      }
+
       h2 {
         margin: 0 0 10px;
         color: var(--blue);
@@ -194,6 +198,66 @@
           <li>The UI is not pixel-perfect.</li>
           <li>The buttons and inputs are not wired to real behavior yet.</li>
           <li>No auth, database, saved notes, or AI call exists yet.</li>
+        </ul>
+      </article>
+
+      <article>
+        <h2>Step 4: Authentication Slice</h2>
+
+        <h3>Concept</h3>
+        <p>
+          Auth is the privacy gate for the notebook. Before we save private
+          notes, the app must know whether the browser has a valid session.
+        </p>
+
+        <h3>What Changed</h3>
+        <ul>
+          <li>Added a login page with one password for the founder user.</li>
+          <li>Protected the notebook route so logged-out users go to login.</li>
+          <li>Added login and logout API routes.</li>
+          <li>Created a signed HTTP-only session cookie with server-side expiry.</li>
+          <li>Documented required auth environment variables.</li>
+          <li>Marked the Authentication Slice done in the stage map.</li>
+        </ul>
+
+        <h3>Files Touched</h3>
+        <ul>
+          <li><code>src/lib/auth.ts</code>: password, session token, and cookie validation helpers.</li>
+          <li><code>src/app/page.tsx</code>: server-side protected notebook route.</li>
+          <li><code>src/app/notebook-shell.tsx</code>: client-side notebook UI moved out of the route guard.</li>
+          <li><code>src/app/login/page.tsx</code>: login screen and wrong-password error state.</li>
+          <li><code>src/app/api/login/route.ts</code>: password check and session creation.</li>
+          <li><code>src/app/api/logout/route.ts</code>: session clearing.</li>
+          <li><code>.env.example</code>: fake auth env var names.</li>
+          <li><code>docs/ARCHITECTURE.md</code>, <code>docs/SECURITY.md</code>, and <code>docs/DEPLOYMENT.md</code>: stable auth decision, risks, and env vars.</li>
+        </ul>
+
+        <h3>Why This Exists</h3>
+        <p>
+          A notebook will contain private text. A fake browser-only password
+          would look like auth but would not protect the app. This slice keeps
+          the secret on the server and lets the server decide whether the
+          notebook can render.
+        </p>
+
+        <h3>How To Verify</h3>
+        <ul>
+          <li>Set <code>AUTH_PASSWORD</code> and <code>SESSION_SECRET</code> in <code>.env.local</code>.</li>
+          <li>Run <code>npm run lint</code>.</li>
+          <li>Run <code>npm run build</code>.</li>
+          <li>Open <code>http://localhost:3000</code> and confirm logged-out users see login.</li>
+          <li>Try a wrong password and confirm the login page shows an error.</li>
+          <li>Try the correct password and confirm the notebook opens.</li>
+          <li>Use logout and confirm the notebook becomes protected again.</li>
+        </ul>
+
+        <h3>What This Does Not Prove</h3>
+        <ul>
+          <li>No notes are saved yet.</li>
+          <li>No database exists yet.</li>
+          <li>No automated auth tests exist yet.</li>
+          <li>No app-level login rate limit exists yet.</li>
+          <li>The prototype uses <code>AUTH_PASSWORD</code> directly instead of a password hash.</li>
         </ul>
       </article>
     </main>

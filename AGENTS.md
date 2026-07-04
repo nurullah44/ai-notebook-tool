@@ -202,8 +202,20 @@ Maintain these files as the project becomes real:
 - `docs/DEPLOYMENT.md`: deploy steps and environment variables
 - `docs/SECURITY.md`: security assumptions, risks, and checks
 - `docs/OPERATIONS.md`: logs, backups, rollback, and incidents
+- `docs/build-log.html`: teaching changelog for meaningful slices
 
 Update docs only when a decision becomes stable. Do not create documentation noise.
+
+Before committing a meaningful slice, run this docs/memory check:
+
+- Did stage status or next checkpoint change? Update `docs/inner-voice.html`.
+- Did architecture, routing, data flow, auth, AI, or deployment shape change? Update `docs/ARCHITECTURE.md`.
+- Did environment variables, deployment steps, or production assumptions change? Update `.env.example` and `docs/DEPLOYMENT.md`.
+- Did auth, secrets, private data, permissions, logging, AI safety, or public exposure risk change? Update `docs/SECURITY.md`.
+- Did operations, logs, backups, restore, rollback, or incident handling change? Update `docs/OPERATIONS.md`.
+- Did the slice teach a meaningful product, architecture, security, deployment, or AI lesson? Update `docs/build-log.html`.
+- Did stable product or architecture memory change in a way future Codex sessions should remember? Update `ai/PROJECT_MEMORY.md`.
+- Did we discover a reusable prompt or workflow? Update `ai/PROMPTS.md`.
 
 ## Stop Conditions
 
