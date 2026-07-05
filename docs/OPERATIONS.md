@@ -8,9 +8,10 @@
 
 ## Backups
 
-- Database backup method:
+- Database backup method: SQLite file copy/dump, exact command deferred to Backup Slice
 - Backup schedule:
 - Restore test:
+- Deleted notes cannot be restored until backups exist and restore is tested.
 
 ## Rollback
 

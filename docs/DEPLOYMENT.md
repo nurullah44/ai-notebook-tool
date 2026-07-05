@@ -12,6 +12,7 @@
 ```text
 AUTH_PASSWORD
 SESSION_SECRET
+SQLITE_DB_PATH
 ```
 
 ## Deploy Steps
@@ -25,7 +26,7 @@ SESSION_SECRET
 
 ## Migration Notes
 
-- Database migration command:
+- Database migration command: table creation currently runs at app startup through `src/lib/db.ts`.
 - Rollback plan: Restore the previous app release and SQLite backup. Exact command deferred until the app exists.
 
 ## Verification

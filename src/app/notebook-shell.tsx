@@ -11,13 +11,18 @@ import {
   Hash,
   MagnifyingGlass,
   Paperclip,
+  PencilSimple,
   PlusSquare,
   SignOut,
   SidebarSimple,
   Sparkle,
   Tag,
+  Trash,
   UserCircle,
+  X,
 } from "@phosphor-icons/react";
+import Link from "next/link";
+import type { CurrentNote, RecentNote } from "@/lib/notes";
 import styles from "./page.module.css";
 
 const navItems = [
@@ -27,24 +32,41 @@ const navItems = [
   { label: "Settings", icon: Gear },
 ];
 
-const recentNotes = [
-  { title: "Product ideas sprint", time: "2m ago" },
-  { title: "Why we procrastinate", time: "1h ago" },
-  { title: "Book notes - Atomic Habits", time: "3h ago" },
-  { title: "Workout plan thoughts", time: "Yesterday" },
-  { title: "AI system design notes", time: "Yesterday" },
-  { title: "Daily reflection", time: "2 days ago" },
-  { title: "Marketing angles", time: "2 days ago" },
-  { title: "Long term goals", time: "3 days ago" },
-];
-
 const recallExamples = [
   "That idea about...",
   "What did I think about...",
   "Find the note about...",
 ];
 
-export default function NotebookShell() {
+type NotebookShellProps = {
+  currentNote?: CurrentNote;
+  mode?: "read" | "edit";
+  noteError?: string;
+  recentNotes: RecentNote[];
+};
+
+function countWords(value: string) {
+  return value.trim().split(/\s+/).filter(Boolean).length;
+}
+
+export default function NotebookShell({
+  currentNote,
+  mode = "read",
+  noteError,
+  recentNotes,
+}: NotebookShellProps) {
+  const isExistingNote = Boolean(currentNote);
+  const isEditingNote = isExistingNote && mode === "edit";
+  const isReadingNote = isExistingNote && !isEditingNote;
+  const formAction = currentNote ? `/api/notes/${currentNote.id}` : "/api/notes";
+  const heading = isEditingNote ? "Edit Note" : isReadingNote ? "Saved Note" : "New Note";
+  const statusText = isEditingNote
+    ? "Editing draft"
+    : isReadingNote
+      ? "Saved note"
+      : "Draft until saved";
+  const wordCount = currentNote ? countWords(currentNote.body) : 0;
+
   return (
     <main className={styles.appShell}>
       <aside className={styles.sidebar} aria-label="Notebook navigation">
@@ -72,10 +94,10 @@ export default function NotebookShell() {
         </nav>
 
         <div className={styles.sidebarFooter}>
-          <button className={styles.newNoteButton} type="button">
+          <Link className={styles.newNoteButton} href="/">
             <PlusSquare size={24} />
             <span>New Note</span>
-          </button>
+          </Link>
           <form action="/api/logout" method="post" className={styles.logoutForm}>
             <button className={styles.logoutButton} type="submit">
               <SignOut size={24} />
@@ -89,9 +111,14 @@ export default function NotebookShell() {
         </div>
       </aside>
 
-      <section className={styles.editorPane} aria-label="New note editor">
+      <form
+        action={formAction}
+        method="post"
+        className={styles.editorPane}
+        aria-label={isReadingNote ? "Saved note reader" : "Note editor"}
+      >
         <header className={styles.editorTopbar}>
-          <h1>New Note</h1>
+          <h1>{heading}</h1>
 
           <div className={styles.editorActions}>
             <button className={styles.iconButton} type="button" aria-label="More actions">
@@ -101,29 +128,71 @@ export default function NotebookShell() {
             <button className={styles.layoutButton} type="button" aria-label="Toggle panels">
               <SidebarSimple size={22} />
             </button>
-            <button className={styles.saveButton} type="button">
-              <Check size={18} weight="bold" />
-              <span>Save</span>
-            </button>
+            {isReadingNote && currentNote ? (
+              <button
+                className={styles.deleteButton}
+                type="submit"
+                formAction={`/api/notes/${currentNote.id}/delete`}
+                formNoValidate
+                onClick={(event) => {
+                  if (!window.confirm("Delete this note?")) {
+                    event.preventDefault();
+                  }
+                }}
+              >
+                <Trash size={18} weight="bold" />
+                <span>Delete</span>
+              </button>
+            ) : null}
+            {isReadingNote && currentNote ? (
+              <Link className={styles.secondaryButton} href={`/notes/${currentNote.id}?mode=edit`}>
+                <PencilSimple size={18} weight="bold" />
+                <span>Edit</span>
+              </Link>
+            ) : null}
+            {isEditingNote && currentNote ? (
+              <Link className={styles.secondaryButton} href={`/notes/${currentNote.id}`}>
+                <X size={18} weight="bold" />
+                <span>Cancel</span>
+              </Link>
+            ) : null}
+            {isReadingNote ? null : (
+              <button className={styles.saveButton} type="submit">
+                <Check size={18} weight="bold" />
+                <span>{isEditingNote ? "Save changes" : "Save"}</span>
+              </button>
+            )}
             <p className={styles.savedStatus}>
               <span />
-              Draft preview only
+              {statusText}
             </p>
           </div>
         </header>
 
         <section className={styles.editorCard}>
+          {noteError ? (
+            <p className={styles.noteError} role="alert">
+              {noteError}
+            </p>
+          ) : null}
           <input
             className={styles.titleInput}
             aria-label="Note title"
+            name="title"
             placeholder="Note title (optional)"
+            defaultValue={currentNote?.title}
+            readOnly={isReadingNote}
           />
 
           <div className={styles.bodyFrame}>
             <textarea
               className={styles.bodyInput}
               aria-label="Note body"
+              name="body"
               placeholder="Start writing your thoughts..."
+              defaultValue={currentNote?.body}
+              readOnly={isReadingNote}
+              required={!isReadingNote}
             />
 
             <footer className={styles.editorToolbar}>
@@ -140,7 +209,7 @@ export default function NotebookShell() {
               </div>
 
               <div className={styles.toolbarGroup}>
-                <span>0 words</span>
+                <span>{isReadingNote ? `${wordCount} words` : "Plain text"}</span>
                 <button type="button" aria-label="Undo">
                   <ArrowClockwise size={20} className={styles.undoIcon} />
                 </button>
@@ -154,7 +223,7 @@ export default function NotebookShell() {
             </footer>
           </div>
         </section>
-      </section>
+      </form>
 
       <aside className={styles.inspector} aria-label="Search, recent notes, and AI recall">
         <section className={styles.searchSection}>
@@ -173,18 +242,31 @@ export default function NotebookShell() {
           </div>
 
           <div className={styles.recentList}>
-            {recentNotes.map((note) => (
-              <article className={styles.recentRow} key={note.title}>
-                <div className={styles.fileIcon}>
-                  <FileText size={18} />
-                </div>
-                <h3>{note.title}</h3>
-                <time>{note.time}</time>
-                <button type="button" aria-label={`More actions for ${note.title}`}>
-                  <DotsThree size={20} weight="bold" />
-                </button>
-              </article>
-            ))}
+            {recentNotes.length === 0 ? (
+              <p className={styles.emptyState}>No saved notes yet</p>
+            ) : (
+              recentNotes.map((note) => (
+                <article
+                  className={`${styles.recentRow} ${
+                    currentNote?.id === note.id ? styles.recentRowActive : ""
+                  }`}
+                  key={note.id}
+                >
+                  <div className={styles.fileIcon}>
+                    <FileText size={18} />
+                  </div>
+                  <h3>
+                    <Link className={styles.recentTitle} href={`/notes/${note.id}`}>
+                      {note.title}
+                    </Link>
+                  </h3>
+                  <time dateTime={note.updatedAt}>{note.updatedAtLabel}</time>
+                  <button type="button" aria-label={`More actions for ${note.title}`}>
+                    <DotsThree size={20} weight="bold" />
+                  </button>
+                </article>
+              ))
+            )}
           </div>
         </section>
 
