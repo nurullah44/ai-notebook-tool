@@ -271,6 +271,7 @@ export default function NotebookShell({
             <input
               aria-label="Search notes"
               defaultValue={searchQuery}
+              key={searchQuery}
               name="q"
               placeholder="Search your notes..."
             />
