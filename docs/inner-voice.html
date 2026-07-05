@@ -333,22 +333,30 @@
 
         <li class="stage">
           <div>
-            <label class="stageStatus">
-              <input type="checkbox" disabled />
-              Not started
+            <label class="stageStatus done">
+              <input type="checkbox" checked disabled />
+              Done
             </label>
             <h2>Notes Slice</h2>
-            <p>Add create/read notes.</p>
+            <p>Add note CRUD without archive.</p>
             <p><span class="label">Keep it tiny:</span></p>
             <ul>
               <li>title</li>
               <li>body</li>
               <li>created/updated timestamp</li>
             </ul>
+            <p><span class="label">Progress:</span></p>
+            <ul>
+              <li>create/read notes - done</li>
+              <li>edit saved notes - done</li>
+              <li>delete saved notes - done</li>
+            </ul>
             <p><span class="label">Success:</span></p>
             <ul>
               <li>logged-in user can create a note</li>
               <li>note persists after refresh</li>
+              <li>saved note can be edited</li>
+              <li>saved note can be deleted</li>
               <li>database schema is clear</li>
             </ul>
           </div>
@@ -533,7 +541,7 @@
       </section>
 
       <footer>
-        Next checkpoint: plan the Notes Slice.
+        Next checkpoint: plan the Search Slice.
       </footer>
     </main>
   </body>

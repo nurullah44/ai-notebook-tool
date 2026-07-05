@@ -260,6 +260,167 @@
           <li>The prototype uses <code>AUTH_PASSWORD</code> directly instead of a password hash.</li>
         </ul>
       </article>
+
+      <article>
+        <h2>Step 5: Notes Slice</h2>
+
+        <h3>Concept</h3>
+        <p>
+          Persistence means typed note text becomes durable data. This slice
+          turns the notebook from a protected screen into a small database-backed
+          product loop.
+        </p>
+
+        <h3>What Changed</h3>
+        <ul>
+          <li>Added SQLite persistence using <code>better-sqlite3</code>.</li>
+          <li>Created a <code>notes</code> table with title, body, and timestamps.</li>
+          <li>Added a protected create-note API route.</li>
+          <li>Added protected note read pages.</li>
+          <li>Changed recent notes from mock data to saved database rows.</li>
+          <li>Ignored local SQLite database files in git.</li>
+        </ul>
+
+        <h3>Files Touched</h3>
+        <ul>
+          <li><code>src/lib/db.ts</code>: opens the SQLite file and creates the schema.</li>
+          <li><code>src/lib/notes.ts</code>: create, read, and list note functions.</li>
+          <li><code>src/app/api/notes/route.ts</code>: server endpoint for saving notes.</li>
+          <li><code>src/app/notes/[id]/page.tsx</code>: protected read page for saved notes.</li>
+          <li><code>src/app/page.tsx</code>: loads recent notes for the main notebook screen.</li>
+          <li><code>src/app/notebook-shell.tsx</code>: turns the editor into a save form and renders database notes.</li>
+          <li><code>.env.example</code> and <code>.gitignore</code>: document and protect the local DB file.</li>
+        </ul>
+
+        <h3>Why This Exists</h3>
+        <p>
+          Search and AI recall need real notes first. SQLite gives us one local
+          file that is easy to inspect, back up, and later move to a VPS.
+        </p>
+
+        <h3>How To Verify</h3>
+        <ul>
+          <li>Run <code>npm run lint</code>.</li>
+          <li>Run <code>npm run build</code>.</li>
+          <li>Log in, create a note with title and body, and confirm the app redirects to the saved note page.</li>
+          <li>Refresh the saved note page and confirm title and body remain visible.</li>
+          <li>Return home and confirm the note appears in Recent notes.</li>
+        </ul>
+
+        <h3>What This Does Not Prove</h3>
+        <ul>
+          <li>No note editing exists yet.</li>
+          <li>No note deletion exists yet.</li>
+          <li>No search exists yet.</li>
+          <li>No backup job exists yet.</li>
+          <li>No automated note persistence tests exist yet.</li>
+        </ul>
+      </article>
+
+      <article>
+        <h2>Step 5.2: Edit Saved Notes</h2>
+
+        <h3>Concept</h3>
+        <p>
+          Editing is an update operation. It should change the existing note row,
+          not create a duplicate note.
+        </p>
+
+        <h3>What Changed</h3>
+        <ul>
+          <li>Added an <code>updateNote</code> database function.</li>
+          <li>Added a protected update route at <code>/api/notes/[id]</code>.</li>
+          <li>Added read mode and edit mode for saved notes.</li>
+          <li>Added <code>Edit</code>, <code>Cancel</code>, and <code>Save changes</code> controls.</li>
+          <li>Kept saved notes read-only unless the user enters edit mode.</li>
+        </ul>
+
+        <h3>Files Touched</h3>
+        <ul>
+          <li><code>src/lib/notes.ts</code>: updates title, body, and updated timestamp.</li>
+          <li><code>src/app/api/notes/[id]/route.ts</code>: validates and saves edits.</li>
+          <li><code>src/app/notes/[id]/page.tsx</code>: reads <code>?mode=edit</code> and edit errors.</li>
+          <li><code>src/app/notebook-shell.tsx</code>: renders read/edit UI states.</li>
+          <li><code>src/app/page.module.css</code>: styles the secondary edit/cancel button.</li>
+        </ul>
+
+        <h3>Why This Exists</h3>
+        <p>
+          A notebook where saved notes cannot be changed feels broken. We added
+          edit before search because search and AI recall should work against
+          correct, current notes.
+        </p>
+
+        <h3>How To Verify</h3>
+        <ul>
+          <li>Run <code>npm run lint</code>.</li>
+          <li>Run <code>npm run build</code>.</li>
+          <li>Create a note, open it, click <code>Edit</code>, change title/body, and save changes.</li>
+          <li>Refresh the saved note page and confirm the edited title/body remain.</li>
+          <li>Confirm the Recent notes list shows the updated title.</li>
+        </ul>
+
+        <h3>What This Does Not Prove</h3>
+        <ul>
+          <li>No note deletion exists yet.</li>
+          <li>No autosave exists yet.</li>
+          <li>No revision history exists yet.</li>
+          <li>No automated edit test exists yet.</li>
+        </ul>
+      </article>
+
+      <article>
+        <h2>Step 5.3: Delete Saved Notes</h2>
+
+        <h3>Concept</h3>
+        <p>
+          Delete is a destructive data operation. Even in a tiny app, it should
+          be authenticated, intentional, and verified.
+        </p>
+
+        <h3>What Changed</h3>
+        <ul>
+          <li>Added a <code>deleteNote</code> database function.</li>
+          <li>Added a protected delete route at <code>/api/notes/[id]/delete</code>.</li>
+          <li>Added a red <code>Delete</code> button on saved-note read mode.</li>
+          <li>Added browser confirmation before the delete request is submitted.</li>
+          <li>Marked the Notes Slice done in the stage map.</li>
+        </ul>
+
+        <h3>Files Touched</h3>
+        <ul>
+          <li><code>src/lib/notes.ts</code>: deletes a note row by id.</li>
+          <li><code>src/app/api/notes/[id]/delete/route.ts</code>: authenticated delete endpoint.</li>
+          <li><code>src/app/notebook-shell.tsx</code>: Delete button and confirmation behavior.</li>
+          <li><code>src/app/page.module.css</code>: destructive button styling.</li>
+          <li><code>docs/inner-voice.html</code>: marks Notes Slice done and Search Slice next.</li>
+        </ul>
+
+        <h3>Why This Exists</h3>
+        <p>
+          A real notebook needs basic CRUD before search and AI recall. We chose
+          permanent delete, not archive, because the V1 product should stay
+          small.
+        </p>
+
+        <h3>How To Verify</h3>
+        <ul>
+          <li>Run <code>npm run lint</code>.</li>
+          <li>Run <code>npm run build</code>.</li>
+          <li>Create a note and open the saved-note page.</li>
+          <li>Click <code>Delete</code>, cancel confirmation, and confirm the note remains.</li>
+          <li>Click <code>Delete</code>, accept confirmation, and confirm the app returns home.</li>
+          <li>Confirm the deleted note disappears from Recent notes.</li>
+        </ul>
+
+        <h3>What This Does Not Prove</h3>
+        <ul>
+          <li>No undo exists yet.</li>
+          <li>No archive exists by product choice.</li>
+          <li>No backup restore path exists yet.</li>
+          <li>No automated delete test exists yet.</li>
+        </ul>
+      </article>
     </main>
   </body>
 </html>
