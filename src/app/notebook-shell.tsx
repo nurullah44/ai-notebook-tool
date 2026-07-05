@@ -12,7 +12,7 @@ import {
   MagnifyingGlass,
   Paperclip,
   PencilSimple,
-  PlusSquare,
+  Plus,
   SignOut,
   SidebarSimple,
   Sparkle,
@@ -22,12 +22,12 @@ import {
   X,
 } from "@phosphor-icons/react";
 import Link from "next/link";
+import { useState } from "react";
 import type { CurrentNote, RecentNote } from "@/lib/notes";
 import styles from "./page.module.css";
 
 const navItems = [
-  { label: "Notes", icon: FileText, active: true },
-  { label: "Search", icon: MagnifyingGlass },
+  { label: "Notes", icon: FileText, active: true, href: "/" },
   { label: "AI Recall", icon: Sparkle },
   { label: "Settings", icon: Gear },
 ];
@@ -43,6 +43,7 @@ type NotebookShellProps = {
   mode?: "read" | "edit";
   noteError?: string;
   recentNotes: RecentNote[];
+  searchQuery?: string;
 };
 
 function countWords(value: string) {
@@ -54,10 +55,14 @@ export default function NotebookShell({
   mode = "read",
   noteError,
   recentNotes,
+  searchQuery = "",
 }: NotebookShellProps) {
+  const [isCreatingNote, setIsCreatingNote] = useState(Boolean(noteError));
+  const [openRecentActionId, setOpenRecentActionId] = useState<string | null>(null);
   const isExistingNote = Boolean(currentNote);
   const isEditingNote = isExistingNote && mode === "edit";
   const isReadingNote = isExistingNote && !isEditingNote;
+  const showEditor = isExistingNote || isCreatingNote || Boolean(noteError);
   const formAction = currentNote ? `/api/notes/${currentNote.id}` : "/api/notes";
   const heading = isEditingNote ? "Edit Note" : isReadingNote ? "Saved Note" : "New Note";
   const statusText = isEditingNote
@@ -65,22 +70,44 @@ export default function NotebookShell({
     : isReadingNote
       ? "Saved note"
       : "Draft until saved";
+  const hasSearchQuery = searchQuery.length > 0;
+  const notesSectionTitle = hasSearchQuery ? "Search results" : "Recent notes";
+  const emptyNotesMessage = hasSearchQuery ? "No matching notes" : "No saved notes yet";
   const wordCount = currentNote ? countWords(currentNote.body) : 0;
+  const resetHomeUi = () => {
+    setIsCreatingNote(false);
+    setOpenRecentActionId(null);
+  };
 
   return (
     <main className={styles.appShell}>
       <aside className={styles.sidebar} aria-label="Notebook navigation">
-        <div className={styles.logo} aria-label="AI Notebook">
+        <Link
+          className={styles.logo}
+          href="/"
+          aria-label="AI Notebook home"
+          onClick={resetHomeUi}
+        >
           <span>
             <Feather size={28} weight="fill" />
           </span>
-        </div>
+        </Link>
 
         <nav className={styles.navList}>
           {navItems.map((item) => {
             const Icon = item.icon;
 
-            return (
+            return item.href ? (
+              <Link
+                className={`${styles.navItem} ${item.active ? styles.navItemActive : ""}`}
+                href={item.href}
+                key={item.label}
+                onClick={resetHomeUi}
+              >
+                <Icon size={24} weight={item.active ? "duotone" : "regular"} />
+                <span>{item.label}</span>
+              </Link>
+            ) : (
               <button
                 className={`${styles.navItem} ${item.active ? styles.navItemActive : ""}`}
                 key={item.label}
@@ -94,10 +121,6 @@ export default function NotebookShell({
         </nav>
 
         <div className={styles.sidebarFooter}>
-          <Link className={styles.newNoteButton} href="/">
-            <PlusSquare size={24} />
-            <span>New Note</span>
-          </Link>
           <form action="/api/logout" method="post" className={styles.logoutForm}>
             <button className={styles.logoutButton} type="submit">
               <SignOut size={24} />
@@ -111,139 +134,162 @@ export default function NotebookShell({
         </div>
       </aside>
 
-      <form
-        action={formAction}
-        method="post"
-        className={styles.editorPane}
-        aria-label={isReadingNote ? "Saved note reader" : "Note editor"}
-      >
-        <header className={styles.editorTopbar}>
-          <h1>{heading}</h1>
+      {showEditor ? (
+        <form
+          action={formAction}
+          method="post"
+          className={styles.editorPane}
+          aria-label={isReadingNote ? "Saved note reader" : "Note editor"}
+        >
+          <header className={styles.editorTopbar}>
+            <h1>{heading}</h1>
 
-          <div className={styles.editorActions}>
-            <button className={styles.iconButton} type="button" aria-label="More actions">
-              <DotsThree size={24} weight="bold" />
-            </button>
-            <span className={styles.actionDivider} />
-            <button className={styles.layoutButton} type="button" aria-label="Toggle panels">
-              <SidebarSimple size={22} />
-            </button>
-            {isReadingNote && currentNote ? (
-              <button
-                className={styles.deleteButton}
-                type="submit"
-                formAction={`/api/notes/${currentNote.id}/delete`}
-                formNoValidate
-                onClick={(event) => {
-                  if (!window.confirm("Delete this note?")) {
-                    event.preventDefault();
-                  }
-                }}
-              >
-                <Trash size={18} weight="bold" />
-                <span>Delete</span>
+            <div className={styles.editorActions}>
+              <button className={styles.iconButton} type="button" aria-label="More actions">
+                <DotsThree size={24} weight="bold" />
               </button>
-            ) : null}
-            {isReadingNote && currentNote ? (
-              <Link className={styles.secondaryButton} href={`/notes/${currentNote.id}?mode=edit`}>
-                <PencilSimple size={18} weight="bold" />
-                <span>Edit</span>
-              </Link>
-            ) : null}
-            {isEditingNote && currentNote ? (
-              <Link className={styles.secondaryButton} href={`/notes/${currentNote.id}`}>
-                <X size={18} weight="bold" />
-                <span>Cancel</span>
-              </Link>
-            ) : null}
-            {isReadingNote ? null : (
-              <button className={styles.saveButton} type="submit">
-                <Check size={18} weight="bold" />
-                <span>{isEditingNote ? "Save changes" : "Save"}</span>
+              <span className={styles.actionDivider} />
+              <button className={styles.layoutButton} type="button" aria-label="Toggle panels">
+                <SidebarSimple size={22} />
               </button>
-            )}
-            <p className={styles.savedStatus}>
-              <span />
-              {statusText}
-            </p>
-          </div>
-        </header>
+              {isReadingNote && currentNote ? (
+                <button
+                  className={styles.deleteButton}
+                  type="submit"
+                  formAction={`/api/notes/${currentNote.id}/delete`}
+                  formNoValidate
+                  onClick={(event) => {
+                    if (!window.confirm("Delete this note?")) {
+                      event.preventDefault();
+                    }
+                  }}
+                >
+                  <Trash size={18} weight="bold" />
+                  <span>Delete</span>
+                </button>
+              ) : null}
+              {isReadingNote && currentNote ? (
+                <Link className={styles.secondaryButton} href={`/notes/${currentNote.id}?mode=edit`}>
+                  <PencilSimple size={18} weight="bold" />
+                  <span>Edit</span>
+                </Link>
+              ) : null}
+              {isEditingNote && currentNote ? (
+                <Link className={styles.secondaryButton} href={`/notes/${currentNote.id}`}>
+                  <X size={18} weight="bold" />
+                  <span>Cancel</span>
+                </Link>
+              ) : null}
+              {isReadingNote ? null : (
+                <button className={styles.saveButton} type="submit">
+                  <Check size={18} weight="bold" />
+                  <span>{isEditingNote ? "Save changes" : "Save"}</span>
+                </button>
+              )}
+              <p className={styles.savedStatus}>
+                <span />
+                {statusText}
+              </p>
+            </div>
+          </header>
 
-        <section className={styles.editorCard}>
-          {noteError ? (
-            <p className={styles.noteError} role="alert">
-              {noteError}
-            </p>
-          ) : null}
-          <input
-            className={styles.titleInput}
-            aria-label="Note title"
-            name="title"
-            placeholder="Note title (optional)"
-            defaultValue={currentNote?.title}
-            readOnly={isReadingNote}
-          />
-
-          <div className={styles.bodyFrame}>
-            <textarea
-              className={styles.bodyInput}
-              aria-label="Note body"
-              name="body"
-              placeholder="Start writing your thoughts..."
-              defaultValue={currentNote?.body}
+          <section className={styles.editorCard}>
+            {noteError ? (
+              <p className={styles.noteError} role="alert">
+                {noteError}
+              </p>
+            ) : null}
+            <input
+              className={styles.titleInput}
+              aria-label="Note title"
+              name="title"
+              placeholder="Note title (optional)"
+              defaultValue={currentNote?.title}
               readOnly={isReadingNote}
-              required={!isReadingNote}
             />
 
-            <footer className={styles.editorToolbar}>
-              <div className={styles.toolbarGroup}>
-                <button type="button" aria-label="Tags">
-                  <Tag size={22} />
-                </button>
-                <button type="button" aria-label="Heading">
-                  <Hash size={22} />
-                </button>
-                <button type="button" aria-label="Attach file">
-                  <Paperclip size={22} />
-                </button>
-              </div>
+            <div className={styles.bodyFrame}>
+              <textarea
+                className={styles.bodyInput}
+                aria-label="Note body"
+                name="body"
+                placeholder="Start writing your thoughts..."
+                defaultValue={currentNote?.body}
+                readOnly={isReadingNote}
+                required={!isReadingNote}
+              />
 
-              <div className={styles.toolbarGroup}>
-                <span>{isReadingNote ? `${wordCount} words` : "Plain text"}</span>
-                <button type="button" aria-label="Undo">
-                  <ArrowClockwise size={20} className={styles.undoIcon} />
-                </button>
-                <button type="button" aria-label="Redo">
-                  <ArrowClockwise size={20} />
-                </button>
-                <button type="button" aria-label="Expand">
-                  <ArrowsOutSimple size={20} />
-                </button>
-              </div>
-            </footer>
-          </div>
+              <footer className={styles.editorToolbar}>
+                <div className={styles.toolbarGroup}>
+                  <button type="button" aria-label="Tags">
+                    <Tag size={22} />
+                  </button>
+                  <button type="button" aria-label="Heading">
+                    <Hash size={22} />
+                  </button>
+                  <button type="button" aria-label="Attach file">
+                    <Paperclip size={22} />
+                  </button>
+                </div>
+
+                <div className={styles.toolbarGroup}>
+                  <span>{isReadingNote ? `${wordCount} words` : "Plain text"}</span>
+                  <button type="button" aria-label="Undo">
+                    <ArrowClockwise size={20} className={styles.undoIcon} />
+                  </button>
+                  <button type="button" aria-label="Redo">
+                    <ArrowClockwise size={20} />
+                  </button>
+                  <button type="button" aria-label="Expand">
+                    <ArrowsOutSimple size={20} />
+                  </button>
+                </div>
+              </footer>
+            </div>
+          </section>
+        </form>
+      ) : (
+        <section className={styles.startPane} aria-label="Create a note">
+          <button
+            className={styles.createNoteButton}
+            type="button"
+            aria-label="Create new note"
+            onClick={() => setIsCreatingNote(true)}
+          >
+            <Plus size={70} weight="bold" />
+          </button>
         </section>
-      </form>
+      )}
 
       <aside className={styles.inspector} aria-label="Search, recent notes, and AI recall">
         <section className={styles.searchSection}>
           <h2>Quick search</h2>
-          <label className={styles.searchField}>
-            <MagnifyingGlass size={24} />
-            <input aria-label="Search notes" placeholder="Search your notes..." />
-            <kbd>Ctrl K</kbd>
-          </label>
+          <form className={styles.searchField} action="/" method="get">
+            <button className={styles.searchButton} type="submit" aria-label="Search notes">
+              <MagnifyingGlass size={24} />
+            </button>
+            <input
+              aria-label="Search notes"
+              defaultValue={searchQuery}
+              name="q"
+              placeholder="Search your notes..."
+            />
+          </form>
         </section>
 
         <section className={styles.recentSection}>
           <div className={styles.sectionHeader}>
-            <h2>Recent notes</h2>
-            <button type="button">View all</button>
+            <h2>{notesSectionTitle}</h2>
+            {hasSearchQuery ? (
+              <Link href="/">Clear</Link>
+            ) : (
+              <button type="button">View all</button>
+            )}
           </div>
 
           <div className={styles.recentList}>
             {recentNotes.length === 0 ? (
-              <p className={styles.emptyState}>No saved notes yet</p>
+              <p className={styles.emptyState}>{emptyNotesMessage}</p>
             ) : (
               recentNotes.map((note) => (
                 <article
@@ -261,9 +307,29 @@ export default function NotebookShell({
                     </Link>
                   </h3>
                   <time dateTime={note.updatedAt}>{note.updatedAtLabel}</time>
-                  <button type="button" aria-label={`More actions for ${note.title}`}>
-                    <DotsThree size={20} weight="bold" />
-                  </button>
+                  {openRecentActionId === note.id ? (
+                    <form
+                      action={`/api/notes/${note.id}/delete`}
+                      className={styles.recentDeleteForm}
+                      method="post"
+                    >
+                      <button
+                        className={styles.recentDeleteButton}
+                        type="submit"
+                        aria-label={`Delete ${note.title}`}
+                      >
+                        <Trash size={18} weight="bold" />
+                      </button>
+                    </form>
+                  ) : (
+                    <button
+                      type="button"
+                      aria-label={`More actions for ${note.title}`}
+                      onClick={() => setOpenRecentActionId(note.id)}
+                    >
+                      <DotsThree size={20} weight="bold" />
+                    </button>
+                  )}
                 </article>
               ))
             )}

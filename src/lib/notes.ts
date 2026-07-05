@@ -79,6 +79,10 @@ function toRecentNote(row: NoteRow): RecentNote {
   };
 }
 
+function escapeLikePattern(value: string) {
+  return value.replaceAll("\\", "\\\\").replaceAll("%", "\\%").replaceAll("_", "\\_");
+}
+
 export function createNote(input: { title: string; body: string }) {
   const title = input.title.trim();
   const body = input.body.trim();
@@ -174,6 +178,30 @@ export function listRecentNotes(limit = 8) {
       `,
     )
     .all(limit) as NoteRow[];
+
+  return rows.map(toRecentNote);
+}
+
+export function searchNotes(query: string, limit = 8) {
+  const trimmedQuery = query.trim();
+
+  if (!trimmedQuery) {
+    return [];
+  }
+
+  const pattern = `%${escapeLikePattern(trimmedQuery)}%`;
+  const rows = getDb()
+    .prepare(
+      `
+        SELECT id, title, body, created_at, updated_at
+        FROM notes
+        WHERE title LIKE @pattern ESCAPE '\\'
+           OR body LIKE @pattern ESCAPE '\\'
+        ORDER BY updated_at DESC
+        LIMIT @limit
+      `,
+    )
+    .all({ pattern, limit }) as NoteRow[];
 
   return rows.map(toRecentNote);
 }
