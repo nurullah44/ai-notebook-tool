@@ -9,7 +9,7 @@ Stable facts future Codex sessions should remember. Keep short.
 - Audience: founder-only V1
 - Real problem: user remembers rough shape of ideas but not exact note wording or location
 - Smallest useful version: login, create/read/edit/delete notes, search notes, ask AI about own notes, logs, backups, targeted tests, deployment notes
-- Current stage: Prototype; Notes Slice is done. Search Slice is next.
+- Current stage: Prototype; Search Slice is done. AI Question Slice is next.
 
 ## Learning Goal
 
@@ -27,7 +27,8 @@ Follow `docs/inner-voice.html` as the stage map.
    - create/read notes - done
    - edit saved notes - done
    - delete saved notes - done
-6. Search Slice - next
+6. Search Slice - done
+7. AI Question Slice - next
 
 ## Stack Decisions
 
@@ -59,6 +60,9 @@ Use `better-sqlite3` with plain SQL and one SQLite file. DB code stays server-on
 - Routing: protected pages check `isAuthenticated()` server-side and redirect to `/login`
 - Data loading: server pages load data, then pass serializable props to client UI
 - State: current editor is mostly server/form-based, with `?mode=edit` for saved-note editing
+- Home UI: root page starts with a large centered plus button; clicking it opens the new-note editor
+- Recent notes UI: row dots reveal a trash icon; clicking trash deletes immediately
+- Search: home route supports URL query search with `/?q=...`, scanning note title and body
 - Styling: CSS modules with calm blue visual direction
 - Validation: server routes validate private inputs even if browser fields also validate
 - Testing: manual checks for now; automated tests planned later

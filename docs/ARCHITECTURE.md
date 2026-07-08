@@ -117,6 +117,23 @@ There is no autosave, edit conflict handling, or revision history yet.
 Date:
 2026-07-04
 
+### Decision: V1 keyword search
+
+Context:
+AI recall needs retrieval, but we should prove basic note search before adding model calls or vector search.
+
+Decision:
+Use the home route query string, `/?q=...`, and a server-side SQLite `LIKE` search over note title and body.
+
+Reason:
+This creates a refreshable, linkable search state without new routes, client state, or extra dependencies.
+
+Tradeoff:
+This is exact keyword matching. It has no typo tolerance, semantic matching, ranking, highlighting, or vector search yet.
+
+Date:
+2026-07-05
+
 ## Deferred Complexity
 
 List things intentionally not used yet.

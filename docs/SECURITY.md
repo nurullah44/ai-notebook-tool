@@ -10,6 +10,7 @@ Prototype
 - Secrets are in environment variables, never committed
 - SQLite database files are ignored by git
 - Inputs are validated
+- Search uses parameterized SQLite queries
 - Delete note requires authentication and browser confirmation
 - AI calls have cost/rate limits
 - User-provided text is not trusted as instructions

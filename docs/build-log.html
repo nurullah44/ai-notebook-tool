@@ -421,6 +421,113 @@
           <li>No automated delete test exists yet.</li>
         </ul>
       </article>
+
+      <article>
+        <h2>Step 6: Search Slice</h2>
+
+        <h3>Concept</h3>
+        <p>
+          Search is the first retrieval system. The user gives rough words, and
+          the app finds notes that contain those words.
+        </p>
+
+        <h3>What Changed</h3>
+        <ul>
+          <li>Added keyword search over note title and body.</li>
+          <li>Made the home route read <code>?q=...</code>.</li>
+          <li>Turned Quick search into a real <code>GET</code> form.</li>
+          <li>Changed the right panel from Recent notes to Search results when a query is active.</li>
+          <li>Added empty search state text.</li>
+        </ul>
+
+        <h3>Files Touched</h3>
+        <ul>
+          <li><code>src/lib/notes.ts</code>: adds <code>searchNotes</code>.</li>
+          <li><code>src/app/page.tsx</code>: chooses recent notes or search results based on <code>q</code>.</li>
+          <li><code>src/app/notebook-shell.tsx</code>: renders the search form and search result state.</li>
+          <li><code>src/app/page.module.css</code>: styles the Clear link like other panel actions.</li>
+          <li><code>docs/inner-voice.html</code>: marks Search Slice done and AI Question Slice next.</li>
+        </ul>
+
+        <h3>Why This Exists</h3>
+        <p>
+          AI recall depends on finding relevant notes first. Keyword search
+          proves that retrieval loop without model cost, vector DB complexity,
+          or prompt-injection risk.
+        </p>
+
+        <h3>How To Verify</h3>
+        <ul>
+          <li>Run <code>npm run lint</code>.</li>
+          <li>Run <code>npm run build</code>.</li>
+          <li>Create two notes with different words.</li>
+          <li>Search for a word from one note and confirm only that note appears.</li>
+          <li>Search for nonsense and confirm <code>No matching notes</code>.</li>
+          <li>Refresh the search URL and confirm the query remains in the input.</li>
+        </ul>
+
+        <h3>What This Does Not Prove</h3>
+        <ul>
+          <li>No semantic search exists yet.</li>
+          <li>No typo tolerance exists yet.</li>
+          <li>No highlighting exists yet.</li>
+          <li>No AI answer generation exists yet.</li>
+          <li>No automated search test exists yet.</li>
+        </ul>
+      </article>
+
+      <article>
+        <h2>Step 6.1: Search And Home UI Refinement</h2>
+
+        <h3>Concept</h3>
+        <p>
+          A product screen should show intent. The home page should not look
+          like the user is already writing a note if they have not chosen to
+          write yet.
+        </p>
+
+        <h3>What Changed</h3>
+        <ul>
+          <li>Changed the search icon into a real submit button.</li>
+          <li>Removed the visible <code>Ctrl K</code> search shortcut hint.</li>
+          <li>Removed the sidebar <code>New Note</code> button.</li>
+          <li>Removed the dummy left-sidebar <code>Search</code> nav item.</li>
+          <li>Made the feather logo reset back to the home plus state.</li>
+          <li>Made the home page show a large centered plus button before composing.</li>
+          <li>Made the <code>Notes</code> nav item link back to the home page.</li>
+          <li>Made recent-note dots reveal a trash icon that deletes immediately.</li>
+        </ul>
+
+        <h3>Files Touched</h3>
+        <ul>
+          <li><code>src/app/notebook-shell.tsx</code>: local UI state for composing and recent-row actions.</li>
+          <li><code>src/app/page.module.css</code>: centered plus button, hover feedback, and trash icon styling.</li>
+        </ul>
+
+        <h3>Why This Exists</h3>
+        <p>
+          This keeps the interface calmer and more intentional. The user starts
+          a note by choosing the plus button, and destructive recent-note delete
+          is hidden behind one extra click.
+        </p>
+
+        <h3>How To Verify</h3>
+        <ul>
+          <li>Run <code>npm run lint</code>.</li>
+          <li>Run <code>npm run build</code>.</li>
+          <li>Open the home page and confirm no note editor is visible.</li>
+          <li>Click the large plus and confirm the editor appears.</li>
+          <li>Create a note, return home through <code>Notes</code>, and confirm the plus state returns.</li>
+          <li>Click recent-row dots, then click the trash icon and confirm the note disappears.</li>
+        </ul>
+
+        <h3>What This Does Not Prove</h3>
+        <ul>
+          <li>No undo exists for recent-row delete.</li>
+          <li>No keyboard shortcut was added.</li>
+          <li>No automated UI test exists yet.</li>
+        </ul>
+      </article>
     </main>
   </body>
 </html>
