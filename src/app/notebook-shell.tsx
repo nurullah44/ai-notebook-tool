@@ -22,7 +22,7 @@ import {
   X,
 } from "@phosphor-icons/react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import type { CurrentNote, RecentNote } from "@/lib/notes";
 import styles from "./page.module.css";
 
@@ -46,8 +46,32 @@ type NotebookShellProps = {
   searchQuery?: string;
 };
 
+type RecallMatch = {
+  noteId: string;
+  title: string;
+  reason: string;
+};
+
+type RecallResult = {
+  answer: string;
+  matches: RecallMatch[];
+};
+
 function countWords(value: string) {
   return value.trim().split(/\s+/).filter(Boolean).length;
+}
+
+function isRecallMatch(value: unknown): value is RecallMatch {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "noteId" in value &&
+    "title" in value &&
+    "reason" in value &&
+    typeof value.noteId === "string" &&
+    typeof value.title === "string" &&
+    typeof value.reason === "string"
+  );
 }
 
 export default function NotebookShell({
@@ -59,6 +83,10 @@ export default function NotebookShell({
 }: NotebookShellProps) {
   const [isCreatingNote, setIsCreatingNote] = useState(Boolean(noteError));
   const [openRecentActionId, setOpenRecentActionId] = useState<string | null>(null);
+  const [recallQuestion, setRecallQuestion] = useState("");
+  const [recallResult, setRecallResult] = useState<RecallResult | null>(null);
+  const [recallError, setRecallError] = useState<string | null>(null);
+  const [isRecalling, setIsRecalling] = useState(false);
   const isExistingNote = Boolean(currentNote);
   const isEditingNote = isExistingNote && mode === "edit";
   const isReadingNote = isExistingNote && !isEditingNote;
@@ -77,6 +105,55 @@ export default function NotebookShell({
   const resetHomeUi = () => {
     setIsCreatingNote(false);
     setOpenRecentActionId(null);
+  };
+  const handleRecallSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const question = recallQuestion.trim();
+
+    if (!question) {
+      setRecallError("Write a rough memory first.");
+      setRecallResult(null);
+      return;
+    }
+
+    setIsRecalling(true);
+    setRecallError(null);
+
+    try {
+      const response = await fetch("/api/ai/recall", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ question }),
+      });
+      const payload = (await response.json()) as {
+        answer?: unknown;
+        error?: unknown;
+        matches?: unknown;
+      };
+
+      if (!response.ok) {
+        setRecallError(typeof payload.error === "string" ? payload.error : "Recall failed.");
+        setRecallResult(null);
+        return;
+      }
+
+      if (typeof payload.answer !== "string" || !Array.isArray(payload.matches)) {
+        throw new Error("Invalid recall response.");
+      }
+
+      setRecallResult({
+        answer: payload.answer,
+        matches: payload.matches.filter(isRecallMatch),
+      });
+    } catch {
+      setRecallError("Recall failed.");
+      setRecallResult(null);
+    } finally {
+      setIsRecalling(false);
+    }
   };
 
   return (
@@ -348,21 +425,52 @@ export default function NotebookShell({
             </button>
           </div>
 
-          <label className={styles.recallField}>
+          <form className={styles.recallField} onSubmit={handleRecallSubmit}>
             <textarea
               aria-label="AI rough recall"
+              onChange={(event) => setRecallQuestion(event.target.value)}
               placeholder="What are you trying to recall?"
+              value={recallQuestion}
             />
-            <button type="button" aria-label="Ask AI">
+            <button type="submit" aria-label="Ask AI" disabled={isRecalling}>
               <Sparkle size={18} weight="fill" />
             </button>
-          </label>
+          </form>
+
+          {recallError ? (
+            <p className={styles.recallError} role="alert">
+              {recallError}
+            </p>
+          ) : null}
+
+          {recallResult ? (
+            <div className={styles.recallResult}>
+              <p>{recallResult.answer}</p>
+              {recallResult.matches.length > 0 ? (
+                <ol>
+                  {recallResult.matches.map((match) => (
+                    <li key={match.noteId}>
+                      <Link href={`/notes/${match.noteId}`}>{match.title}</Link>
+                      <span>{match.reason}</span>
+                    </li>
+                  ))}
+                </ol>
+              ) : null}
+            </div>
+          ) : null}
 
           <div className={styles.examples}>
             <p>Try examples</p>
             <div>
               {recallExamples.map((example) => (
-                <button type="button" key={example}>
+                <button
+                  type="button"
+                  key={example}
+                  onClick={() => {
+                    setRecallQuestion(example);
+                    setRecallError(null);
+                  }}
+                >
                   {example}
                 </button>
               ))}
