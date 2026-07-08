@@ -528,6 +528,113 @@
           <li>No automated UI test exists yet.</li>
         </ul>
       </article>
+
+      <article>
+        <h2>Step 7.0: AI Recall Retrieval Plumbing</h2>
+
+        <h3>Concept</h3>
+        <p>
+          AI recall starts with retrieval. Before paying for model calls, the
+          app should prove it can accept a rough question, find candidate notes,
+          and render note references.
+        </p>
+
+        <h3>What Changed</h3>
+        <ul>
+          <li>Added a protected <code>POST /api/ai/recall</code> route.</li>
+          <li>Added recall candidate search that splits rough questions into keyword terms.</li>
+          <li>Connected the existing AI rough recall box to the new route.</li>
+          <li>Rendered matching notes and short local reasons under the recall box.</li>
+          <li>Added future AI environment variables to <code>.env.example</code>.</li>
+          <li>Marked AI Question Slice as in progress in the stage map.</li>
+        </ul>
+
+        <h3>Files Touched</h3>
+        <ul>
+          <li><code>src/lib/notes.ts</code>: adds recall candidate retrieval.</li>
+          <li><code>src/app/api/ai/recall/route.ts</code>: authenticated recall API route.</li>
+          <li><code>src/app/notebook-shell.tsx</code>: recall form state, submit handling, and result rendering.</li>
+          <li><code>src/app/page.module.css</code>: recall result and error styling.</li>
+          <li><code>.env.example</code>: documents future OpenAI variables.</li>
+        </ul>
+
+        <h3>Why This Exists</h3>
+        <p>
+          This keeps the first AI slice understandable. The app retrieves notes
+          first, then the next slice can replace the local answer with a real
+          OpenAI response using the same API contract.
+        </p>
+
+        <h3>How To Verify</h3>
+        <ul>
+          <li>Run <code>npm run lint</code>.</li>
+          <li>Run <code>npm run build</code>.</li>
+          <li>Create a note containing a memorable keyword.</li>
+          <li>Use AI rough recall with that keyword and confirm the note appears.</li>
+          <li>Submit an empty recall question and confirm an error appears.</li>
+        </ul>
+
+        <h3>What This Does Not Prove</h3>
+        <ul>
+          <li>No OpenAI request is made yet.</li>
+          <li>No semantic search exists yet.</li>
+          <li>No model-generated reasons exist yet.</li>
+          <li>No automated recall test exists yet.</li>
+        </ul>
+      </article>
+
+      <article>
+        <h2>Step 7.1: Live OpenAI Recall Generation</h2>
+
+        <h3>Concept</h3>
+        <p>
+          The model should explain retrieved notes, not search the whole
+          database by itself. The app keeps control of retrieval, privacy, and
+          validation.
+        </p>
+
+        <h3>What Changed</h3>
+        <ul>
+          <li>Added a server-side OpenAI Responses API call after local retrieval.</li>
+          <li>Defaulted the model to <code>gpt-5.4-mini</code> for lower cost.</li>
+          <li>Improved recall retrieval ranking after similar dummy notes exposed weak candidate selection.</li>
+          <li>Sent only note ids, titles, and short snippets to the model.</li>
+          <li>Requested structured JSON output and validated note ids before rendering.</li>
+          <li>Kept a local retrieval fallback when no <code>OPENAI_API_KEY</code> exists.</li>
+          <li>Set <code>store: false</code> for AI recall requests.</li>
+        </ul>
+
+        <h3>Files Touched</h3>
+        <ul>
+          <li><code>src/app/api/ai/recall/route.ts</code>: OpenAI call, prompt, schema, and validation.</li>
+          <li><code>src/lib/notes.ts</code>: adds note snippets for model context.</li>
+          <li><code>.env.example</code>: sets the default AI model.</li>
+          <li><code>docs/ARCHITECTURE.md</code>, <code>docs/SECURITY.md</code>, and <code>ai/PROJECT_MEMORY.md</code>: record the stable AI decision.</li>
+        </ul>
+
+        <h3>Why This Exists</h3>
+        <p>
+          This is the smallest real AI product loop: retrieve private context,
+          send a limited prompt, force a small structured answer, validate it,
+          and show note references.
+        </p>
+
+        <h3>How To Verify</h3>
+        <ul>
+          <li>Run <code>npm run lint</code>.</li>
+          <li>Run <code>npm run build</code>.</li>
+          <li>Without <code>OPENAI_API_KEY</code>, confirm recall still returns local matches.</li>
+          <li>With <code>OPENAI_API_KEY</code>, confirm recall returns model-written reasons.</li>
+        </ul>
+
+        <h3>What This Does Not Prove</h3>
+        <ul>
+          <li>No semantic search exists yet.</li>
+          <li>No app-level AI rate limit exists yet.</li>
+          <li>No AI call metadata logging exists yet.</li>
+          <li>No automated AI recall test exists yet.</li>
+        </ul>
+      </article>
     </main>
   </body>
 </html>

@@ -7,7 +7,7 @@ Keep this document factual and short. Update it only after decisions are stable.
 - App: Next.js with TypeScript
 - Database: SQLite via `better-sqlite3`, stored at `SQLITE_DB_PATH` or `data/notebook.db`
 - Auth: Founder-only login with a secure session
-- AI: OpenAI API for rough-memory note lookup
+- AI: OpenAI Responses API for rough-memory note lookup, defaulting to `gpt-5.4-mini`
 - Deployment: Hetzner VPS, reached through Tailscale for admin access and Cloudflare Tunnel for web traffic
 
 ## Boundaries
@@ -134,6 +134,34 @@ This is exact keyword matching. It has no typo tolerance, semantic matching, ran
 Date:
 2026-07-05
 
+### Decision: AI Recall V1
+
+Context:
+The app has persisted notes and keyword search. The next learning step is AI recall, but we should avoid sending the whole notebook or building tool-calling before the basic retrieval flow is proven.
+
+Decision:
+Use app-side retrieval first. `POST /api/ai/recall` receives a rough user question, authenticates the request, retrieves matching notes with ranked keyword search, sends only those candidate note snippets to OpenAI when `OPENAI_API_KEY` is configured, and returns closest note matches with short reasons. If no key is configured, the route falls back to local retrieval results. The result shape is:
+
+```ts
+type RecallResult = {
+  answer: string;
+  matches: {
+    noteId: string;
+    title: string;
+    reason: string;
+  }[];
+};
+```
+
+Reason:
+This teaches the core AI product loop without extra search infrastructure: retrieve context, constrain model input, ask for a small structured answer, and show note references to the user.
+
+Tradeoff:
+Keyword retrieval may miss vague memories and synonyms. OpenAI can only reason over candidates the app already found. Tool calling, embeddings, semantic search, streaming, chat history, and full advisor behavior stay deferred.
+
+Date:
+2026-07-08
+
 ## Deferred Complexity
 
 List things intentionally not used yet.
@@ -146,3 +174,6 @@ List things intentionally not used yet.
 - Redis
 - Kubernetes
 - Autonomous agents
+- LLM tool calling
+- Vector search
+- Streaming AI responses

@@ -9,7 +9,7 @@ Stable facts future Codex sessions should remember. Keep short.
 - Audience: founder-only V1
 - Real problem: user remembers rough shape of ideas but not exact note wording or location
 - Smallest useful version: login, create/read/edit/delete notes, search notes, ask AI about own notes, logs, backups, targeted tests, deployment notes
-- Current stage: Prototype; Search Slice is done. AI Question Slice is next.
+- Current stage: Prototype; AI Question Slice is in progress. Recall retrieval and live OpenAI response generation exist, with local fallback when no API key is configured.
 
 ## Learning Goal
 
@@ -28,7 +28,7 @@ Follow `docs/inner-voice.html` as the stage map.
    - edit saved notes - done
    - delete saved notes - done
 6. Search Slice - done
-7. AI Question Slice - next
+7. AI Question Slice - in progress
 
 ## Stack Decisions
 
@@ -36,7 +36,7 @@ Follow `docs/inner-voice.html` as the stage map.
 - Backend: Next.js server routes and server components
 - Database/storage: SQLite through `better-sqlite3`, default file `data/notebook.db`
 - Auth: founder-only one-password login with signed HTTP-only session cookie
-- AI provider: OpenAI API planned for rough-memory note lookup
+- AI provider: OpenAI Responses API for rough-memory note lookup, default model `gpt-5.4-mini`
 - Deployment: Hetzner VPS planned, with Tailscale admin access and Cloudflare Tunnel web access
 - Logging: deferred
 - Backup: deferred; SQLite file backup path required before real use
@@ -63,11 +63,13 @@ Use `better-sqlite3` with plain SQL and one SQLite file. DB code stays server-on
 - Home UI: root page starts with a large centered plus button; clicking it opens the new-note editor
 - Recent notes UI: row dots reveal a trash icon; clicking trash deletes immediately
 - Search: home route supports URL query search with `/?q=...`, scanning note title and body
+- AI Recall V1: app retrieves notes first with ranked keyword search, sends only top candidate snippets to OpenAI when `OPENAI_API_KEY` exists, and returns closest notes with short reasons
+- AI Recall V1 non-goals: no whole-notebook dump, no LLM tool calling, no vector database, no chat history, no streaming, no advisor behavior yet
 - Styling: CSS modules with calm blue visual direction
 - Validation: server routes validate private inputs even if browser fields also validate
 - Testing: manual checks for now; automated tests planned later
 - Error handling: wrong login and empty note use redirect query states
-- AI calls: not implemented yet
+- AI calls: `POST /api/ai/recall` uses local keyword retrieval first, then OpenAI Responses API with structured JSON output when `OPENAI_API_KEY` exists; without a key it returns local matches
 
 ## Rules Learned
 
