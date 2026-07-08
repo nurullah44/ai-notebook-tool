@@ -323,18 +323,15 @@ export function searchRecallCandidates(query: string, limit = 5) {
   const params = Object.fromEntries(
     terms.map((term, index) => [`pattern${index}`, `%${escapeLikePattern(term)}%`]),
   );
-  const rowLimit = Math.max(limit * 10, 50);
   const rows = getDb()
     .prepare(
       `
         SELECT id, title, body, created_at, updated_at
         FROM notes
         WHERE ${whereClause}
-        ORDER BY updated_at DESC
-        LIMIT @limit
       `,
     )
-    .all({ ...params, limit: rowLimit }) as NoteRow[];
+    .all(params) as NoteRow[];
 
   return rows.sort((left, right) => compareRecallRows(left, right, terms)).slice(0, limit).map(
     (row): RecallCandidate => ({
