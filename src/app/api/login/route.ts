@@ -5,12 +5,14 @@ import {
   SESSION_COOKIE_NAME,
   SESSION_MAX_AGE_SECONDS,
 } from "@/lib/auth";
+import { logInfo, logWarn } from "@/lib/logger";
 
 export async function POST(request: Request) {
   const formData = await request.formData();
   const password = formData.get("password");
 
   if (typeof password !== "string" || !isPasswordValid(password)) {
+    logWarn("auth.login_failed");
     return NextResponse.redirect(new URL("/login?error=wrong", request.url), 303);
   }
 
@@ -25,6 +27,8 @@ export async function POST(request: Request) {
     path: "/",
     maxAge: SESSION_MAX_AGE_SECONDS,
   });
+
+  logInfo("auth.login_success");
 
   return response;
 }

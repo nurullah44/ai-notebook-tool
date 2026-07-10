@@ -15,7 +15,7 @@ Prototype
 - AI calls limit question length, retrieved note count, snippet size, and output length
 - User-provided text is not trusted as instructions
 - Dangerous actions require human approval
-- Logs avoid unnecessary private data
+- Logs include operational metadata only and avoid passwords, full notes, AI prompts, note snippets, API keys, and raw model responses
 
 ## AI-Specific Risks
 
@@ -33,3 +33,4 @@ Prototype
 - Note bodies are private data. Do not log full note text unless a future debugging policy explicitly allows redacted logging.
 - Deleting a note is permanent until backups or revision history exist.
 - AI Recall V1 sends selected private note snippets to OpenAI only after the user explicitly configures `OPENAI_API_KEY`. Requests use `store: false`.
+- Log retention, rotation, and access control are not configured yet. Decide this during VPS deployment.

@@ -8,6 +8,7 @@ Keep this document factual and short. Update it only after decisions are stable.
 - Database: SQLite via `better-sqlite3`, stored at `SQLITE_DB_PATH` or `data/notebook.db`
 - Auth: Founder-only login with a secure session
 - AI: OpenAI Responses API for rough-memory note lookup, defaulting to `gpt-5.4-mini`
+- Logging: structured JSON stdout/stderr logs with metadata only
 - Deployment: Hetzner VPS, reached through Tailscale for admin access and Cloudflare Tunnel for web traffic
 
 ## Boundaries
@@ -17,6 +18,7 @@ Keep this document factual and short. Update it only after decisions are stable.
 - Database access: Server-only SQLite access
 - AI calls: Server-only calls using selected note context, not full database dumps
 - Auth/session: Founder-only protected routes and private notes
+- Logs: Server-only operational metadata through `src/lib/logger.ts`
 
 ## Decisions
 
@@ -161,6 +163,23 @@ Keyword retrieval may miss vague memories and synonyms. OpenAI can only reason o
 
 Date:
 2026-07-08
+
+### Decision: V1 operational logging
+
+Context:
+The app now has auth, persistent notes, deletion, search, and paid AI calls. We need enough visibility to debug failures without exposing private note content.
+
+Decision:
+Use a small server-only logger that writes JSON lines to stdout/stderr. Log auth events, note operation metadata, and AI recall metadata. Do not log passwords, note bodies, note snippets, full prompts, API keys, or raw model responses.
+
+Reason:
+This works locally and on a VPS without adding a logging service or dashboard. It also teaches the important logging boundary: log what happened, not the user's private content.
+
+Tradeoff:
+Logs are not searchable inside the app, and retention/rotation still depends on the future VPS process manager or system journal setup.
+
+Date:
+2026-07-10
 
 ## Deferred Complexity
 

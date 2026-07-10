@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { isAuthenticated } from "@/lib/auth";
+import { logInfo, logWarn } from "@/lib/logger";
 import { deleteNote } from "@/lib/notes";
 
 type DeleteNoteRouteContext = {
@@ -15,7 +16,11 @@ export async function POST(request: Request, { params }: DeleteNoteRouteContext)
 
   const { id } = await params;
 
-  deleteNote(id);
+  if (deleteNote(id)) {
+    logInfo("notes.deleted", { noteId: id });
+  } else {
+    logWarn("notes.delete_missing", { noteId: id });
+  }
 
   return NextResponse.redirect(new URL("/", request.url), 303);
 }
