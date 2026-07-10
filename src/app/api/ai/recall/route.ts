@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { isAuthenticated } from "@/lib/auth";
+import { getErrorName, logError, logInfo, logWarn } from "@/lib/logger";
 import { type RecallCandidate, searchRecallCandidates } from "@/lib/notes";
 
 const MAX_QUESTION_LENGTH = 500;
@@ -18,6 +19,10 @@ type RecallResult = {
     reason: string;
   }[];
 };
+
+function getOpenAiModel() {
+  return process.env.OPENAI_MODEL || DEFAULT_OPENAI_MODEL;
+}
 
 function buildLocalRecallResult(matches: RecallCandidate[]): RecallResult {
   return {
@@ -133,7 +138,7 @@ async function buildAiRecallResult(question: string, candidates: RecallCandidate
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: process.env.OPENAI_MODEL || DEFAULT_OPENAI_MODEL,
+      model: getOpenAiModel(),
       store: false,
       max_output_tokens: 700,
       reasoning: { effort: "low" },
@@ -207,28 +212,34 @@ async function buildAiRecallResult(question: string, candidates: RecallCandidate
 
 export async function POST(request: Request) {
   if (!(await isAuthenticated())) {
+    logWarn("ai.recall_unauthenticated");
     return NextResponse.json({ error: "Not authenticated." }, { status: 401 });
   }
 
+  const startedAt = Date.now();
   let payload: RecallRequest;
 
   try {
     payload = (await request.json()) as RecallRequest;
   } catch {
+    logWarn("ai.recall_rejected", { reason: "invalid_json" });
     return NextResponse.json({ error: "Invalid JSON." }, { status: 400 });
   }
 
   if (typeof payload.question !== "string") {
+    logWarn("ai.recall_rejected", { reason: "missing_question" });
     return NextResponse.json({ error: "Question is required." }, { status: 400 });
   }
 
   const question = payload.question.trim();
 
   if (!question) {
+    logWarn("ai.recall_rejected", { reason: "empty_question" });
     return NextResponse.json({ error: "Question is required." }, { status: 400 });
   }
 
   if (question.length > MAX_QUESTION_LENGTH) {
+    logWarn("ai.recall_rejected", { reason: "question_too_long" });
     return NextResponse.json(
       { error: `Question must be ${MAX_QUESTION_LENGTH} characters or fewer.` },
       { status: 400 },
@@ -236,11 +247,28 @@ export async function POST(request: Request) {
   }
 
   const matches = searchRecallCandidates(question);
+  const usedOpenAI = Boolean(process.env.OPENAI_API_KEY && matches.length > 0);
 
   try {
-    return NextResponse.json(await buildAiRecallResult(question, matches));
+    const result = await buildAiRecallResult(question, matches);
+
+    logInfo("ai.recall_completed", {
+      candidateCount: matches.length,
+      durationMs: Date.now() - startedAt,
+      matchCount: result.matches.length,
+      model: usedOpenAI ? getOpenAiModel() : "local",
+      usedOpenAI,
+    });
+
+    return NextResponse.json(result);
   } catch (error) {
-    console.error("AI recall failed.", error);
+    logError("ai.recall_failed", {
+      candidateCount: matches.length,
+      durationMs: Date.now() - startedAt,
+      errorName: getErrorName(error),
+      model: usedOpenAI ? getOpenAiModel() : "local",
+      usedOpenAI,
+    });
 
     return NextResponse.json(
       {

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { isAuthenticated } from "@/lib/auth";
+import { logError, logInfo, logWarn } from "@/lib/logger";
 import { createNote, EmptyNoteError } from "@/lib/notes";
 
 export async function POST(request: Request) {
@@ -18,12 +19,16 @@ export async function POST(request: Request) {
     });
 
     if (!note) {
+      logError("notes.create_failed");
       return NextResponse.redirect(new URL("/?error=save-failed", request.url), 303);
     }
+
+    logInfo("notes.created", { noteId: note.id });
 
     return NextResponse.redirect(new URL(`/notes/${note.id}`, request.url), 303);
   } catch (error) {
     if (error instanceof EmptyNoteError) {
+      logWarn("notes.create_rejected", { reason: "empty_body" });
       return NextResponse.redirect(new URL("/?error=empty-note", request.url), 303);
     }
 

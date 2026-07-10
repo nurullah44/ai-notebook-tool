@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { SESSION_COOKIE_NAME } from "@/lib/auth";
+import { logInfo } from "@/lib/logger";
 
 export async function POST(request: Request) {
   const response = NextResponse.redirect(new URL("/login", request.url), 303);
@@ -13,6 +14,8 @@ export async function POST(request: Request) {
     path: "/",
     maxAge: 0,
   });
+
+  logInfo("auth.logout");
 
   return response;
 }

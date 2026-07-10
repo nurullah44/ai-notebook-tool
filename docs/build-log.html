@@ -635,6 +635,57 @@
           <li>No automated AI recall test exists yet.</li>
         </ul>
       </article>
+
+      <article>
+        <h2>Step 8.0: Safe Operational Logging</h2>
+
+        <h3>Concept</h3>
+        <p>
+          Logs are the app's operational diary. They should explain what
+          happened in production without copying private notebook content into
+          another place.
+        </p>
+
+        <h3>What Changed</h3>
+        <ul>
+          <li>Added a tiny server-only JSON logger.</li>
+          <li>Logged login success, login failure, and logout.</li>
+          <li>Logged note create, update, delete, and rejected empty-note attempts.</li>
+          <li>Logged AI recall metadata: model, duration, candidate count, match count, and whether OpenAI was used.</li>
+          <li>Marked AI Question Slice and Logging Slice as done in the stage map.</li>
+        </ul>
+
+        <h3>Files Touched</h3>
+        <ul>
+          <li><code>src/lib/logger.ts</code>: structured stdout/stderr logging helper.</li>
+          <li><code>src/app/api/login/route.ts</code> and <code>src/app/api/logout/route.ts</code>: auth event logs.</li>
+          <li><code>src/app/api/notes/*</code>: note operation logs with note IDs only.</li>
+          <li><code>src/app/api/ai/recall/route.ts</code>: AI recall metadata logs.</li>
+          <li><code>docs/OPERATIONS.md</code>, <code>docs/SECURITY.md</code>, <code>docs/ARCHITECTURE.md</code>, and <code>ai/PROJECT_MEMORY.md</code>: document the logging decision.</li>
+        </ul>
+
+        <h3>Why This Exists</h3>
+        <p>
+          Once the app runs on a VPS, we need to debug failed logins, note
+          operations, and AI failures. This gives visibility without adding a
+          logging service or leaking private note text.
+        </p>
+
+        <h3>How To Verify</h3>
+        <ul>
+          <li>Run <code>npm run lint</code>.</li>
+          <li>Run <code>npm run build</code>.</li>
+          <li>Use login, note save, note update, note delete, and AI recall.</li>
+          <li>Confirm the terminal shows JSON log lines with metadata only.</li>
+        </ul>
+
+        <h3>What This Does Not Prove</h3>
+        <ul>
+          <li>No log retention or rotation policy exists yet.</li>
+          <li>No app UI exists for reading logs.</li>
+          <li>No automated logging test exists yet.</li>
+        </ul>
+      </article>
     </main>
   </body>
 </html>
