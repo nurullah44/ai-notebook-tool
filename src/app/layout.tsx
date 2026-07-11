@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AI Notebook",
-  description: "A private notebook for fast capture and rough recall.",
+  title: "Idea Store",
+  description: "A private place for ideas worth returning to.",
 };
 
 export default function RootLayout({

@@ -200,6 +200,23 @@ The backup is manual and stored on the same machine. A local isolated restore wa
 Date:
 2026-07-11
 
+### Decision: Idea Store collection frontend
+
+Context:
+The notebook behavior worked, but the three-column editor presented ideas like ordinary files instead of valuable objects worth revisiting.
+
+Decision:
+Keep the existing auth, SQLite, CRUD routes, URL keyword search, and AI recall endpoint. Replace only the client presentation with an Idea Store collection: three title cards at a time, explanation on flip, fullscreen search and composer overlays, and edit/delete controls on each flipped card.
+
+Reason:
+The visual model now matches the product direction without migrating data or rebuilding working backend behavior. Server pages still load serializable note data and ordinary forms still submit to the same routes.
+
+Tradeoff:
+The collection has no automatic resurfacing behavior yet. Scrolling reveals more ideas, but the future way to explore the whole idea chain remains undecided. The visual redesign has browser verification but no automated end-to-end or screenshot regression test.
+
+Date:
+2026-07-11
+
 ## Deferred Complexity
 
 List things intentionally not used yet.

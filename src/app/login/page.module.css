@@ -83,6 +83,16 @@
   font: inherit;
   font-weight: 760;
   cursor: pointer;
+  transition:
+    background 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.loginForm button:hover {
+  transform: translateY(-2px);
+  background: #074fc2;
+  box-shadow: 0 10px 24px rgba(9, 95, 232, 0.24);
 }
 
 .loginPanel .errorMessage {

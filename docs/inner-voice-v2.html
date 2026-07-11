@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Inner Voice V2 - Idea Collection Redesign</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --sky: #edf6ff;
+        --paper: rgba(255, 255, 255, 0.82);
+        --ink: #10213d;
+        --muted: #5d6f89;
+        --blue: #1769e0;
+        --blue-soft: #dcecff;
+        --line: rgba(77, 119, 170, 0.2);
+        --future: #eef1f5;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background: var(--sky);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        line-height: 1.55;
+      }
+
+      main {
+        width: min(960px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 64px 0 80px;
+      }
+
+      header {
+        max-width: 760px;
+        margin-bottom: 44px;
+      }
+
+      .eyebrow {
+        margin: 0 0 10px;
+        color: var(--blue);
+        font-size: 0.78rem;
+        font-weight: 750;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(2.4rem, 7vw, 5.4rem);
+        line-height: 0.98;
+        letter-spacing: 0;
+      }
+
+      .lede {
+        margin: 22px 0 0;
+        color: var(--muted);
+        font-size: 1.14rem;
+      }
+
+      blockquote {
+        margin: 32px 0 0;
+        padding: 20px 22px;
+        border-left: 3px solid var(--blue);
+        background: var(--paper);
+        font-size: 1.12rem;
+        font-weight: 700;
+      }
+
+      section {
+        margin-top: 48px;
+      }
+
+      section > h2 {
+        margin: 0 0 8px;
+        font-size: 1.45rem;
+      }
+
+      section > p {
+        max-width: 720px;
+        margin: 0;
+        color: var(--muted);
+      }
+
+      .principles,
+      .stages,
+      .future-grid {
+        display: grid;
+        gap: 14px;
+        margin: 24px 0 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .principles {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .principle,
+      .stage,
+      .future-item {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--paper);
+      }
+
+      .principle {
+        padding: 22px;
+      }
+
+      .principle h3,
+      .stage h3,
+      .future-item h3 {
+        margin: 0 0 7px;
+        font-size: 1rem;
+      }
+
+      .principle p,
+      .stage p,
+      .future-item p {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      .stage {
+        display: grid;
+        grid-template-columns: 42px 1fr;
+        gap: 16px;
+        padding: 22px;
+      }
+
+      .number {
+        display: grid;
+        place-items: center;
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        color: white;
+        background: var(--blue);
+        font-weight: 800;
+      }
+
+      .stage ul {
+        margin: 12px 0 0;
+        padding-left: 20px;
+        color: var(--muted);
+      }
+
+      .stage li {
+        margin: 5px 0;
+      }
+
+      .status {
+        display: inline-block;
+        margin-bottom: 8px;
+        color: var(--blue);
+        font-size: 0.78rem;
+        font-weight: 750;
+        text-transform: uppercase;
+      }
+
+      .future {
+        padding-top: 40px;
+        border-top: 1px solid var(--line);
+      }
+
+      .future-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .future-item {
+        padding: 20px;
+        background: var(--future);
+      }
+
+      .rules {
+        padding: 24px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--blue-soft);
+      }
+
+      .rules ul {
+        margin: 14px 0 0;
+        padding-left: 20px;
+      }
+
+      footer {
+        margin-top: 52px;
+        color: var(--muted);
+        font-size: 0.92rem;
+      }
+
+      code {
+        color: var(--ink);
+      }
+
+      @media (max-width: 680px) {
+        main {
+          width: min(100% - 24px, 960px);
+          padding-top: 40px;
+        }
+
+        .principles,
+        .future-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .stage {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">Inner Voice V2 / Design Track</p>
+        <h1>Make ideas feel worth returning to.</h1>
+        <p class="lede">
+          V1 proved the system: private notes, search, AI recall, persistence,
+          logs, backups, and tests. V2 changes how the same ideas are felt and
+          explored. This is a side workflow; the original build stages remain
+          in <code>inner-voice.html</code>.
+        </p>
+        <blockquote>
+          Connect with your ideas instead of writing them down and leaving them
+          behind.
+        </blockquote>
+      </header>
+
+      <section>
+        <h2>Current Product Direction</h2>
+        <p>
+          This is not a general notebook, task manager, shopping list, bookmark
+          archive, or read-later inbox. It is a private place for your own ideas
+          and meaningful ideas discovered elsewhere.
+        </p>
+
+        <div class="principles">
+          <article class="principle">
+            <h3>Ideas feel valuable</h3>
+            <p>
+              Each idea should stand on the page like gold without using literal
+              gold, glass cases, frames, or museum decoration.
+            </p>
+          </article>
+          <article class="principle">
+            <h3>Soft summer atmosphere</h3>
+            <p>
+              Air, blue daylight, gentle motion, quiet depth, and spacious
+              composition should make browsing feel light and alive.
+            </p>
+          </article>
+          <article class="principle">
+            <h3>Low cognitive load</h3>
+            <p>
+              Show fewer ideas, reduce permanent controls, and avoid dashboard
+              density, instructional copy, and feature explanations.
+            </p>
+          </article>
+          <article class="principle">
+            <h3>Reconnection before organization</h3>
+            <p>
+              Resurface forgotten ideas and support rough-memory search. The user
+              should not spend time building folders or manually categorizing.
+            </p>
+          </article>
+          <article class="principle">
+            <h3>Alive but unhurried</h3>
+            <p>
+              Hover and cycling may shift light, clarity, or depth. Avoid bounce,
+              dramatic scaling, glowing effects, and attention-seeking motion.
+            </p>
+          </article>
+          <article class="principle">
+            <h3>Private by default</h3>
+            <p>
+              The collection remains personal. Later sharing must expose only
+              the explicitly chosen idea or result.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <h2>Active V2 Workflow</h2>
+        <p>
+          Plan and iterate only on the idea collection redesign. Preserve the
+          working product behavior while testing several visual directions.
+        </p>
+
+        <ol class="stages">
+          <li class="stage">
+            <span class="number">1</span>
+            <div>
+              <span class="status">Done</span>
+              <h3>Design Principles With Fable And Claude</h3>
+              <p>
+                Turn the emotional direction into a shared, inspectable design
+                brief before producing screens.
+              </p>
+              <ul>
+                <li>define visual hierarchy, density, movement, type, and palette</li>
+                <li>collect references for feeling, not direct copying</li>
+                <li>define what the interface must never feel like</li>
+              </ul>
+            </div>
+          </li>
+          <li class="stage">
+            <span class="number">2</span>
+            <div>
+              <span class="status">Done</span>
+              <h3>Explore Distinct Directions</h3>
+              <p>
+                Create several meaningfully different collection screens before
+                selecting a visual system.
+              </p>
+              <ul>
+                <li>use real idea text and realistic content lengths</li>
+                <li>keep search, recall, create, edit, and delete discoverable</li>
+                <li>compare atmosphere, clarity, and desire to explore</li>
+              </ul>
+            </div>
+          </li>
+          <li class="stage">
+            <span class="number">3</span>
+            <div>
+              <span class="status">Done</span>
+              <h3>Prototype The Chosen Direction</h3>
+              <p>
+                Build a disposable interactive version to test composition,
+                hover response, resurfacing, and responsive behavior.
+              </p>
+              <ul>
+                <li>do not connect it to production data yet</li>
+                <li>test desktop and mobile with screenshots</li>
+                <li>remove effects that distract from idea text</li>
+              </ul>
+            </div>
+          </li>
+          <li class="stage">
+            <span class="number">4</span>
+            <div>
+              <span class="status">Done</span>
+              <h3>Validate The Experience</h3>
+              <p>
+                Use the prototype with a realistic collection and judge the
+                product by behavior, not by a single attractive screenshot.
+              </p>
+              <ul>
+                <li>can a user understand the page without explanation?</li>
+                <li>do old ideas invite reconnection?</li>
+                <li>can the user browse without feeling overwhelmed?</li>
+                <li>do controls remain usable without dominating the page?</li>
+              </ul>
+            </div>
+          </li>
+          <li class="stage">
+            <span class="number">5</span>
+            <div>
+              <span class="status">Done</span>
+              <h3>Replace The Current Collection UI</h3>
+              <p>
+                Implement the approved visual system around existing product
+                capabilities without changing backend behavior or data shape.
+              </p>
+              <ul>
+                <li>preserve authentication and note persistence</li>
+                <li>preserve create, read, edit, delete, search, and AI recall</li>
+                <li>verify the complete workflow and rerun existing tests</li>
+              </ul>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Signature Interaction: The Living Field</h2>
+        <p>
+          Ideas are living intellectual objects that awaken when approached.
+          This interaction system, not decoration, should make the collection
+          feel valuable, responsive, and unique to this product.
+        </p>
+
+        <div class="principles">
+          <article class="principle">
+            <h3>Rest</h3>
+            <p>
+              Ideas wait quietly across a spacious, continuous field. They are
+              readable and distinct without becoming uniform cards or rows.
+            </p>
+          </article>
+          <article class="principle">
+            <h3>Approach</h3>
+            <p>
+              As the pointer approaches, an idea gains clarity, reveals more of
+              itself, and receives slightly more space. Nearby ideas yield
+              without becoming hidden.
+            </p>
+          </article>
+          <article class="principle">
+            <h3>Hover</h3>
+            <p>
+              The idea fully awakens: text reaches full contrast, quiet context
+              appears, and one clear open affordance becomes visible. Avoid
+              bounce, glow, dramatic scale, and ornamental movement.
+            </p>
+          </article>
+          <article class="principle">
+            <h3>Open</h3>
+            <p>
+              The selected idea expands in its existing place while the rest of
+              the field recedes. Full content and secondary actions appear
+              without navigating to a generic detail page.
+            </p>
+          </article>
+          <article class="principle">
+            <h3>Search And Recall</h3>
+            <p>
+              Relevant ideas gather into focus while unrelated ideas recede.
+              Clearing the query restores the previous field and scroll
+              position.
+            </p>
+          </article>
+          <article class="principle">
+            <h3>Scroll</h3>
+            <p>
+              Ideas enter through controlled spatial rhythm. Partial ideas near
+              viewport edges create curiosity, while motion remains calm,
+              interruptible, and accessible.
+            </p>
+          </article>
+        </div>
+
+        <blockquote>
+          An idea should feel collectible, touchable, and alive before the user
+          studies every control.
+        </blockquote>
+      </section>
+
+      <section class="rules">
+        <h2>Scope Guardrails</h2>
+        <ul>
+          <li>“Museum” is a metaphor for value, not a literal visual theme.</li>
+          <li>The temporary product name is <strong>Idea Store</strong>.</li>
+          <li>Do not build the Chrome extension during this design workflow.</li>
+          <li>Do not build Idea Rooms, voice, game levels, or sharing yet.</li>
+          <li>Do not redesign backend architecture while testing visual ideas.</li>
+          <li>Do not accept one mockup as the answer; iterate and compare.</li>
+          <li>
+            Do not confuse premium design with serif type, empty space, or
+            decorative atmosphere alone.
+          </li>
+        </ul>
+      </section>
+
+      <section class="future">
+        <h2>Future Vision Archive</h2>
+        <p>
+          These ideas are intentionally preserved but deferred. They must not
+          expand the current redesign slice.
+        </p>
+
+        <div class="future-grid">
+          <article class="future-item">
+            <h3>One-click idea capture</h3>
+            <p>
+              Highlight text on the web, right-click, and save it with source
+              metadata. Never save an entire page as a bookmark.
+            </p>
+          </article>
+          <article class="future-item">
+            <h3>Automatic understanding</h3>
+            <p>
+              AI creates titles, tags, categories, and relationships without
+              asking the user to organize the collection manually.
+            </p>
+          </article>
+          <article class="future-item">
+            <h3>Immersive Idea Rooms</h3>
+            <p>
+              A dark, full-screen journey lets one idea develop through
+              continuous cinematic scenes and saved progress.
+            </p>
+          </article>
+          <article class="future-item">
+            <h3>Creative guide</h3>
+            <p>
+              An initially quiet AI presence asks one short question at a time.
+              Optional avatars and voice may later reduce loneliness.
+            </p>
+          </article>
+          <article class="future-item">
+            <h3>Living decision patterns</h3>
+            <p>
+              User choices quietly form a hidden visual structure. The journey
+              stays non-technical and avoids forms, specifications, and jargon.
+            </p>
+          </article>
+          <article class="future-item">
+            <h3>Possible futures</h3>
+            <p>
+              The room may explore current trends, idea synergy, needs,
+              simulations, objections, and alternative directions.
+            </p>
+          </article>
+          <article class="future-item">
+            <h3>Final reveal</h3>
+            <p>
+              Completing a journey produces an emotional visual result that
+              helps the user imagine the product, not a technical build spec.
+            </p>
+          </article>
+          <article class="future-item">
+            <h3>Intentional sharing</h3>
+            <p>
+              Everything remains private unless the user explicitly shares one
+              chosen idea or completed result.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <footer>
+        V2 collection redesign complete. Next checkpoint: use the redesigned
+        product before choosing another feature or design iteration.
+      </footer>
+    </main>
+  </body>
+</html>
