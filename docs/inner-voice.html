@@ -453,9 +453,9 @@
 
         <li class="stage">
           <div>
-            <label class="stageStatus">
-              <input type="checkbox" disabled />
-              In progress - 3 tests
+            <label class="stageStatus done">
+              <input type="checkbox" checked disabled />
+              Done - 10 tests
             </label>
             <h2>Tests Slice</h2>
             <p>Add 5-10 targeted tests.</p>
@@ -463,10 +463,10 @@
             <ul>
               <li>password validation and session tampering - done</li>
               <li>protected note creation route - done</li>
-              <li>create note</li>
-              <li>search</li>
-              <li>AI retrieval input construction</li>
-              <li>backup command or documented restore path if practical</li>
+              <li>create, edit, and delete notes - done</li>
+              <li>search and SQL wildcard escaping - done</li>
+              <li>AI retrieval input and output safety - done</li>
+              <li>backup integrity and copied note count - done</li>
             </ul>
           </div>
         </li>
@@ -541,7 +541,7 @@
       </section>
 
       <footer>
-        Next checkpoint: Tests Slice 10.2. Add isolated SQLite tests for notes and search.
+        Next checkpoint: Deployment Slice. Prepare the VPS, secrets, process, domain, logs, and scheduled backups.
       </footer>
     </main>
   </body>

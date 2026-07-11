@@ -10,7 +10,7 @@ Keep this document factual and short. Update it only after decisions are stable.
 - AI: OpenAI Responses API for rough-memory note lookup, defaulting to `gpt-5.4-mini`
 - Logging: structured JSON stdout/stderr logs with metadata only
 - Backup: manual verified SQLite backup through `npm run backup`, stored locally in ignored `backups/`
-- Tests: Vitest running focused server-side tests in Node
+- Tests: 10 focused Vitest tests covering auth, notes, search, AI boundaries, and backup; database tests use temporary SQLite files
 - Deployment: Hetzner VPS, reached through Tailscale for admin access and Cloudflare Tunnel for web traffic
 
 ## Boundaries

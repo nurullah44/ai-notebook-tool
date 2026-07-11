@@ -9,7 +9,7 @@ Stable facts future Codex sessions should remember. Keep short.
 - Audience: founder-only V1
 - Real problem: user remembers rough shape of ideas but not exact note wording or location
 - Smallest useful version: login, create/read/edit/delete notes, search notes, ask AI about own notes, logs, backups, targeted tests, deployment notes
-- Current stage: Prototype; Tests Slice is in progress with 3 auth-foundation tests passing.
+- Current stage: Prototype; Tests Slice is done with 10 targeted tests passing. Next planned stage is Deployment Slice.
 
 ## Learning Goal
 
@@ -31,10 +31,10 @@ Follow `docs/inner-voice.html` as the stage map.
 7. AI Question Slice - done
 8. Logging Slice - done
 9. Backup Slice - done
-10. Tests Slice - in progress
+10. Tests Slice - done
    - auth foundation: password, signed-session tampering, and unauthenticated note creation - done
-   - notes/search tests - planned
-   - AI/backup tests - planned
+   - notes/search tests using temporary SQLite - done
+   - AI request/output safety and backup integrity tests - done
 
 ## Stack Decisions
 
@@ -76,7 +76,7 @@ Use `better-sqlite3` with plain SQL and one SQLite file. DB code stays server-on
 - AI Recall V1 non-goals: no whole-notebook dump, no LLM tool calling, no vector database, no chat history, no streaming, no advisor behavior yet
 - Styling: CSS modules with calm blue visual direction
 - Validation: server routes validate private inputs even if browser fields also validate
-- Testing: `npm test` runs Vitest; 3 auth-foundation tests currently pass
+- Testing: `npm test` runs 10 Vitest tests; database and backup tests use temporary SQLite files; AI tests use fake fetch responses and no real API key
 - Error handling: wrong login and empty note use redirect query states
 - AI calls: `POST /api/ai/recall` uses local keyword retrieval first, then OpenAI Responses API with structured JSON output when `OPENAI_API_KEY` exists; without a key it returns local matches
 
