@@ -14,6 +14,7 @@ export type CurrentNote = {
 export type RecentNote = {
   id: string;
   title: string;
+  body: string;
   updatedAt: string;
   updatedAtLabel: string;
 };
@@ -105,6 +106,7 @@ function toRecentNote(row: NoteRow): RecentNote {
   return {
     id: row.id,
     title: row.title || "Untitled note",
+    body: row.body,
     updatedAt: row.updated_at,
     updatedAtLabel: formatUpdatedAt(row.updated_at),
   };

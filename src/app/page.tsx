@@ -19,7 +19,7 @@ export default async function Home({ searchParams }: HomeProps) {
   const noteError =
     params.error === "empty-note" ? "Write something before saving." : undefined;
   const searchQuery = typeof params.q === "string" ? params.q.trim() : "";
-  const notes = searchQuery ? searchNotes(searchQuery) : listRecentNotes();
+  const notes = searchQuery ? searchNotes(searchQuery, 100) : listRecentNotes(100);
 
   return (
     <NotebookShell

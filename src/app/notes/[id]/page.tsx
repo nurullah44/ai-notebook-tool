@@ -35,7 +35,7 @@ export default async function NotePage({ params, searchParams }: NotePageProps) 
       currentNote={note}
       mode={mode}
       noteError={noteError}
-      recentNotes={listRecentNotes()}
+      recentNotes={listRecentNotes(100)}
     />
   );
 }

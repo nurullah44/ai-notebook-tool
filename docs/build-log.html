@@ -881,6 +881,43 @@
           <li>No production VPS restore drill or scheduled backup exists yet.</li>
         </ul>
       </article>
+      <article>
+        <h2>V2 Design: Idea Store Collection</h2>
+
+        <h3>Concept</h3>
+        <p>
+          A frontend can change the product's meaning without changing its
+          persistence architecture. Notes now appear as ideas to revisit rather
+          than rows to manage.
+        </p>
+
+        <h3>What Changed</h3>
+        <ul>
+          <li>Renamed the visible product from AI Notebook to Idea Store.</li>
+          <li>Replaced the old shell with three title-first, flippable idea cards.</li>
+          <li>Added fullscreen keyword/AI search and title/explanation composer overlays.</li>
+          <li>Kept existing create, read, edit, delete, auth, search, and AI routes.</li>
+          <li>Added responsive layouts, reduced-motion behavior, and keyboard card flipping.</li>
+          <li>Strengthened edit/delete visibility, added explicit keyword and AI submit controls, and made every button respond on hover.</li>
+          <li>Separated create and edit state so New Idea is always empty, then expanded the plain-text composer into a full-page editor with word count.</li>
+          <li>Removed automatic 30-second idea rotation; the future whole-collection journey remains a product decision.</li>
+          <li>Fixed review findings so short pages can reveal more ideas and nested card actions remain keyboard-accessible.</li>
+        </ul>
+
+        <h3>System Lesson</h3>
+        <p>
+          The database still stores <code>title</code> and <code>body</code>.
+          The frontend simply interprets them as an idea title and explanation.
+          This is a presentation redesign, not a data migration.
+        </p>
+
+        <h3>How It Was Verified</h3>
+        <ul>
+          <li>Used the real browser to test login, card flip, explanation visibility, keyword search, and the composer.</li>
+          <li>Removed invalid nested controls after browser testing exposed a hydration error.</li>
+          <li>Ran lint, production build, and all 10 existing tests.</li>
+        </ul>
+      </article>
     </main>
   </body>
 </html>

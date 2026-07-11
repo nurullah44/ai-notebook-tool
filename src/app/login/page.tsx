@@ -20,10 +20,10 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     <main className={styles.loginPage}>
       <section className={styles.loginPanel} aria-labelledby="login-title">
         <div className={styles.brandMark} aria-hidden="true">
-          N
+          IS
         </div>
-        <h1 id="login-title">AI Notebook</h1>
-        <p>Enter your private notebook password.</p>
+        <h1 id="login-title">Idea Store</h1>
+        <p>Enter your private idea collection.</p>
 
         <form action="/api/login" method="post" className={styles.loginForm}>
           <label htmlFor="password">Password</label>
@@ -40,7 +40,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               Wrong password. Try again.
             </p>
           ) : null}
-          <button type="submit">Enter notebook</button>
+          <button type="submit">Enter Idea Store</button>
         </form>
       </section>
     </main>

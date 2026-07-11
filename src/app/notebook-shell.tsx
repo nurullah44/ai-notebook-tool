@@ -1,42 +1,20 @@
 "use client";
 
 import {
-  ArrowClockwise,
-  ArrowsOutSimple,
-  Check,
-  DotsThree,
-  FileText,
-  Feather,
-  Gear,
-  Hash,
+  ArrowRight,
+  ArrowsClockwise,
   MagnifyingGlass,
-  Paperclip,
   PencilSimple,
   Plus,
   SignOut,
-  SidebarSimple,
   Sparkle,
-  Tag,
   Trash,
-  UserCircle,
   X,
 } from "@phosphor-icons/react";
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent, type KeyboardEvent, type MouseEvent } from "react";
 import type { CurrentNote, RecentNote } from "@/lib/notes";
 import styles from "./page.module.css";
-
-const navItems = [
-  { label: "Notes", icon: FileText, active: true, href: "/" },
-  { label: "AI Recall", icon: Sparkle },
-  { label: "Settings", icon: Gear },
-];
-
-const recallExamples = [
-  "That idea about...",
-  "What did I think about...",
-  "Find the note about...",
-];
 
 type NotebookShellProps = {
   currentNote?: CurrentNote;
@@ -52,26 +30,8 @@ type RecallMatch = {
   reason: string;
 };
 
-type RecallResult = {
-  answer: string;
-  matches: RecallMatch[];
-};
-
-function countWords(value: string) {
-  return value.trim().split(/\s+/).filter(Boolean).length;
-}
-
-function isRecallMatch(value: unknown): value is RecallMatch {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "noteId" in value &&
-    "title" in value &&
-    "reason" in value &&
-    typeof value.noteId === "string" &&
-    typeof value.title === "string" &&
-    typeof value.reason === "string"
-  );
+function stopOverlayClose(event: MouseEvent<HTMLElement>) {
+  event.stopPropagation();
 }
 
 export default function NotebookShell({
@@ -81,403 +41,226 @@ export default function NotebookShell({
   recentNotes,
   searchQuery = "",
 }: NotebookShellProps) {
-  const [isCreatingNote, setIsCreatingNote] = useState(Boolean(noteError));
-  const [openRecentActionId, setOpenRecentActionId] = useState<string | null>(null);
-  const [recallQuestion, setRecallQuestion] = useState("");
-  const [recallResult, setRecallResult] = useState<RecallResult | null>(null);
+  const ideas = useMemo(() => {
+    if (!currentNote || recentNotes.some((note) => note.id === currentNote.id)) return recentNotes;
+    return [
+      {
+        id: currentNote.id,
+        title: currentNote.title || "Untitled idea",
+        body: currentNote.body,
+        updatedAt: currentNote.updatedAt,
+        updatedAtLabel: "Selected idea",
+      },
+      ...recentNotes,
+    ];
+  }, [currentNote, recentNotes]);
+  const selectedIndex = currentNote ? Math.max(0, ideas.findIndex((idea) => idea.id === currentNote.id)) : 0;
+  const batchStart = selectedIndex;
+  const [visibleCount, setVisibleCount] = useState(3);
+  const [flipped, setFlipped] = useState<Set<string>>(
+    () => new Set(currentNote && mode === "read" ? [currentNote.id] : []),
+  );
+  const [searchOpen, setSearchOpen] = useState(Boolean(searchQuery));
+  const [searchMode, setSearchMode] = useState<"keyword" | "ai">("keyword");
+  const [query, setQuery] = useState(searchQuery);
+  const [composerOpen, setComposerOpen] = useState(Boolean(noteError) || mode === "edit");
+  const [composerPurpose, setComposerPurpose] = useState<"create" | "edit">(
+    currentNote && mode === "edit" ? "edit" : "create",
+  );
+  const [draftBody, setDraftBody] = useState(currentNote && mode === "edit" ? currentNote.body : "");
+  const [recallMatches, setRecallMatches] = useState<RecallMatch[]>([]);
   const [recallError, setRecallError] = useState<string | null>(null);
   const [isRecalling, setIsRecalling] = useState(false);
-  const isExistingNote = Boolean(currentNote);
-  const isEditingNote = isExistingNote && mode === "edit";
-  const isReadingNote = isExistingNote && !isEditingNote;
-  const showEditor = isExistingNote || isCreatingNote || Boolean(noteError);
-  const formAction = currentNote ? `/api/notes/${currentNote.id}` : "/api/notes";
-  const heading = isEditingNote ? "Edit Note" : isReadingNote ? "Saved Note" : "New Note";
-  const statusText = isEditingNote
-    ? "Editing draft"
-    : isReadingNote
-      ? "Saved note"
-      : "Draft until saved";
-  const hasSearchQuery = searchQuery.length > 0;
-  const notesSectionTitle = hasSearchQuery ? "Search results" : "Recent notes";
-  const emptyNotesMessage = hasSearchQuery ? "No matching notes" : "No saved notes yet";
-  const wordCount = currentNote ? countWords(currentNote.body) : 0;
-  const resetHomeUi = () => {
-    setIsCreatingNote(false);
-    setOpenRecentActionId(null);
-  };
-  const handleRecallSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
 
-    const question = recallQuestion.trim();
+  const orderedIdeas = useMemo(
+    () => [...ideas.slice(batchStart), ...ideas.slice(0, batchStart)],
+    [ideas, batchStart],
+  );
+  const visibleIdeas = orderedIdeas.slice(0, visibleCount);
 
-    if (!question) {
-      setRecallError("Write a rough memory first.");
-      setRecallResult(null);
-      return;
+  useEffect(() => {
+    function loadNearBottom() {
+      const nearBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 100;
+      if (nearBottom) {
+        setVisibleCount((current) => Math.min(current + 3, ideas.length));
+      }
     }
+    window.addEventListener("scroll", loadNearBottom, { passive: true });
+    return () => window.removeEventListener("scroll", loadNearBottom);
+  }, [ideas.length]);
 
+  function closeSearch() {
+    setSearchOpen(false);
+    setQuery("");
+    setRecallMatches([]);
+    setRecallError(null);
+  }
+
+  function openNewIdea() {
+    setComposerPurpose("create");
+    setDraftBody("");
+    setComposerOpen(true);
+  }
+
+  function flipIdea(id: string) {
+    setFlipped((current) => {
+      const next = new Set(current);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function handleCardKeyDown(event: KeyboardEvent<HTMLDivElement>, id: string) {
+    if (event.target !== event.currentTarget) return;
+
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      flipIdea(id);
+    }
+  }
+
+  async function handleAiSearch(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const question = query.trim();
+    if (!question) return;
     setIsRecalling(true);
     setRecallError(null);
-
     try {
       const response = await fetch("/api/ai/recall", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question }),
       });
-      const payload = (await response.json()) as {
-        answer?: unknown;
-        error?: unknown;
-        matches?: unknown;
-      };
-
-      if (!response.ok) {
-        setRecallError(typeof payload.error === "string" ? payload.error : "Recall failed.");
-        setRecallResult(null);
-        return;
-      }
-
-      if (typeof payload.answer !== "string" || !Array.isArray(payload.matches)) {
-        throw new Error("Invalid recall response.");
-      }
-
-      setRecallResult({
-        answer: payload.answer,
-        matches: payload.matches.filter(isRecallMatch),
-      });
-    } catch {
-      setRecallError("Recall failed.");
-      setRecallResult(null);
+      const payload = (await response.json()) as { error?: unknown; matches?: unknown };
+      if (!response.ok) throw new Error(typeof payload.error === "string" ? payload.error : "AI search failed.");
+      if (!Array.isArray(payload.matches)) throw new Error("AI search returned an invalid result.");
+      setRecallMatches(payload.matches.slice(0, 3) as RecallMatch[]);
+    } catch (error) {
+      setRecallMatches([]);
+      setRecallError(error instanceof Error ? error.message : "AI search failed.");
     } finally {
       setIsRecalling(false);
     }
-  };
+  }
 
   return (
-    <main className={styles.appShell}>
-      <aside className={styles.sidebar} aria-label="Notebook navigation">
-        <Link
-          className={styles.logo}
-          href="/"
-          aria-label="AI Notebook home"
-          onClick={resetHomeUi}
-        >
-          <span>
-            <Feather size={28} weight="fill" />
-          </span>
+    <main className={styles.page}>
+      <header className={styles.header}>
+        <Link className={styles.brand} href="/" aria-label="Idea Store home">
+          <span>IS</span>
+          <strong>Idea Store</strong>
         </Link>
-
-        <nav className={styles.navList}>
-          {navItems.map((item) => {
-            const Icon = item.icon;
-
-            return item.href ? (
-              <Link
-                className={`${styles.navItem} ${item.active ? styles.navItemActive : ""}`}
-                href={item.href}
-                key={item.label}
-                onClick={resetHomeUi}
-              >
-                <Icon size={24} weight={item.active ? "duotone" : "regular"} />
-                <span>{item.label}</span>
-              </Link>
-            ) : (
-              <button
-                className={`${styles.navItem} ${item.active ? styles.navItemActive : ""}`}
-                key={item.label}
-                type="button"
-              >
-                <Icon size={24} weight={item.active ? "duotone" : "regular"} />
-                <span>{item.label}</span>
-              </button>
-            );
-          })}
-        </nav>
-
-        <div className={styles.sidebarFooter}>
-          <form action="/api/logout" method="post" className={styles.logoutForm}>
-            <button className={styles.logoutButton} type="submit">
-              <SignOut size={24} />
-              <span>Logout</span>
-            </button>
+        <button className={styles.searchLauncher} type="button" onClick={() => setSearchOpen(true)}>
+          <MagnifyingGlass />
+          <span>Search your ideas</span>
+          <Sparkle weight="fill" />
+        </button>
+        <div className={styles.headerMeta}>
+          <span>{ideas.length} ideas</span>
+          <form action="/api/logout" method="post">
+            <button type="submit" aria-label="Log out"><SignOut /></button>
           </form>
-          <div className={styles.avatar} aria-label="Current user">
-            <UserCircle size={38} weight="duotone" />
-            <span />
+        </div>
+      </header>
+
+      <section className={styles.collectionHeader}>
+        <span>Living collection</span>
+        <h1>Ideas worth returning to.</h1>
+      </section>
+
+      <section className={styles.collection} aria-label="Ideas">
+        {visibleIdeas.length === 0 ? (
+          <p className={styles.emptyCollection}>Your first idea is waiting.</p>
+        ) : visibleIdeas.map((idea, index) => (
+          <article
+            className={`${styles.ideaSlot} ${flipped.has(idea.id) ? styles.isFlipped : ""}`}
+            key={idea.id}
+            style={{ "--delay": `${(index % 3) * 70}ms` } as React.CSSProperties}
+          >
+            <div className={styles.ideaObject} role="button" tabIndex={0} onClick={() => flipIdea(idea.id)} onKeyDown={(event) => handleCardKeyDown(event, idea.id)} aria-label={`Flip idea: ${idea.title}`}>
+              <span className={`${styles.ideaFace} ${styles.ideaFront}`}>
+                <span className={styles.objectNumber}>{String(index + 1).padStart(2, "0")}</span>
+                <strong>{idea.title || "Untitled idea"}</strong>
+                <span className={styles.flipHint}><ArrowsClockwise /> Turn over</span>
+              </span>
+              <span className={`${styles.ideaFace} ${styles.ideaBack}`}>
+                <span className={styles.ideaMeta}><span>Your idea</span><span>{idea.updatedAtLabel}</span></span>
+                <small>Idea</small>
+                <p>{idea.body}</p>
+                <span className={styles.ideaActions}>
+                  <Link href={`/notes/${idea.id}?mode=edit`} onClick={(event) => event.stopPropagation()} aria-label={`Edit ${idea.title}`}><PencilSimple /></Link>
+                  <form action={`/api/notes/${idea.id}/delete`} method="post" onClick={(event) => event.stopPropagation()}>
+                    <button type="submit" aria-label={`Delete ${idea.title}`} onClick={(event) => { if (!window.confirm("Delete this idea?")) event.preventDefault(); }}><Trash /></button>
+                  </form>
+                </span>
+                <span className={styles.flipHint}><ArrowsClockwise /> Return to title</span>
+              </span>
+            </div>
+          </article>
+        ))}
+        {ideas.length > 3 ? <div className={styles.loadMarker}><span>{visibleCount < ideas.length ? "Scroll for the next three" : "You reached the current beginning."}</span></div> : null}
+      </section>
+
+      <button className={styles.createButton} type="button" onClick={openNewIdea} aria-label="Create an idea"><Plus weight="bold" /></button>
+
+      {searchOpen ? (
+        <div className={styles.overlay} onMouseDown={closeSearch}>
+          <button className={styles.closeOverlay} type="button" onClick={closeSearch} aria-label="Close search"><X /></button>
+          <div className={styles.searchStage} onMouseDown={stopOverlayClose}>
+            <form className={`${styles.expandedSearch} ${searchMode === "ai" ? styles.aiMode : ""}`} action={searchMode === "keyword" ? "/" : undefined} method="get" onSubmit={searchMode === "ai" ? handleAiSearch : undefined}>
+              <button className={styles.searchSubmit} type="submit" aria-label={searchMode === "ai" ? "Run AI search" : "Run keyword search"}>
+                {searchMode === "ai" ? <Sparkle weight="fill" /> : <MagnifyingGlass />}
+              </button>
+              <input autoFocus value={query} onChange={(event) => setQuery(event.target.value)} name="q" placeholder={searchMode === "ai" ? "Describe the idea you half remember..." : "Search exact words in your ideas..."} />
+              <button type="button" className={styles.modeButton} onClick={() => { setSearchMode((value) => value === "ai" ? "keyword" : "ai"); setRecallMatches([]); }}>
+                {searchMode === "ai" ? <><MagnifyingGlass /> Keyword</> : <><Sparkle weight="fill" /> Ask AI</>}
+              </button>
+            </form>
+            <p className={styles.searchModeLabel}>{searchMode === "ai" ? "AI finds the three closest meanings" : "Keyword search checks exact title and text"}</p>
+            <div className={styles.searchResults}>
+              {searchMode === "keyword" && searchQuery ? visibleIdeas.slice(0, 3).map((idea) => (
+                <Link href={`/notes/${idea.id}`} key={idea.id}><span>Exact match</span><strong>{idea.title}</strong><ArrowRight /></Link>
+              )) : null}
+              {recallMatches.map((match) => (
+                <Link href={`/notes/${match.noteId}`} key={match.noteId}><span>{match.reason}</span><strong>{match.title}</strong><ArrowRight /></Link>
+              ))}
+              {isRecalling ? <p className={styles.searchMessage}>Searching your ideas...</p> : null}
+              {recallError ? <p className={styles.searchMessage} role="alert">{recallError}</p> : null}
+              {searchQuery && ideas.length === 0 ? <p className={styles.searchMessage}>No matching idea found.</p> : null}
+            </div>
           </div>
         </div>
-      </aside>
+      ) : null}
 
-      {showEditor ? (
-        <form
-          action={formAction}
-          method="post"
-          className={styles.editorPane}
-          aria-label={isReadingNote ? "Saved note reader" : "Note editor"}
-        >
-          <header className={styles.editorTopbar}>
-            <h1>{heading}</h1>
-
-            <div className={styles.editorActions}>
-              <button className={styles.iconButton} type="button" aria-label="More actions">
-                <DotsThree size={24} weight="bold" />
-              </button>
-              <span className={styles.actionDivider} />
-              <button className={styles.layoutButton} type="button" aria-label="Toggle panels">
-                <SidebarSimple size={22} />
-              </button>
-              {isReadingNote && currentNote ? (
-                <button
-                  className={styles.deleteButton}
-                  type="submit"
-                  formAction={`/api/notes/${currentNote.id}/delete`}
-                  formNoValidate
-                  onClick={(event) => {
-                    if (!window.confirm("Delete this note?")) {
-                      event.preventDefault();
-                    }
-                  }}
-                >
-                  <Trash size={18} weight="bold" />
-                  <span>Delete</span>
-                </button>
-              ) : null}
-              {isReadingNote && currentNote ? (
-                <Link className={styles.secondaryButton} href={`/notes/${currentNote.id}?mode=edit`}>
-                  <PencilSimple size={18} weight="bold" />
-                  <span>Edit</span>
-                </Link>
-              ) : null}
-              {isEditingNote && currentNote ? (
-                <Link className={styles.secondaryButton} href={`/notes/${currentNote.id}`}>
-                  <X size={18} weight="bold" />
-                  <span>Cancel</span>
-                </Link>
-              ) : null}
-              {isReadingNote ? null : (
-                <button className={styles.saveButton} type="submit">
-                  <Check size={18} weight="bold" />
-                  <span>{isEditingNote ? "Save changes" : "Save"}</span>
-                </button>
-              )}
-              <p className={styles.savedStatus}>
-                <span />
-                {statusText}
-              </p>
-            </div>
-          </header>
-
-          <section className={styles.editorCard}>
-            {noteError ? (
-              <p className={styles.noteError} role="alert">
-                {noteError}
-              </p>
-            ) : null}
-            <input
-              className={styles.titleInput}
-              aria-label="Note title"
-              name="title"
-              placeholder="Note title (optional)"
-              defaultValue={currentNote?.title}
-              readOnly={isReadingNote}
-            />
-
-            <div className={styles.bodyFrame}>
-              <textarea
-                className={styles.bodyInput}
-                aria-label="Note body"
-                name="body"
-                placeholder="Start writing your thoughts..."
-                defaultValue={currentNote?.body}
-                readOnly={isReadingNote}
-                required={!isReadingNote}
-              />
-
-              <footer className={styles.editorToolbar}>
-                <div className={styles.toolbarGroup}>
-                  <button type="button" aria-label="Tags">
-                    <Tag size={22} />
-                  </button>
-                  <button type="button" aria-label="Heading">
-                    <Hash size={22} />
-                  </button>
-                  <button type="button" aria-label="Attach file">
-                    <Paperclip size={22} />
-                  </button>
-                </div>
-
-                <div className={styles.toolbarGroup}>
-                  <span>{isReadingNote ? `${wordCount} words` : "Plain text"}</span>
-                  <button type="button" aria-label="Undo">
-                    <ArrowClockwise size={20} className={styles.undoIcon} />
-                  </button>
-                  <button type="button" aria-label="Redo">
-                    <ArrowClockwise size={20} />
-                  </button>
-                  <button type="button" aria-label="Expand">
-                    <ArrowsOutSimple size={20} />
-                  </button>
-                </div>
+      {composerOpen ? (
+        <div className={`${styles.overlay} ${styles.editorWorld}`} onMouseDown={() => setComposerOpen(false)}>
+          <form
+            className={styles.composer}
+            action={composerPurpose === "edit" && currentNote ? `/api/notes/${currentNote.id}` : "/api/notes"}
+            method="post"
+            onMouseDown={stopOverlayClose}
+            key={`${composerPurpose}-${composerPurpose === "edit" ? currentNote?.id : "new"}`}
+          >
+            <header className={styles.composerHeader}>
+              <span>{composerPurpose === "edit" ? "Edit idea" : "New idea"}</span>
+              <div>
+                <button className={styles.editorCancel} type="button" onClick={() => setComposerOpen(false)}>Cancel</button>
+                <button className={styles.editorSave} type="submit">{composerPurpose === "edit" ? "Save idea" : "Keep idea"} <ArrowRight /></button>
+              </div>
+            </header>
+            {noteError ? <p className={styles.formError} role="alert">Write an explanation before saving.</p> : null}
+            <div className={styles.writingSurface}>
+              <input autoFocus name="title" defaultValue={composerPurpose === "edit" ? currentNote?.title : ""} placeholder="Idea title" />
+              <textarea name="body" value={draftBody} onChange={(event) => setDraftBody(event.target.value)} placeholder="Explain the idea..." required />
+              <footer className={styles.editorFooter}>
+                <span>Plain text</span>
+                <span>{draftBody.trim() ? draftBody.trim().split(/\s+/).length : 0} words</span>
               </footer>
             </div>
-          </section>
-        </form>
-      ) : (
-        <section className={styles.startPane} aria-label="Create a note">
-          <button
-            className={styles.createNoteButton}
-            type="button"
-            aria-label="Create new note"
-            onClick={() => setIsCreatingNote(true)}
-          >
-            <Plus size={70} weight="bold" />
-          </button>
-        </section>
-      )}
-
-      <aside className={styles.inspector} aria-label="Search, recent notes, and AI recall">
-        <section className={styles.searchSection}>
-          <h2>Quick search</h2>
-          <form className={styles.searchField} action="/" method="get">
-            <button className={styles.searchButton} type="submit" aria-label="Search notes">
-              <MagnifyingGlass size={24} />
-            </button>
-            <input
-              aria-label="Search notes"
-              defaultValue={searchQuery}
-              key={searchQuery}
-              name="q"
-              placeholder="Search your notes..."
-            />
           </form>
-        </section>
-
-        <section className={styles.recentSection}>
-          <div className={styles.sectionHeader}>
-            <h2>{notesSectionTitle}</h2>
-            {hasSearchQuery ? (
-              <Link href="/">Clear</Link>
-            ) : (
-              <button type="button">View all</button>
-            )}
-          </div>
-
-          <div className={styles.recentList}>
-            {recentNotes.length === 0 ? (
-              <p className={styles.emptyState}>{emptyNotesMessage}</p>
-            ) : (
-              recentNotes.map((note) => (
-                <article
-                  className={`${styles.recentRow} ${
-                    currentNote?.id === note.id ? styles.recentRowActive : ""
-                  }`}
-                  key={note.id}
-                >
-                  <div className={styles.fileIcon}>
-                    <FileText size={18} />
-                  </div>
-                  <h3>
-                    <Link className={styles.recentTitle} href={`/notes/${note.id}`}>
-                      {note.title}
-                    </Link>
-                  </h3>
-                  <time dateTime={note.updatedAt}>{note.updatedAtLabel}</time>
-                  {openRecentActionId === note.id ? (
-                    <form
-                      action={`/api/notes/${note.id}/delete`}
-                      className={styles.recentDeleteForm}
-                      method="post"
-                    >
-                      <button
-                        className={styles.recentDeleteButton}
-                        type="submit"
-                        aria-label={`Delete ${note.title}`}
-                      >
-                        <Trash size={18} weight="bold" />
-                      </button>
-                    </form>
-                  ) : (
-                    <button
-                      type="button"
-                      aria-label={`More actions for ${note.title}`}
-                      onClick={() => setOpenRecentActionId(note.id)}
-                    >
-                      <DotsThree size={20} weight="bold" />
-                    </button>
-                  )}
-                </article>
-              ))
-            )}
-          </div>
-        </section>
-
-        <section className={styles.recallSection}>
-          <div className={styles.recallHeader}>
-            <div>
-              <Sparkle size={22} weight="fill" />
-              <h2>AI rough recall</h2>
-            </div>
-            <button type="button" aria-label="Collapse AI recall">
-              ^
-            </button>
-          </div>
-
-          <form className={styles.recallField} onSubmit={handleRecallSubmit}>
-            <textarea
-              aria-label="AI rough recall"
-              onChange={(event) => setRecallQuestion(event.target.value)}
-              placeholder="What are you trying to recall?"
-              value={recallQuestion}
-            />
-            <button type="submit" aria-label="Ask AI" disabled={isRecalling}>
-              <Sparkle size={18} weight="fill" />
-            </button>
-          </form>
-
-          {recallError ? (
-            <p className={styles.recallError} role="alert">
-              {recallError}
-            </p>
-          ) : null}
-
-          {recallResult ? (
-            <div className={styles.recallResult}>
-              <p>{recallResult.answer}</p>
-              {recallResult.matches.length > 0 ? (
-                <ol>
-                  {recallResult.matches.map((match) => (
-                    <li key={match.noteId}>
-                      <Link href={`/notes/${match.noteId}`}>{match.title}</Link>
-                      <span>{match.reason}</span>
-                    </li>
-                  ))}
-                </ol>
-              ) : null}
-            </div>
-          ) : null}
-
-          <div className={styles.examples}>
-            <p>Try examples</p>
-            <div>
-              {recallExamples.map((example) => (
-                <button
-                  type="button"
-                  key={example}
-                  onClick={() => {
-                    setRecallQuestion(example);
-                    setRecallError(null);
-                  }}
-                >
-                  {example}
-                </button>
-              ))}
-            </div>
-          </div>
-        </section>
-      </aside>
+        </div>
+      ) : null}
     </main>
   );
 }
