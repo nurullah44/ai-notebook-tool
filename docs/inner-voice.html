@@ -432,17 +432,17 @@
 
         <li class="stage">
           <div>
-            <label class="stageStatus">
-              <input type="checkbox" disabled />
-              Not started
+            <label class="stageStatus done">
+              <input type="checkbox" checked disabled />
+              Done
             </label>
             <h2>Backup Slice</h2>
             <p>Add a real backup path.</p>
             <p>For a tiny single-user app, this might be:</p>
             <ul>
-              <li>database dump command</li>
-              <li>scheduled backup</li>
-              <li>restore instructions</li>
+              <li>manual database backup command - done</li>
+              <li>restore instructions - done</li>
+              <li>scheduled backup - deferred to deployment</li>
             </ul>
             <p><span class="label">Success:</span></p>
             <ul>
@@ -541,7 +541,7 @@
       </section>
 
       <footer>
-        Next checkpoint: Backup Slice. Add a real way to copy and restore the SQLite database.
+        Next checkpoint: Tests Slice. Add 5-10 targeted tests around the riskiest paths.
       </footer>
     </main>
   </body>

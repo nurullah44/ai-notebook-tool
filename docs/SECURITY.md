@@ -9,6 +9,7 @@ Prototype
 - One-password auth is required before viewing the notebook
 - Secrets are in environment variables, never committed
 - SQLite database files are ignored by git
+- SQLite backup files are ignored by git and treated as private notebook data
 - Inputs are validated
 - Search uses parameterized SQLite queries
 - Delete note requires authentication and browser confirmation
@@ -34,3 +35,4 @@ Prototype
 - Deleting a note is permanent until backups or revision history exist.
 - AI Recall V1 sends selected private note snippets to OpenAI only after the user explicitly configures `OPENAI_API_KEY`. Requests use `store: false`.
 - Log retention, rotation, and access control are not configured yet. Decide this during VPS deployment.
+- Backup encryption, off-server storage, retention, and access control are not configured yet. Decide these during VPS deployment.

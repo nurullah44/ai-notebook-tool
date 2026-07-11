@@ -29,15 +29,27 @@ Production retention is deferred to the Deployment Slice. On the VPS, these logs
 
 ## Backups
 
-- Database backup method: SQLite file copy/dump, exact command deferred to Backup Slice
-- Backup schedule:
-- Restore test:
-- Deleted notes cannot be restored until backups exist and restore is tested.
+- Run `npm run backup` from the project root.
+- The command reads `SQLITE_DB_PATH`, falling back to `data/notebook.db`.
+- It creates a timestamped file in `backups/`, then runs SQLite's integrity check and reports the copied note count.
+- The `backups/` directory is ignored by git because backup files contain private notebook data.
+- Backup schedule: manual for local development; automate it during the Deployment Slice when the VPS scheduler is chosen.
+
+### Restore Procedure
+
+1. Stop the app so it cannot write to SQLite during restore.
+2. Move the current database file and any matching `-wal` and `-shm` sidecar files into a separate recovery directory. Keep this old file set for investigation.
+3. Confirm no old database, `-wal`, or `-shm` file remains at the configured `SQLITE_DB_PATH` location.
+4. Copy the chosen `backups/notebook-<timestamp>.db` file to the path configured by `SQLITE_DB_PATH`.
+5. Start the app.
+6. Verify login, recent notes, keyword search, and AI recall.
+
+Deleted notes can be restored only from a backup created before the deletion. A local restore test succeeded on 2026-07-11 by copying a backup to a temporary database and verifying integrity and note count without touching the live database.
 
 ## Rollback
 
 - Last known good deploy:
-- Rollback command/process:
+- Rollback command/process: stop the app, restore the previous app release and chosen SQLite backup, restart, then run the verification checklist above.
 
 ## Incident Notes
 

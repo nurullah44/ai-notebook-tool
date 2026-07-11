@@ -686,6 +686,54 @@
           <li>No automated logging test exists yet.</li>
         </ul>
       </article>
+
+      <article>
+        <h2>Step 9.0: Manual SQLite Backup</h2>
+
+        <h3>Concept</h3>
+        <p>
+          Persistence means data survives a refresh. A backup means data can
+          survive database loss, corruption, or an accidental deletion.
+        </p>
+
+        <h3>What Changed</h3>
+        <ul>
+          <li>Added <code>npm run backup</code>.</li>
+          <li>Created timestamped SQLite copies in the ignored <code>backups/</code> directory.</li>
+          <li>Verified each new backup with SQLite's integrity check.</li>
+          <li>Documented the manual restore procedure.</li>
+        </ul>
+
+        <h3>Files Touched</h3>
+        <ul>
+          <li><code>scripts/backup-sqlite.mjs</code>: backup and integrity-check command.</li>
+          <li><code>package.json</code>: exposes the command through npm.</li>
+          <li><code>.gitignore</code>: keeps private backup files out of git.</li>
+          <li><code>docs/OPERATIONS.md</code>: explains backup, restore, and rollback.</li>
+          <li>Architecture, security, deployment, stage map, and project memory docs record the stable decision.</li>
+        </ul>
+
+        <h3>Why This Exists</h3>
+        <p>
+          The SQLite file is currently the notebook's only durable data store.
+          This command creates a second usable copy without requiring a new
+          service before VPS deployment.
+        </p>
+
+        <h3>How To Verify</h3>
+        <ul>
+          <li>Run <code>npm run backup</code>.</li>
+          <li>Confirm it reports a backup path, an <code>ok</code> integrity result, and a note count.</li>
+          <li>Run <code>npm run lint</code> and <code>npm run build</code>.</li>
+        </ul>
+
+        <h3>What This Does Not Prove</h3>
+        <ul>
+          <li>A local isolated restore passed, but no production VPS restore drill exists yet.</li>
+          <li>The backup is not scheduled or copied off the machine.</li>
+          <li>Backup encryption and retention are not configured yet.</li>
+        </ul>
+      </article>
     </main>
   </body>
 </html>

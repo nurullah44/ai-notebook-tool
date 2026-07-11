@@ -9,7 +9,7 @@ Stable facts future Codex sessions should remember. Keep short.
 - Audience: founder-only V1
 - Real problem: user remembers rough shape of ideas but not exact note wording or location
 - Smallest useful version: login, create/read/edit/delete notes, search notes, ask AI about own notes, logs, backups, targeted tests, deployment notes
-- Current stage: Prototype; AI Question Slice and Logging Slice are done. Next planned stage is Backup Slice.
+- Current stage: Prototype; Backup Slice is done. Next planned stage is Tests Slice.
 
 ## Learning Goal
 
@@ -30,6 +30,7 @@ Follow `docs/inner-voice.html` as the stage map.
 6. Search Slice - done
 7. AI Question Slice - done
 8. Logging Slice - done
+9. Backup Slice - done
 
 ## Stack Decisions
 
@@ -40,7 +41,7 @@ Follow `docs/inner-voice.html` as the stage map.
 - AI provider: OpenAI Responses API for rough-memory note lookup, default model `gpt-5.4-mini`
 - Deployment: Hetzner VPS planned, with Tailscale admin access and Cloudflare Tunnel web access
 - Logging: structured JSON stdout/stderr logs with metadata only
-- Backup: deferred; SQLite file backup path required before real use
+- Backup: manual `npm run backup` command creates an integrity-checked SQLite copy in ignored `backups/`; an isolated local restore test passed; scheduling and off-server storage are deferred to deployment
 
 ## Architecture Decisions
 
@@ -66,6 +67,7 @@ Use `better-sqlite3` with plain SQL and one SQLite file. DB code stays server-on
 - Search: home route supports URL query search with `/?q=...`, scanning note title and body
 - AI Recall V1: app retrieves notes first with ranked keyword search, sends only top candidate snippets to OpenAI when `OPENAI_API_KEY` exists, and returns closest notes with short reasons
 - Logging: `src/lib/logger.ts` writes safe JSON server logs for auth, note operations, and AI recall metadata
+- Backup: `scripts/backup-sqlite.mjs` reads the configured SQLite path, creates a timestamped backup, and runs an integrity check
 - AI Recall V1 non-goals: no whole-notebook dump, no LLM tool calling, no vector database, no chat history, no streaming, no advisor behavior yet
 - Styling: CSS modules with calm blue visual direction
 - Validation: server routes validate private inputs even if browser fields also validate
