@@ -1,9 +1,8 @@
-#!/usr/bin/env node
-
 import Database from "better-sqlite3";
 import { existsSync, mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import process from "node:process";
+import { pathToFileURL } from "node:url";
 
 const DEFAULT_DB_PATH = path.join("data", "notebook.db");
 const BACKUP_DIR = "backups";
@@ -50,16 +49,11 @@ function getTimestamp() {
   return new Date().toISOString().replaceAll(":", "").replace(/\.\d{3}Z$/, "Z");
 }
 
-async function main() {
-  const sourcePath = resolveFromProjectRoot(getEnvValue("SQLITE_DB_PATH") || DEFAULT_DB_PATH);
-
+export async function backupSqliteDatabase({ sourcePath, backupDirectory }) {
   if (!existsSync(sourcePath)) {
-    console.error(`SQLite database not found at ${sourcePath}`);
-    process.exitCode = 1;
-    return;
+    throw new Error(`SQLite database not found at ${sourcePath}`);
   }
 
-  const backupDirectory = resolveFromProjectRoot(BACKUP_DIR);
   mkdirSync(backupDirectory, { recursive: true });
 
   const backupPath = path.join(backupDirectory, `notebook-${getTimestamp()}.db`);
@@ -69,26 +63,43 @@ async function main() {
     await database.backup(backupPath);
 
     const backupDatabase = new Database(backupPath, { readonly: true, fileMustExist: true });
-    const integrity = backupDatabase.pragma("integrity_check", { simple: true });
-    const noteCount = backupDatabase.prepare("SELECT COUNT(*) AS count FROM notes").get().count;
-    backupDatabase.close();
+    let integrity;
+    let noteCount;
 
-    if (integrity !== "ok") {
-      console.error(`Backup failed integrity check: ${integrity}`);
-      process.exitCode = 1;
-      return;
+    try {
+      integrity = backupDatabase.pragma("integrity_check", { simple: true });
+      noteCount = backupDatabase.prepare("SELECT COUNT(*) AS count FROM notes").get().count;
+    } finally {
+      backupDatabase.close();
     }
 
-    console.info(`Backup created: ${backupPath}`);
-    console.info(`Source database: ${sourcePath}`);
-    console.info(`Integrity check: ${integrity}`);
-    console.info(`Notes copied: ${noteCount}`);
+    if (integrity !== "ok") {
+      throw new Error(`Backup failed integrity check: ${integrity}`);
+    }
+
+    return { backupPath, integrity, noteCount };
   } finally {
     database.close();
   }
 }
 
-main().catch((error) => {
-  console.error(error instanceof Error ? error.message : error);
-  process.exitCode = 1;
-});
+async function main() {
+  const sourcePath = resolveFromProjectRoot(getEnvValue("SQLITE_DB_PATH") || DEFAULT_DB_PATH);
+  const backupDirectory = resolveFromProjectRoot(BACKUP_DIR);
+  const result = await backupSqliteDatabase({ sourcePath, backupDirectory });
+
+  console.info(`Backup created: ${result.backupPath}`);
+  console.info(`Source database: ${sourcePath}`);
+  console.info(`Integrity check: ${result.integrity}`);
+  console.info(`Notes copied: ${result.noteCount}`);
+}
+
+const isDirectRun =
+  process.argv[1] && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href;
+
+if (isDirectRun) {
+  main().catch((error) => {
+    console.error(error instanceof Error ? error.message : error);
+    process.exitCode = 1;
+  });
+}

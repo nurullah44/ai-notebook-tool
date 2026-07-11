@@ -784,6 +784,103 @@
           <li><code>npm audit</code> still reports the documented Next.js/PostCSS advisory.</li>
         </ul>
       </article>
+
+      <article>
+        <h2>Step 10.2: Isolated Notes And Search Tests</h2>
+
+        <h3>Concept</h3>
+        <p>
+          A database test should use real persistence behavior without risking
+          real user data. Isolation gives each test suite its own disposable
+          SQLite database.
+        </p>
+
+        <h3>What Changed</h3>
+        <ul>
+          <li>Added four tests for create/read, empty-note rejection, update/delete, and search.</li>
+          <li>Used real note and SQLite functions instead of database mocks.</li>
+          <li>Created and removed a temporary SQLite database for the suite.</li>
+          <li>Verified search escapes SQLite <code>LIKE</code> wildcards.</li>
+        </ul>
+
+        <h3>Files Touched</h3>
+        <ul>
+          <li><code>src/lib/notes.test.ts</code>: four persistence and search tests.</li>
+          <li><code>src/test/server-only.ts</code>: empty test replacement for Next.js's server marker.</li>
+          <li><code>vitest.config.ts</code>: maps the server marker only inside tests.</li>
+        </ul>
+
+        <h3>Why This Exists</h3>
+        <p>
+          Note loss and incorrect search are core product failures. Real SQLite
+          tests catch SQL, trimming, update, delete, and wildcard bugs that
+          mocked database tests could miss.
+        </p>
+
+        <h3>How To Verify</h3>
+        <ul>
+          <li>Run <code>npm test</code> and confirm 7 tests pass.</li>
+          <li>Run <code>npm run lint</code>.</li>
+          <li>Run <code>npm run build</code>.</li>
+        </ul>
+
+        <h3>What This Does Not Prove</h3>
+        <ul>
+          <li>No browser editor workflow is automated.</li>
+          <li>Concurrent database writes are not tested.</li>
+          <li>AI recall and backup safety tests remain.</li>
+        </ul>
+      </article>
+
+      <article>
+        <h2>Step 10.3: AI And Backup Safety Tests</h2>
+
+        <h3>Concept</h3>
+        <p>
+          Paid AI and data recovery need boundary tests. The tests should prove
+          what leaves the app, what model output is trusted, and whether a
+          backup is a usable SQLite copy.
+        </p>
+
+        <h3>What Changed</h3>
+        <ul>
+          <li>Tested real AI candidate ranking, limits, and snippet bounds.</li>
+          <li>Tested that OpenAI receives only selected candidate context.</li>
+          <li>Tested prompt-injection instructions and <code>store: false</code>.</li>
+          <li>Tested rejection of model-invented note IDs with local fallback.</li>
+          <li>Tested backup integrity and copied note count using a temporary database.</li>
+          <li>Completed the Tests Slice with 10 targeted tests.</li>
+        </ul>
+
+        <h3>Files Touched</h3>
+        <ul>
+          <li><code>src/app/api/ai/recall/route.test.ts</code>: two AI boundary tests with fake network responses.</li>
+          <li><code>src/lib/notes.test.ts</code>: real recall candidate ranking and bounds.</li>
+          <li><code>scripts/backup-sqlite.test.mjs</code>: isolated backup verification.</li>
+          <li><code>scripts/backup-sqlite.mjs</code>: separates reusable backup core from CLI output.</li>
+        </ul>
+
+        <h3>Why This Exists</h3>
+        <p>
+          AI tests protect privacy, prompt-injection handling, and note-ID
+          validation without spending API money. The backup test protects the
+          recovery path without touching private notebook data.
+        </p>
+
+        <h3>How To Verify</h3>
+        <ul>
+          <li>Run <code>npm test</code> and confirm 10 tests pass.</li>
+          <li>Run <code>npm run backup</code> and confirm integrity is <code>ok</code>.</li>
+          <li>Run <code>npm run lint</code> and <code>npm run build</code>.</li>
+        </ul>
+
+        <h3>What This Does Not Prove</h3>
+        <ul>
+          <li>No browser workflow or visual regression test exists.</li>
+          <li>No live OpenAI network call runs in automated tests.</li>
+          <li>No production VPS restore drill or scheduled backup exists yet.</li>
+        </ul>
+      </article>
     </main>
   </body>
 </html>
