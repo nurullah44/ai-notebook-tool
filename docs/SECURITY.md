@@ -28,6 +28,7 @@ Prototype
 
 ## Open Risks
 
+- `npm audit` reports a moderate PostCSS advisory through Next.js 16.2.9. The suggested forced fix would make a breaking Next.js downgrade, so keep Next.js updated and recheck rather than applying `npm audit fix --force` blindly.
 - `AUTH_PASSWORD` is stored as a plain environment variable for prototype simplicity. Before real production use, consider switching to a password hash.
 - Login has no application-level rate limit yet. Before accepting public traffic, add app throttling or enforce an equivalent proxy-level limit.
 - AI recall has no application-level rate limit yet. Before public use, add throttling or enforce an equivalent proxy-level limit.

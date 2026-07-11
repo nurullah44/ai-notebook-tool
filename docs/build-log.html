@@ -734,6 +734,56 @@
           <li>Backup encryption and retention are not configured yet.</li>
         </ul>
       </article>
+
+      <article>
+        <h2>Step 10.1: Auth Test Foundation</h2>
+
+        <h3>Concept</h3>
+        <p>
+          A targeted test is an executable promise around risky behavior. This
+          first group protects the boundary that keeps private notes behind the
+          founder password and signed session.
+        </p>
+
+        <h3>What Changed</h3>
+        <ul>
+          <li>Added Vitest as the TypeScript test runner.</li>
+          <li>Added <code>npm test</code>.</li>
+          <li>Tested exact password validation.</li>
+          <li>Tested signed-session acceptance and tamper rejection.</li>
+          <li>Tested that unauthenticated note creation redirects before any write.</li>
+        </ul>
+
+        <h3>Files Touched</h3>
+        <ul>
+          <li><code>vitest.config.ts</code>: Node test environment and source alias.</li>
+          <li><code>src/lib/auth.test.ts</code>: password and session tests.</li>
+          <li><code>src/app/api/notes/route.test.ts</code>: protected-write boundary test.</li>
+          <li><code>package.json</code> and <code>package-lock.json</code>: test command and dependency.</li>
+        </ul>
+
+        <h3>Why This Exists</h3>
+        <p>
+          Auth failure could expose or modify private notes. These tests give
+          fast feedback without starting a browser, using real secrets, or
+          touching the notebook database.
+        </p>
+
+        <h3>How To Verify</h3>
+        <ul>
+          <li>Run <code>npm test</code> and confirm 3 tests pass.</li>
+          <li>Run <code>npm run lint</code>.</li>
+          <li>Run <code>npm run build</code>.</li>
+        </ul>
+
+        <h3>What This Does Not Prove</h3>
+        <ul>
+          <li>Only note creation has an automated protected-route test so far.</li>
+          <li>No browser login flow is automated.</li>
+          <li>Notes, search, AI recall, and backup tests are still planned.</li>
+          <li><code>npm audit</code> still reports the documented Next.js/PostCSS advisory.</li>
+        </ul>
+      </article>
     </main>
   </body>
 </html>
