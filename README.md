@@ -14,6 +14,7 @@ Open `http://localhost:3000`.
 
 ```powershell
 npm run dev
+npm test
 npm run lint
 npm run build
 npm run backup
