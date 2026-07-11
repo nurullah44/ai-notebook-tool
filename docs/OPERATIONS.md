@@ -38,10 +38,11 @@ Production retention is deferred to the Deployment Slice. On the VPS, these logs
 ### Restore Procedure
 
 1. Stop the app so it cannot write to SQLite during restore.
-2. Keep the damaged database file for investigation; do not overwrite the only copy.
-3. Copy the chosen `backups/notebook-<timestamp>.db` file to the path configured by `SQLITE_DB_PATH`.
-4. Start the app.
-5. Verify login, recent notes, keyword search, and AI recall.
+2. Move the current database file and any matching `-wal` and `-shm` sidecar files into a separate recovery directory. Keep this old file set for investigation.
+3. Confirm no old database, `-wal`, or `-shm` file remains at the configured `SQLITE_DB_PATH` location.
+4. Copy the chosen `backups/notebook-<timestamp>.db` file to the path configured by `SQLITE_DB_PATH`.
+5. Start the app.
+6. Verify login, recent notes, keyword search, and AI recall.
 
 Deleted notes can be restored only from a backup created before the deletion. A local restore test succeeded on 2026-07-11 by copying a backup to a temporary database and verifying integrity and note count without touching the live database.
 
