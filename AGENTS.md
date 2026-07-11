@@ -96,11 +96,11 @@ Use this workflow for meaningful code changes:
 1. Create a feature branch from `main`.
 2. Build one small slice.
 3. Run the smallest useful checks.
-4. Run Codex review on uncommitted changes before committing.
-5. Fix actionable review findings.
-6. Commit the reviewed slice on the feature branch.
-7. Push the branch and open a pull request.
-8. Review the PR again after CI or GitHub feedback if available.
+4. Commit the verified slice on the feature branch.
+5. Push the branch and open a pull request.
+6. Run Codex review on the GitHub pull request.
+7. Fix only actionable findings that matter for the current product stage.
+8. Merge after checks and review are acceptable.
 
 Do not push directly to `main` unless the human explicitly asks for it.
 

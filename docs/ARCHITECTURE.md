@@ -9,6 +9,7 @@ Keep this document factual and short. Update it only after decisions are stable.
 - Auth: Founder-only login with a secure session
 - AI: OpenAI Responses API for rough-memory note lookup, defaulting to `gpt-5.4-mini`
 - Logging: structured JSON stdout/stderr logs with metadata only
+- Backup: manual verified SQLite backup through `npm run backup`, stored locally in ignored `backups/`
 - Deployment: Hetzner VPS, reached through Tailscale for admin access and Cloudflare Tunnel for web traffic
 
 ## Boundaries
@@ -180,6 +181,23 @@ Logs are not searchable inside the app, and retention/rotation still depends on 
 
 Date:
 2026-07-10
+
+### Decision: V1 SQLite backup
+
+Context:
+The notebook now contains persistent private notes. A database failure or mistaken deletion could otherwise remove the only copy.
+
+Decision:
+Use `npm run backup` to create a timestamped SQLite backup in the ignored `backups/` directory. The command uses SQLite's backup API, verifies database integrity, and reports the copied note count.
+
+Reason:
+This gives the founder a real, understandable recovery artifact without adding cloud storage, a scheduler, or another service before deployment.
+
+Tradeoff:
+The backup is manual and stored on the same machine. A local isolated restore was verified, but scheduling, off-server copies, encryption, retention, and a production VPS restore drill remain deployment work.
+
+Date:
+2026-07-11
 
 ## Deferred Complexity
 

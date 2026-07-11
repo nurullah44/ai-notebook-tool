@@ -27,7 +27,8 @@ SQLITE_DB_PATH
 ## Migration Notes
 
 - Database migration command: table creation currently runs at app startup through `src/lib/db.ts`.
-- Rollback plan: Restore the previous app release and SQLite backup. Exact command deferred until the app exists.
+- Database backup command: `npm run backup`.
+- Rollback plan: Stop the app, restore the previous app release and chosen SQLite backup, restart, then verify the critical flows.
 
 ## Verification
 
@@ -36,3 +37,4 @@ SQLITE_DB_PATH
 - Notes flow works:
 - AI call works:
 - Logs visible:
+- `npm run backup` succeeds and the backup passes its integrity check:

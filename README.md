@@ -1,48 +1,29 @@
-# Codex Learning Repo Template
+# AI Notebook
 
-Template for human-led learning projects where Codex teaches first and builds slowly.
+A private, founder-only notebook that saves text notes, searches them, and uses AI to recall notes from rough memories.
 
-Use this for any small product or engineering learning repo. The project idea is chosen after repo creation.
+## Local Setup
 
-## Create A New Repo
+1. Copy `.env.example` to `.env.local` and fill the local secrets.
+2. Install dependencies with `npm install`.
+3. Start the app with `npm run dev`.
 
-If the local `gh learn` alias is installed:
+Open `http://localhost:3000`.
 
-```powershell
-gh learn my-project
-```
-
-Raw GitHub CLI command:
+## Commands
 
 ```powershell
-gh repo create my-project --public --template nurullah44/codex-learning-repo-template --clone
+npm run dev
+npm run lint
+npm run build
+npm run backup
 ```
 
-## First Prompt To Codex
+`npm run backup` creates a timestamped SQLite backup in the git-ignored `backups/` directory and verifies its integrity. Restore instructions live in `docs/OPERATIONS.md`.
 
-```text
-Use slow-learning-builder and follow AGENTS.md.
-I want to learn before building. Start by helping me define the smallest useful version of this project.
-Do not code yet.
-```
+## Project Guide
 
-## First Files To Fill
-
-- `ai/PROJECT_MEMORY.md`
-- `docs/ARCHITECTURE.md`
-- `docs/DEPLOYMENT.md`
-- `docs/SECURITY.md`
-- `docs/OPERATIONS.md`
-
-Keep them short. They should clarify decisions, not become homework.
-
-## Example Project Ideas
-
-These are examples only, not template assumptions:
-
-- AI notebook
-- personal CRM
-- study planner
-- habit tracker
-- document workflow assistant
-- analytics dashboard
+- `docs/inner-voice.html`: stage map
+- `docs/build-log.html`: teaching-oriented build history
+- `docs/ARCHITECTURE.md`: stable technical decisions
+- `docs/OPERATIONS.md`: logs, backups, restore, and rollback

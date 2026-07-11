@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "backup": "node scripts/backup-sqlite.mjs",
     "start": "next start",
     "lint": "eslint"
   },
