@@ -81,7 +81,7 @@ export default function NotebookShell({
   useEffect(() => {
     function loadNearBottom() {
       const nearBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 100;
-      if (window.scrollY > 150 && nearBottom) {
+      if (nearBottom) {
         setVisibleCount((current) => Math.min(current + 3, ideas.length));
       }
     }
@@ -112,6 +112,8 @@ export default function NotebookShell({
   }
 
   function handleCardKeyDown(event: KeyboardEvent<HTMLDivElement>, id: string) {
+    if (event.target !== event.currentTarget) return;
+
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       flipIdea(id);
