@@ -12,6 +12,7 @@ import {
   X,
 } from "@phosphor-icons/react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, type FormEvent, type KeyboardEvent, type MouseEvent } from "react";
 import type { CurrentNote, RecentNote } from "@/lib/notes";
 import styles from "./page.module.css";
@@ -41,6 +42,7 @@ export default function NotebookShell({
   recentNotes,
   searchQuery = "",
 }: NotebookShellProps) {
+  const router = useRouter();
   const ideas = useMemo(() => {
     if (!currentNote || recentNotes.some((note) => note.id === currentNote.id)) return recentNotes;
     return [
@@ -100,6 +102,14 @@ export default function NotebookShell({
     setComposerPurpose("create");
     setDraftBody("");
     setComposerOpen(true);
+  }
+
+  function closeComposer() {
+    setComposerOpen(false);
+
+    if (composerPurpose === "edit" && currentNote) {
+      router.replace(`/notes/${currentNote.id}`);
+    }
   }
 
   function flipIdea(id: string) {
@@ -234,7 +244,7 @@ export default function NotebookShell({
       ) : null}
 
       {composerOpen ? (
-        <div className={`${styles.overlay} ${styles.editorWorld}`} onMouseDown={() => setComposerOpen(false)}>
+        <div className={`${styles.overlay} ${styles.editorWorld}`} onMouseDown={closeComposer}>
           <form
             className={styles.composer}
             action={composerPurpose === "edit" && currentNote ? `/api/notes/${currentNote.id}` : "/api/notes"}
@@ -245,7 +255,7 @@ export default function NotebookShell({
             <header className={styles.composerHeader}>
               <span>{composerPurpose === "edit" ? "Edit idea" : "New idea"}</span>
               <div>
-                <button className={styles.editorCancel} type="button" onClick={() => setComposerOpen(false)}>Cancel</button>
+                <button className={styles.editorCancel} type="button" onClick={closeComposer}>Cancel</button>
                 <button className={styles.editorSave} type="submit">{composerPurpose === "edit" ? "Save idea" : "Keep idea"} <ArrowRight /></button>
               </div>
             </header>
