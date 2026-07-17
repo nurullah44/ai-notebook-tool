@@ -32,6 +32,7 @@ export default async function NotePage({ params, searchParams }: NotePageProps) 
 
   return (
     <NotebookShell
+      key={`${note.id}-${mode}`}
       currentNote={note}
       mode={mode}
       noteError={noteError}
