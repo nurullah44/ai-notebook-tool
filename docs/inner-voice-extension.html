@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Inner Voice - Chrome Capture Extension</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #10203a;
+        --muted: #64748b;
+        --blue: #1264e8;
+        --blue-soft: #eaf2ff;
+        --line: #d9e2ee;
+        --paper: #ffffff;
+        --page: #f4f7fb;
+        --danger: #b42318;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background: var(--page);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.65;
+      }
+
+      main {
+        width: min(100% - 32px, 960px);
+        margin: 0 auto;
+        padding: 72px 0 100px;
+      }
+
+      header { padding-bottom: 42px; border-bottom: 1px solid var(--line); }
+      .eyebrow, .status, dt { color: var(--blue); font-size: 0.76rem; font-weight: 800; text-transform: uppercase; }
+      h1 { max-width: 720px; margin: 10px 0 18px; font-size: clamp(2.2rem, 6vw, 4.8rem); line-height: 1; letter-spacing: 0; }
+      .lede { max-width: 720px; margin: 0; color: var(--muted); font-size: 1.08rem; }
+
+      section { padding: 46px 0; border-bottom: 1px solid var(--line); }
+      h2 { margin: 0 0 18px; font-size: 1.5rem; }
+      h3 { margin: 0 0 8px; font-size: 1.05rem; }
+      p { max-width: 760px; }
+      code { padding: 2px 6px; color: #0d4caa; background: var(--blue-soft); }
+
+      .flow {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 1px;
+        margin-top: 28px;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        background: var(--line);
+      }
+
+      .flow div { min-height: 132px; padding: 20px; background: var(--paper); }
+      .flow span { display: block; margin-bottom: 20px; color: var(--blue); font-size: 0.72rem; font-weight: 800; }
+      .flow strong { display: block; font-size: 0.92rem; line-height: 1.35; }
+
+      .decisions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 40px; margin-top: 28px; }
+      dl { margin: 0; }
+      dt { margin-bottom: 4px; }
+      dd { margin: 0; color: var(--muted); }
+
+      .stages { display: grid; gap: 1px; margin: 26px 0 0; padding: 0; border: 1px solid var(--line); background: var(--line); list-style: none; }
+      .stage { display: grid; grid-template-columns: 54px 1fr; gap: 22px; padding: 28px; background: var(--paper); }
+      .stage input { width: 22px; height: 22px; margin: 3px 0 0; accent-color: var(--blue); }
+      .stage p { margin: 5px 0 12px; color: var(--muted); }
+      .stage ul { margin: 0; padding-left: 20px; }
+      .stage.current { box-shadow: inset 4px 0 0 var(--blue); }
+
+      .contract { width: 100%; border-collapse: collapse; margin-top: 24px; background: var(--paper); }
+      .contract th, .contract td { padding: 14px 16px; border: 1px solid var(--line); text-align: left; vertical-align: top; }
+      .contract th { width: 28%; color: var(--muted); font-size: 0.78rem; text-transform: uppercase; }
+
+      .warning { padding: 20px 22px; border-left: 4px solid var(--danger); background: #fff4f2; }
+      .warning strong { color: var(--danger); }
+
+      .file-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 26px; padding-left: 20px; }
+      footer { padding-top: 42px; color: var(--muted); }
+
+      @media (max-width: 760px) {
+        main { padding-top: 42px; }
+        .flow, .decisions, .file-list { grid-template-columns: 1fr; }
+        .stage { grid-template-columns: 36px 1fr; padding: 22px 18px; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">Inner Voice / Chrome Capture Slice</p>
+        <h1>One selection. One click. One saved idea.</h1>
+        <p class="lede">
+          Highlight text anywhere on the web, right-click, and send it to Idea Store.
+          AI creates a useful title; capture still succeeds when AI fails.
+        </p>
+      </header>
+
+      <section>
+        <h2>Product Promise</h2>
+        <p>
+          Capture should feel smaller than copying, changing tabs, opening an editor,
+          naming the idea, and saving it manually. V1 does one job only: save selected
+          text into the private Idea Store with a useful title.
+        </p>
+
+        <div class="flow" aria-label="Capture flow">
+          <div><span>01</span><strong>Select web text</strong></div>
+          <div><span>02</span><strong>Right-click Save to Idea Store</strong></div>
+          <div><span>03</span><strong>Extension sends text to local app</strong></div>
+          <div><span>04</span><strong>Server creates title and saves</strong></div>
+          <div><span>05</span><strong>Badge shows success or failure</strong></div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Stable Decisions</h2>
+        <div class="decisions">
+          <dl><dt>Runtime</dt><dd>Manifest V3 extension with one service worker.</dd></dl>
+          <dl><dt>Language</dt><dd>Plain JavaScript. No bundler, React, framework, or extension dependency.</dd></dl>
+          <dl><dt>Permissions</dt><dd><code>contextMenus</code>, <code>storage</code>, and <code>http://localhost:3000/*</code> only.</dd></dl>
+          <dl><dt>Authentication</dt><dd>Dedicated bearer capture token; never the main password.</dd></dl>
+          <dl><dt>Saved body</dt><dd>Selected text only. No page URL, title, tags, or HTML.</dd></dl>
+          <dl><dt>Generated title</dt><dd>4-10 words, maximum 80 characters, same language when possible.</dd></dl>
+          <dl><dt>Selection limit</dt><dd>3-5,000 characters. Reject oversized input; never truncate silently.</dd></dl>
+          <dl><dt>AI timeout</dt><dd>25 seconds, leaving response margin below Chrome's 30-second fetch limit; then deterministic fallback title and save.</dd></dl>
+          <dl><dt>Feedback</dt><dd><code>...</code> while saving, a check mark on success, and <code>!</code> on failure, with tooltip details.</dd></dl>
+          <dl><dt>Failure policy</dt><dd>No queue or automatic retry. User retries intentionally.</dd></dl>
+          <dl><dt>Cost limit</dt><dd>Maximum 10 capture requests per minute per server process.</dd></dl>
+          <dl><dt>Distribution</dt><dd>Unpacked local extension only for V1.</dd></dl>
+        </div>
+      </section>
+
+      <section>
+        <h2>Ownership Boundary</h2>
+        <table class="contract">
+          <tbody>
+            <tr><th>Chrome owns</th><td>Selected text, settings storage, context-menu click, loading/success/error badge.</td></tr>
+            <tr><th>Server owns</th><td>Token validation, input limits, rate limit, OpenAI request, title validation, fallback, SQLite save, safe logs.</td></tr>
+            <tr><th>OpenAI receives</th><td>Selected text only. No URL, page HTML, cookies, token, or browsing history.</td></tr>
+            <tr><th>Database stores</th><td>Generated or fallback title plus exact trimmed selected text.</td></tr>
+          </tbody>
+        </table>
+
+        <p class="warning">
+          <strong>Never put <code>OPENAI_API_KEY</code> in extension files.</strong>
+          Anyone can inspect an installed extension. Paid secrets remain server-side.
+        </p>
+      </section>
+
+      <section>
+        <h2>Build Stages</h2>
+        <ol class="stages">
+          <li class="stage">
+            <input type="checkbox" checked disabled aria-label="Product contract done" />
+            <div>
+              <span class="status">Done</span>
+              <h3>1. Product And Security Contract</h3>
+              <p>Resolve capture behavior, permissions, auth, privacy, failure, and cost boundaries.</p>
+            </div>
+          </li>
+
+          <li class="stage">
+            <input type="checkbox" checked disabled aria-label="Capture API done" />
+            <div>
+              <span class="status">Done</span>
+              <h3>2. Capture API Vertical Slice</h3>
+              <p>Added and tested one authenticated JSON endpoint before connecting Chrome.</p>
+              <ul>
+                <li><code>POST /api/capture</code></li>
+                <li>Bearer-token authentication</li>
+                <li>3-5,000 character validation</li>
+                <li>10 requests per minute</li>
+                <li>AI title with 25-second timeout</li>
+                <li>fallback title and SQLite save</li>
+              </ul>
+            </div>
+          </li>
+
+          <li class="stage">
+            <input type="checkbox" checked disabled aria-label="Extension foundation done" />
+            <div>
+              <span class="status">Done</span>
+              <h3>3. Extension Foundation</h3>
+              <p>Created the manifest, service worker, capture helpers, and small settings page.</p>
+              <ul>
+                <li>store <code>appUrl</code> and the token copied from <code>EXTENSION_CAPTURE_TOKEN</code> in <code>chrome.storage.local</code></li>
+                <li>create selection-only context menu on install</li>
+                <li>avoid popup and content scripts</li>
+              </ul>
+            </div>
+          </li>
+
+          <li class="stage">
+            <input type="checkbox" checked disabled aria-label="One-click capture done" />
+            <div>
+              <span class="status">Done</span>
+              <h3>4. One-Click Capture</h3>
+              <p>Connect selected text to the API and surface honest badge state.</p>
+              <ul>
+                <li>ignore duplicate click while request is active</li>
+                <li>show <code>...</code>, then a check mark or <code>!</code></li>
+                <li>put useful error text in extension tooltip</li>
+              </ul>
+            </div>
+          </li>
+
+          <li class="stage current">
+            <input type="checkbox" disabled aria-label="Manual unpacked Chrome capture pending" />
+            <div>
+              <span class="status">Current</span>
+              <h3>5. Local End-To-End Verification</h3>
+              <p>Automated boundaries, the live API, and the settings UI are verified; the real unpacked Chrome workflow remains.</p>
+              <ul>
+                <li>done: 22 focused auth/capture-route tests passed</li>
+                <li>done: 19 extension pure/service-worker/options tests passed</li>
+                <li>done: live localhost API call used configured OpenAI and created a note</li>
+                <li>done: options page visually inspected</li>
+                <li>pending: load unpacked in Chrome, capture selected text from the context menu, confirm badge/tooltip feedback, and see the saved idea after refresh</li>
+              </ul>
+            </div>
+          </li>
+
+          <li class="stage">
+            <input type="checkbox" disabled aria-label="Production setup deferred" />
+            <div>
+              <span class="status">Deferred</span>
+              <h3>6. Production Domain Setup</h3>
+              <p>Replace localhost host permission and URL after the main Deployment Slice.</p>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Implemented Files</h2>
+        <ul class="file-list">
+          <li><code>src/app/api/capture/route.ts</code></li>
+          <li><code>src/app/api/capture/route.test.ts</code></li>
+          <li><code>extension/manifest.json</code></li>
+          <li><code>extension/background.js</code></li>
+          <li><code>extension/background.test.js</code></li>
+          <li><code>extension/capture.js</code></li>
+          <li><code>extension/capture.test.js</code></li>
+          <li><code>extension/options.html</code></li>
+          <li><code>extension/options.css</code></li>
+          <li><code>extension/options.js</code></li>
+          <li><code>.env.example</code></li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Non-Goals</h2>
+        <ul>
+          <li>No Chrome Web Store publishing.</li>
+          <li>No popup, sidebar, content script, webpage toast, or page scraping.</li>
+          <li>No source URL, tags, screenshots, bookmarks, images, or full-page capture.</li>
+          <li>No retry queue, offline sync, batch capture, or history screen.</li>
+          <li>No extension account system or reuse of the website login cookie.</li>
+          <li>No change to idea body width during this slice; editor-width refinement is deferred.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>What This Teaches</h2>
+        <ul>
+          <li>An extension is a separate client, not privileged website code.</li>
+          <li>Manifest permissions define its power and user trust boundary.</li>
+          <li>A service worker wakes for events and should not own durable state.</li>
+          <li>Paid API secrets belong behind a server endpoint.</li>
+          <li>AI enrichment should fail open to reliable product behavior.</li>
+          <li>A good API contract is built before its second client.</li>
+        </ul>
+      </section>
+
+      <footer>
+        Next checkpoint: load the extension unpacked in Chrome and complete one selected-text context-menu capture against <code>http://localhost:3000</code>. Production permission and domain work remains deferred.
+      </footer>
+    </main>
+  </body>
+</html>

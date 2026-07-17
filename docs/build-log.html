@@ -919,6 +919,42 @@
           <li>Ran lint, production build, and all 10 existing tests.</li>
         </ul>
       </article>
+
+      <article>
+        <h2>2026-07-17: Local Chrome Selection Capture</h2>
+
+        <h3>Concept</h3>
+        <p>
+          A Chrome extension is a separate client, not privileged website code.
+          Its job is limited to collecting selected text and showing request
+          status; authentication, validation, AI cost, logging, and persistence
+          stay behind the server boundary.
+        </p>
+
+        <h3>What Changed</h3>
+        <ul>
+          <li>Added an unpacked plain-JavaScript Manifest V3 extension with one selection-only context-menu action.</li>
+          <li>Added local options for the exact app URL and dedicated capture token.</li>
+          <li>Added bearer-authenticated <code>POST /api/capture</code> with input limits, a process-local rate limit, bounded OpenAI title generation, deterministic fallback, and SQLite save.</li>
+          <li>Kept page URL, title, HTML, tags, browsing data, paid API secrets, and website sessions outside the extension request.</li>
+          <li>Added metadata-only capture logs and prompt-injection protection for untrusted selected text.</li>
+        </ul>
+
+        <h3>How It Was Verified</h3>
+        <ul>
+          <li>22 focused auth and capture-route tests passed.</li>
+          <li>19 extension pure-function, service-worker, and options tests passed.</li>
+          <li>A live request to the localhost API used configured OpenAI and created a note successfully.</li>
+          <li>The extension options page was visually inspected.</li>
+        </ul>
+
+        <h3>What Remains</h3>
+        <ul>
+          <li>Load the unpacked extension through <code>chrome://extensions</code> and complete the real selected-text context-menu workflow.</li>
+          <li>Browser automation cannot perform that install step, so the final local end-to-end check is still manual and must not be treated as passed.</li>
+          <li>Production domain and host-permission changes remain deferred until deployment.</li>
+        </ul>
+      </article>
     </main>
   </body>
 </html>
