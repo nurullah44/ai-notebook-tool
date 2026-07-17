@@ -5,22 +5,25 @@ Keep this document factual and short. Update it only after decisions are stable.
 ## Current Shape
 
 - App: Next.js with TypeScript
+- Extension: unpacked Manifest V3 Chrome extension in `extension/`, implemented in plain JavaScript
 - Database: SQLite via `better-sqlite3`, stored at `SQLITE_DB_PATH` or `data/notebook.db`
 - Auth: Founder-only login with a secure session
-- AI: OpenAI Responses API for rough-memory note lookup, defaulting to `gpt-5.4-mini`
+- AI: OpenAI Responses API for rough-memory note lookup and capture-title generation, defaulting to `gpt-5.4-mini`
+- Capture API: dedicated bearer-authenticated `POST /api/capture` endpoint for selected text
 - Logging: structured JSON stdout/stderr logs with metadata only
 - Backup: manual verified SQLite backup through `npm run backup`, stored locally in ignored `backups/`
-- Tests: 10 focused Vitest tests covering auth, notes, search, AI boundaries, and backup; database tests use temporary SQLite files
+- Tests: focused Vitest coverage for auth, notes, search, AI boundaries, backup, the capture API, and extension behavior; database tests use temporary SQLite files
 - Deployment: Hetzner VPS, reached through Tailscale for admin access and Cloudflare Tunnel for web traffic
 
 ## Boundaries
 
 - UI: Capture-first notebook interface with a large text note box
-- Server actions/API: Login, logout, create notes, read notes, update notes, delete notes, search notes, and call AI
+- Extension client: selection-only context menu, local settings, API request, and badge/tooltip feedback; no popup or content script
+- Server actions/API: Login, logout, create notes, read notes, update notes, delete notes, search notes, call AI, and capture selected text
 - Database access: Server-only SQLite access
-- AI calls: Server-only calls using selected note context, not full database dumps
-- Auth/session: Founder-only protected routes and private notes
-- Logs: Server-only operational metadata through `src/lib/logger.ts`
+- AI calls: Server-only calls using selected note context for recall or selected text for capture-title generation
+- Auth/session: Founder-only protected routes plus a separate capture token for the extension
+- Logs: Server-only operational metadata through `src/lib/logger.ts`; capture logs never include the token, selected text, or generated title
 
 ## Decisions
 
@@ -217,6 +220,25 @@ The collection has no automatic resurfacing behavior yet. Scrolling reveals more
 Date:
 2026-07-11
 
+### Decision: Local Chrome selection capture
+
+Context:
+Capturing a useful idea from another page required copying text, switching tabs, naming it, and saving it manually. The extension is a separate client and must not receive website sessions or paid API secrets.
+
+Decision:
+Use an unpacked plain-JavaScript Manifest V3 extension in `extension/`. It registers one selected-text context-menu action, stores `appUrl` and the capture token in `chrome.storage.local`, and has host permission only for `http://localhost:3000/*`. It sends only trimmed selected text to `POST /api/capture`; it does not send a page URL, page title, HTML, tags, or browsing data.
+
+The server authenticates a dedicated bearer token, accepts 3-5,000 characters, and permits 10 valid captures per minute per process. It asks the OpenAI Responses API for a 4-10 word title no longer than 80 characters, using `gpt-5.4-mini` by default, `store: false`, prompt-injection protection, and a 25-second abort. The shorter AI budget leaves room below Chrome's 30-second service-worker fetch limit. Invalid AI output, timeout, or AI failure uses a deterministic fallback title and still saves the note to the existing SQLite database. Capture logs contain metadata only: text length, duration, model or source, and error name.
+
+Reason:
+This keeps extension power narrow and keeps authentication, validation, AI cost, private-data handling, and persistence on the server. Badge text and tooltips provide loading, success, or failure feedback without adding a popup, content script, retry queue, or second data model.
+
+Tradeoff:
+V1 is local and unpacked. The rate limit is process-local, the capture token is stored in the Chrome profile, and the actual unpacked context-menu workflow still needs a manual Chrome check. Production domain and host-permission changes remain deferred until deployment.
+
+Date:
+2026-07-17
+
 ## Deferred Complexity
 
 List things intentionally not used yet.
@@ -232,3 +254,4 @@ List things intentionally not used yet.
 - LLM tool calling
 - Vector search
 - Streaming AI responses
+- Production Chrome extension domain and host permission

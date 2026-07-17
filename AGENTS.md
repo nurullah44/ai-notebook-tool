@@ -91,6 +91,18 @@ Use after a slice or before shipping.
 
 ## Branch, Review, And PR Workflow
 
+### Branch Start Gate (Mandatory)
+
+Before creating any new feature branch:
+
+1. Fetch the remote and inspect `git status`, local branches, and open pull requests.
+2. Tell the human first if any feature branch or pull request is still open or unmerged.
+3. Do not create another feature branch until the current branch is merged or the human explicitly chooses to close, abandon, or run work in parallel.
+4. After merging, fast-forward local `main` from `origin/main` and verify the worktree is clean.
+5. Create the next feature branch only from that synchronized `main`.
+
+Never assume `main` contains work merely because that work was committed or pushed on another branch.
+
 Use this workflow for meaningful code changes:
 
 1. Create a feature branch from `main`.

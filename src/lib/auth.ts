@@ -48,6 +48,16 @@ export function isPasswordValid(password: string) {
   return constantTimeEqual(password, getRequiredEnv("AUTH_PASSWORD"));
 }
 
+export function isCaptureTokenValid(token: string) {
+  const captureToken = process.env.EXTENSION_CAPTURE_TOKEN;
+
+  if (!captureToken || !token) {
+    return false;
+  }
+
+  return constantTimeEqual(token, captureToken);
+}
+
 export function isSessionTokenValid(token: string) {
   const sessionSecret = process.env.SESSION_SECRET;
   const [payload, signature, extra] = token.split(".");

@@ -5,8 +5,9 @@
 - App logs: JSON lines written to server stdout/stderr through `src/lib/logger.ts`.
 - Auth logs: login success, login failure, and logout.
 - Note logs: create, update, delete, and rejected empty-note attempts. Logs include note IDs only.
-- AI call logs: recall completion/failure, model name, candidate count, returned match count, duration, and whether OpenAI was used.
-- Error logs: safe metadata only. Do not log passwords, full notes, AI prompts, note snippets, API keys, or raw model responses.
+- AI recall logs: completion/failure, model name, candidate count, returned match count, duration, and whether OpenAI was used.
+- Capture logs: rejection/fallback/completion/failure plus safe metadata such as text length, duration, model, title source, reason, or error name.
+- Error logs: safe metadata only. Do not log passwords, capture tokens, full notes, selected text, generated titles, AI prompts, note snippets, API keys, or raw model responses.
 
 Example log shape:
 
@@ -26,6 +27,15 @@ Example log shape:
 ```
 
 Production retention is deferred to the Deployment Slice. On the VPS, these logs should be collected by the process manager or system journal.
+
+## Local Chrome Capture
+
+- The unpacked extension targets exactly `http://localhost:3000` and has no production host permission.
+- The badge shows `...` while saving, a check mark after success, and `!` after failure. Its tooltip gives the current status or safe error message.
+- There is no automatic retry. After correcting the app URL, token, server, or input problem, retry the context-menu action intentionally.
+- The 10-valid-captures-per-minute limit is held in one server process and resets when that process restarts.
+
+Verification recorded on 2026-07-17: 22 focused auth/capture-route tests passed; 19 extension pure/service-worker/options tests passed; a live localhost API request used configured OpenAI and created a SQLite note; and the options page was visually inspected. Installing the unpacked extension and completing the selected-text context-menu workflow in Chrome remains a manual check because browser automation cannot access `chrome://extensions`.
 
 ## Backups
 

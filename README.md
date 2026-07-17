@@ -10,6 +10,15 @@ A private, founder-only notebook that saves text notes, searches them, and uses 
 
 Open `http://localhost:3000`.
 
+## Local Chrome Extension
+
+1. Start the app with `npm run dev` and keep it available at exactly `http://localhost:3000`.
+2. Open `chrome://extensions`, enable Developer mode, choose **Load unpacked**, and select the `extension/` folder.
+3. Open the extension options. Set the app URL to exactly `http://localhost:3000` and copy the `EXTENSION_CAPTURE_TOKEN` value from the ignored `.env.local` file into the capture-token field.
+4. Highlight 3-5,000 characters on a web page, right-click, and choose **Save to Idea Store**.
+
+After editing files under `extension/`, return to `chrome://extensions` and reload the extension before testing the change.
+
 ## Commands
 
 ```powershell

@@ -1,5 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { createSessionToken, isPasswordValid, isSessionTokenValid } from "./auth";
+import {
+  createSessionToken,
+  isCaptureTokenValid,
+  isPasswordValid,
+  isSessionTokenValid,
+} from "./auth";
 
 describe("founder authentication", () => {
   afterEach(() => {
@@ -11,6 +16,20 @@ describe("founder authentication", () => {
 
     expect(isPasswordValid("correct-horse-battery-staple")).toBe(true);
     expect(isPasswordValid("wrong-password")).toBe(false);
+  });
+
+  it("accepts only the configured extension capture token", () => {
+    vi.stubEnv("EXTENSION_CAPTURE_TOKEN", "capture-token-with-enough-entropy");
+
+    expect(isCaptureTokenValid("capture-token-with-enough-entropy")).toBe(true);
+    expect(isCaptureTokenValid("wrong-token")).toBe(false);
+    expect(isCaptureTokenValid("")).toBe(false);
+  });
+
+  it("rejects capture tokens when capture is not configured", () => {
+    vi.stubEnv("EXTENSION_CAPTURE_TOKEN", "");
+
+    expect(isCaptureTokenValid("any-token")).toBe(false);
   });
 
   it("accepts a signed session and rejects a modified session", () => {

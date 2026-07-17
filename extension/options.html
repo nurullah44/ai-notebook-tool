@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Idea Store Capture Settings</title>
+    <link rel="stylesheet" href="options.css" />
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">Idea Store Capture</p>
+        <h1>Connection settings</h1>
+      </header>
+
+      <form id="settings-form">
+        <label for="app-url">App URL</label>
+        <input
+          id="app-url"
+          name="appUrl"
+          type="url"
+          inputmode="url"
+          spellcheck="false"
+          required
+        />
+        <p class="field-note">V1 accepts only http://localhost:3000.</p>
+
+        <label for="capture-token">Capture token</label>
+        <input
+          id="capture-token"
+          name="captureToken"
+          type="password"
+          autocomplete="off"
+          spellcheck="false"
+          required
+        />
+
+        <div class="form-footer">
+          <p id="status" role="status" aria-live="polite"></p>
+          <button type="submit">Save</button>
+        </div>
+      </form>
+    </main>
+
+    <script type="module" src="options.js"></script>
+  </body>
+</html>
