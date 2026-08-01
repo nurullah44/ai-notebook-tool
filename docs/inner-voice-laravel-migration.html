@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="workflow-name" content="Laravel Migration" />
+    <meta name="workflow-status" content="active" />
+    <meta name="workflow-parent" content="docs/inner-voice.html" />
+    <title>Inner Voice - Laravel Migration</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #10203a;
+        --muted: #64748b;
+        --blue: #1264e8;
+        --blue-soft: #eaf2ff;
+        --line: #d9e2ee;
+        --paper: #ffffff;
+        --page: #f4f7fb;
+        --warning: #9a6700;
+        --warning-soft: #fff8e6;
+        --danger: #b42318;
+        --danger-soft: #fff4f2;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background: var(--page);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.65;
+      }
+
+      main {
+        width: min(100% - 32px, 980px);
+        margin: 0 auto;
+        padding: 72px 0 100px;
+      }
+
+      header { padding-bottom: 42px; border-bottom: 1px solid var(--line); }
+      .eyebrow, .status, dt { color: var(--blue); font-size: 0.76rem; font-weight: 800; text-transform: uppercase; }
+      h1 { max-width: 800px; margin: 10px 0 18px; font-size: 4rem; line-height: 1; letter-spacing: 0; }
+      .lede { max-width: 760px; margin: 0; color: var(--muted); font-size: 1.08rem; }
+
+      section { padding: 46px 0; border-bottom: 1px solid var(--line); }
+      h2 { margin: 0 0 18px; font-size: 1.5rem; }
+      h3 { margin: 0 0 8px; font-size: 1.05rem; }
+      p { max-width: 800px; }
+      code { padding: 2px 6px; color: #0d4caa; background: var(--blue-soft); }
+
+      .architecture {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 1px;
+        margin-top: 28px;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        background: var(--line);
+      }
+
+      .architecture div { min-height: 126px; padding: 20px; background: var(--paper); }
+      .architecture span { display: block; margin-bottom: 18px; color: var(--blue); font-size: 0.72rem; font-weight: 800; }
+      .architecture strong { display: block; font-size: 0.92rem; line-height: 1.35; }
+
+      .decisions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 40px; margin-top: 28px; }
+      dl { margin: 0; }
+      dt { margin-bottom: 4px; }
+      dd { margin: 0; color: var(--muted); }
+
+      table { width: 100%; border-collapse: collapse; margin-top: 24px; background: var(--paper); }
+      th, td { padding: 14px 16px; border: 1px solid var(--line); text-align: left; vertical-align: top; }
+      th { color: var(--muted); font-size: 0.78rem; text-transform: uppercase; }
+
+      .stages { display: grid; gap: 1px; margin: 26px 0 0; padding: 0; border: 1px solid var(--line); background: var(--line); list-style: none; }
+      .stage { display: grid; grid-template-columns: 54px 1fr; gap: 22px; padding: 28px; background: var(--paper); }
+      .stage input { width: 22px; height: 22px; margin: 3px 0 0; accent-color: var(--blue); }
+      .stage p { margin: 5px 0 12px; color: var(--muted); }
+      .stage ul { margin: 0; padding-left: 20px; }
+      .stage.current { box-shadow: inset 4px 0 0 var(--blue); }
+
+      .warning { padding: 20px 22px; border-left: 4px solid var(--warning); background: var(--warning-soft); }
+      .danger { padding: 20px 22px; border-left: 4px solid var(--danger); background: var(--danger-soft); }
+      .warning strong { color: var(--warning); }
+      .danger strong { color: var(--danger); }
+
+      .checks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 28px; padding-left: 20px; }
+      footer { padding-top: 42px; color: var(--muted); }
+
+      @media (max-width: 760px) {
+        main { padding-top: 42px; }
+        h1 { font-size: 2.4rem; }
+        .architecture, .decisions, .checks { grid-template-columns: 1fr; }
+        .stage { grid-template-columns: 36px 1fr; padding: 22px 18px; }
+        table { display: block; overflow-x: auto; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">Inner Voice / Laravel Migration</p>
+        <h1>Change the engine. Preserve the product.</h1>
+        <p class="lede">
+          Rewrite the Next.js application as a lean Laravel application without changing user data,
+          product behavior, Chrome capture, AI contracts, or deployment ownership.
+        </p>
+      </header>
+
+      <section>
+        <h2>Migration Promise</h2>
+        <p>
+          This is a controlled rewrite, not a feature project. Every Laravel slice must reproduce one
+          verified behavior from the current application. The existing Next.js app remains the reference
+          until Laravel passes all parity and recovery gates.
+        </p>
+
+        <div class="architecture" aria-label="Target architecture">
+          <div><span>UI</span><strong>Blade + existing CSS</strong></div>
+          <div><span>INTERACTION</span><strong>Small vanilla JavaScript modules</strong></div>
+          <div><span>SERVER</span><strong>Laravel routes, controllers, services</strong></div>
+          <div><span>DATA</span><strong>Query Builder + SQLite</strong></div>
+          <div><span>EXTERNAL</span><strong>OpenAI Responses API + unchanged extension</strong></div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Stable Decisions</h2>
+        <div class="decisions">
+          <dl><dt>Framework</dt><dd>Laravel with server-rendered Blade. No React or Next.js.</dd></dl>
+          <dl><dt>Frontend</dt><dd>Existing visual design, normal CSS, and only required vanilla JavaScript.</dd></dl>
+          <dl><dt>Database</dt><dd>Existing SQLite schema and IDs remain compatible.</dd></dl>
+          <dl><dt>Data access</dt><dd>Laravel Query Builder first. No ORM requirement during parity work.</dd></dl>
+          <dl><dt>Authentication</dt><dd>Single shared password with Laravel session and custom middleware.</dd></dl>
+          <dl><dt>AI</dt><dd>Laravel HTTP client calls the same OpenAI Responses API and strict JSON Schema.</dd></dl>
+          <dl><dt>Extension</dt><dd>Manifest V3 source and <code>POST /api/capture</code> contract stay unchanged.</dd></dl>
+          <dl><dt>PHP tests</dt><dd>PHPUnit unit and feature tests.</dd></dl>
+          <dl><dt>Extension tests</dt><dd>Node built-in test runner; Node remains development-only.</dd></dl>
+          <dl><dt>Assets</dt><dd>No Vite pipeline. CSS, JS, fonts, and SVG icons served as static assets.</dd></dl>
+          <dl><dt>Production</dt><dd>Hetzner VPS, Cloudflare Tunnel, Tailscale, PHP-FPM, and a small web server.</dd></dl>
+          <dl><dt>Excluded</dt><dd>No Livewire, Tailwind, PostgreSQL, Redis, Pest, Playwright, Sanctum, queue, or Docker.</dd></dl>
+        </div>
+      </section>
+
+      <section>
+        <h2>Compatibility Contract</h2>
+        <table>
+          <thead>
+            <tr><th>Boundary</th><th>Must remain true</th><th>Proof</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Database</td><td>Existing note IDs, titles, bodies, and timestamps load without conversion loss.</td><td>Schema, row count, sampled records, and integrity check match.</td></tr>
+            <tr><td>Auth</td><td>Wrong password fails; valid password starts protected single-user session; logout ends it.</td><td>PHPUnit feature tests plus browser check.</td></tr>
+            <tr><td>Notes</td><td>Create, read, edit, delete, and direct note URLs preserve current behavior.</td><td>Feature tests against an isolated SQLite file.</td></tr>
+            <tr><td>Search</td><td>Keyword escaping, ordering, lexical recall scoring, and weak-match behavior remain stable.</td><td>Golden input/output cases run in old and new implementations.</td></tr>
+            <tr><td>AI</td><td>Same candidate context, model config, strict output shape, fallback, limits, and safe logs.</td><td>Mocked feature tests plus one approved live call.</td></tr>
+            <tr><td>Extension</td><td>Same URL, JSON body, bearer token, limits, status codes, and saved result.</td><td>Extension tests plus unpacked Chrome capture.</td></tr>
+            <tr><td>Operations</td><td>Logs stay useful; backup is consistent, integrity-checked, restorable, and count-verified.</td><td>Artisan backup and destructive restore rehearsal on copied data.</td></tr>
+            <tr><td>UI</td><td>Idea cards, flip behavior, search modes, editor, hover feel, and responsive layout remain recognizable.</td><td>Old/new screenshots and manual workflow comparison.</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>Migration Stages</h2>
+        <ol class="stages">
+          <li class="stage current">
+            <input type="checkbox" disabled aria-label="Compatibility baseline pending" />
+            <div>
+              <span class="status">Current</span>
+              <h3>1. Freeze The Compatibility Baseline</h3>
+              <p>Define observable behavior before creating Laravel code.</p>
+              <ul>
+                <li>record routes, request/response shapes, cookies, env names, and SQLite schema</li>
+                <li>run current tests and preserve representative search and AI recall cases</li>
+                <li>capture desktop/mobile screenshots of critical workflows</li>
+                <li>create and restore a verified SQLite backup</li>
+                <li>make a migration-only DB copy; never experiment on the original file</li>
+              </ul>
+            </div>
+          </li>
+
+          <li class="stage">
+            <input type="checkbox" disabled aria-label="Laravel foundation pending" />
+            <div>
+              <span class="status">Pending</span>
+              <h3>2. Build The Laravel Foundation</h3>
+              <p>Create the smallest Laravel runtime beside the current app.</p>
+              <ul>
+                <li>install Laravel without starter kits, frontend framework, or unused services</li>
+                <li>connect only to copied SQLite data and prove read compatibility first</li>
+                <li>define fresh-install migration without rewriting existing production data</li>
+                <li>add PHPUnit, session config, structured logging, static assets, and env example</li>
+                <li>document local commands and keep Next.js runnable as reference</li>
+              </ul>
+            </div>
+          </li>
+
+          <li class="stage">
+            <input type="checkbox" disabled aria-label="Core product parity pending" />
+            <div>
+              <span class="status">Pending</span>
+              <h3>3. Rebuild Core Product In Vertical Slices</h3>
+              <p>One behavior per reviewed slice. No big-bang frontend rewrite.</p>
+              <ul>
+                <li>single-user login, route protection, and logout</li>
+                <li>idea collection read view and direct note view</li>
+                <li>create, edit, cancel, save, and delete</li>
+                <li>keyword search and local lexical recall ranking</li>
+                <li>Blade UI, existing CSS adaptation, and minimal DOM interaction modules</li>
+              </ul>
+            </div>
+          </li>
+
+          <li class="stage">
+            <input type="checkbox" disabled aria-label="AI extension and operations parity pending" />
+            <div>
+              <span class="status">Pending</span>
+              <h3>4. Restore AI, Extension, And Operations Parity</h3>
+              <p>Reconnect paid and operational boundaries only after core behavior is stable.</p>
+              <ul>
+                <li>port Responses API calls, strict JSON Schema parsing, timeout, fallback, and rate limits</li>
+                <li>restore <code>/api/capture</code> bearer auth without session or CSRF coupling</li>
+                <li>convert extension tests from Vitest to Node built-in tests without changing extension behavior</li>
+                <li>port structured logs and privacy rules</li>
+                <li>replace Node backup with verified Artisan backup and restore commands</li>
+              </ul>
+            </div>
+          </li>
+
+          <li class="stage">
+            <input type="checkbox" disabled aria-label="Cutover pending" />
+            <div>
+              <span class="status">Pending</span>
+              <h3>5. Cut Over With A Rollback Gate</h3>
+              <p>Switch only after behavior, data, deployment, and recovery evidence pass.</p>
+              <ul>
+                <li>run full PHP and extension test suites</li>
+                <li>compare old/new UI and golden search/AI cases</li>
+                <li>backup real SQLite, deploy Laravel beside current service, and run smoke tests</li>
+                <li>switch traffic while preserving old release and database backup</li>
+                <li>remove Next.js runtime only after an observation window and restore rehearsal</li>
+                <li>update architecture, security, deployment, operations, project memory, README, and canonical stage map</li>
+              </ul>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Safety Gates</h2>
+        <ul class="checks">
+          <li>No write against original DB before compatibility proof.</li>
+          <li>No stage closes with failing parity tests.</li>
+          <li>No paid AI call in broad automated tests.</li>
+          <li>No extension secret enters client logs or source.</li>
+          <li>No production cutover without tested backup restore.</li>
+          <li>No deletion of Next.js reference before rollback window ends.</li>
+          <li>No new product features during migration.</li>
+          <li>No framework extras without a proven requirement.</li>
+        </ul>
+
+        <p class="danger">
+          <strong>Data rule:</strong> Git rollback restores code, not SQLite data. Every destructive migration or cutover
+          requires a separately verified database backup and restore path.
+        </p>
+      </section>
+
+      <section>
+        <h2>Definition Of Done</h2>
+        <ul>
+          <li>Laravel is the only production application runtime.</li>
+          <li>Existing SQLite data opens without lost or rewritten notes.</li>
+          <li>Auth, CRUD, keyword search, AI recall, and Chrome capture preserve approved behavior.</li>
+          <li>PHPUnit and extension tests pass; critical workflows pass manually.</li>
+          <li>Logs, backup, restore, deployment, and rollback instructions are verified.</li>
+          <li>No excluded framework or infrastructure dependency was introduced.</li>
+          <li>Current documentation describes Laravel, not the retired Next.js architecture.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Tradeoff</h2>
+        <p class="warning">
+          <strong>Benefit:</strong> simpler server-rendered runtime, Laravel conventions, fewer frontend build concerns.
+          <strong>Cost:</strong> complete UI and backend rewrite, temporary dual-stack maintenance, fresh deployment knowledge,
+          and regression risk. Parity gates buy safety by making migration slower.
+        </p>
+      </section>
+
+      <footer>
+        Next checkpoint: Stage 1 only. Record compatibility contracts and baseline evidence before running any Laravel installer command.
+      </footer>
+    </main>
+  </body>
+</html>

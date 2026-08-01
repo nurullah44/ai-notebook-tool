@@ -120,7 +120,25 @@ Do not push directly to `main` unless the human explicitly asks for it.
 
 The human may choose any project. Codex must keep the first version small.
 
-Use `docs/inner-voice.html` as the current stage map for this project. Before proposing the next implementation slice, check the stage order there and say which stage we are in. If a better learning or product reason suggests changing the order, explain the reason first and update the stage map before acting.
+### Workflow Document Routing
+
+Before proposing or implementing work:
+
+1. Read `ai/PROJECT_MEMORY.md` and find its `Active Workflow` section.
+2. Always read canonical `docs/inner-voice.html` for the overall product journey.
+3. If `Active side workflow` names a file, read that exact file and use its current stage and next checkpoint.
+4. Never choose a workflow by filename, modification date, or guesswork.
+5. Exactly one side workflow may be active unless the human explicitly approves parallel work.
+6. A workflow explicitly named by the human overrides the pointer for that turn. If the direction has changed, update the pointer before implementation.
+7. Completed, deferred, or abandoned workflow files remain historical context and must not be treated as active unless the pointer names them.
+
+Workflow roles:
+
+- `docs/inner-voice.html`: permanent canonical product journey
+- `docs/inner-voice-<feature>.html`: focused side journey
+- `ai/PROJECT_MEMORY.md`: authority for which side journey is active now
+
+Before proposing the next implementation slice, state the canonical stage, active side workflow, and its next checkpoint. If a better learning or product reason suggests changing the order, explain the reason and update the pointer and affected stage maps before acting.
 
 For any app, start with the smallest useful vertical path:
 
@@ -220,7 +238,7 @@ Update docs only when a decision becomes stable. Do not create documentation noi
 
 Before committing a meaningful slice, run this docs/memory check:
 
-- Did stage status or next checkpoint change? Update `docs/inner-voice.html`.
+- Did active workflow, stage status, or next checkpoint change? Update the `Active Workflow` pointer in `ai/PROJECT_MEMORY.md`, the active side map, and `docs/inner-voice.html` when the canonical journey changed.
 - Did architecture, routing, data flow, auth, AI, or deployment shape change? Update `docs/ARCHITECTURE.md`.
 - Did environment variables, deployment steps, or production assumptions change? Update `.env.example` and `docs/DEPLOYMENT.md`.
 - Did auth, secrets, private data, permissions, logging, AI safety, or public exposure risk change? Update `docs/SECURITY.md`.

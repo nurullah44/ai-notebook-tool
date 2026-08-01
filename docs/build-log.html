@@ -955,6 +955,41 @@
           <li>Production domain and host-permission changes remain deferred until deployment.</li>
         </ul>
       </article>
+
+      <article>
+        <h2>2026-08-01: Laravel Migration Planning And Workflow Routing</h2>
+
+        <h3>Concept</h3>
+        <p>
+          A framework rewrite needs behavior contracts, data safety, parity
+          evidence, and rollback gates before implementation. Multiple planning
+          documents also need one explicit active-workflow pointer; agents must
+          not guess from filenames or modification dates.
+        </p>
+
+        <h3>What Changed</h3>
+        <ul>
+          <li>Added a five-stage Laravel migration map without changing application code.</li>
+          <li>Kept SQLite data, product behavior, OpenAI contracts, and the Chrome extension as compatibility boundaries.</li>
+          <li>Made <code>ai/PROJECT_MEMORY.md</code> authoritative for the active side workflow.</li>
+          <li>Added deterministic workflow-routing rules to <code>AGENTS.md</code>.</li>
+          <li>Linked the canonical stage map to the active Laravel migration map.</li>
+        </ul>
+
+        <h3>How It Was Verified</h3>
+        <ul>
+          <li>Both affected HTML stage maps passed structural parsing.</li>
+          <li>The active workflow pointer resolves to an existing file marked active.</li>
+          <li>The migration map contains compatibility, safety, completion, and rollback gates.</li>
+        </ul>
+
+        <h3>What Remains</h3>
+        <p>
+          Stage 1 must freeze current routes, payloads, session behavior, SQLite
+          schema, representative outputs, screenshots, and backup/restore evidence.
+          No Laravel installer has been run.
+        </p>
+      </article>
     </main>
   </body>
 </html>

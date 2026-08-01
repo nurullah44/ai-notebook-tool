@@ -9,7 +9,15 @@ Stable facts future Codex sessions should remember. Keep short.
 - Audience: founder-only V1
 - Real problem: user remembers rough shape of ideas but not exact note wording or location
 - Smallest useful version: login, create/read/edit/delete notes, search notes, ask AI about own notes, logs, backups, targeted tests, deployment notes
-- Current stage: Prototype; the V2 idea collection frontend is implemented. The local Chrome capture slice has completed API and extension implementation and is at Stage 5, with only the manual unpacked context-menu workflow pending. The next planned core stage remains the Deployment Slice.
+- Current stage: Prototype; Laravel migration planning is active before deployment. The V2 collection UI and Chrome capture implementation remain reference behavior. Manual unpacked Chrome verification remains pending but inactive during migration planning.
+
+## Active Workflow
+
+- Canonical map: `docs/inner-voice.html`
+- Active side workflow: `docs/inner-voice-laravel-migration.html`
+- Status: Planning
+- Current stage: 1 - Freeze The Compatibility Baseline
+- Next checkpoint: record current routes, request/response contracts, session behavior, SQLite schema, representative search/AI cases, screenshots, and verified backup/restore evidence before installing Laravel
 
 ## Learning Goal
 
@@ -36,7 +44,7 @@ Follow `docs/inner-voice.html` as the stage map.
    - notes/search tests using temporary SQLite - done
    - AI request/output safety and backup integrity tests - done
 
-The parallel Chrome capture stage map is `docs/inner-voice-extension.html`: stages 1-4 are done, Stage 5 is current with automated checks, a live API/OpenAI save, and options-page inspection done, and the unpacked Chrome context-menu check pending. Stage 6 production domain setup is deferred.
+The Chrome capture stage map is `docs/inner-voice-extension.html`: stages 1-4 are done. Stage 5 manual unpacked context-menu verification remains pending but is not the active workflow. Stage 6 production domain setup is deferred.
 
 ## Stack Decisions
 
