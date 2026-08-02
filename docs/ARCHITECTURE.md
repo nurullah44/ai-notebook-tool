@@ -4,15 +4,16 @@ Keep this document factual and short. Update it only after decisions are stable.
 
 ## Current Shape
 
-- App: Next.js with TypeScript
+- Product reference: the working Next.js and TypeScript app remains authoritative until cutover
+- Migration runtime: Laravel 13 with Blade and normal static assets runs side-by-side in `laravel/`; product behavior migration has not started
 - Extension: unpacked Manifest V3 Chrome extension in `extension/`, implemented in plain JavaScript
-- Database: SQLite via `better-sqlite3`, stored at `SQLITE_DB_PATH` or `data/notebook.db`
+- Database: the Next.js reference uses SQLite through `better-sqlite3`; Laravel uses PDO SQLite and currently reads only an ignored migration copy
 - Auth: Founder-only login with a secure session
 - AI: OpenAI Responses API for rough-memory note lookup and capture-title generation, defaulting to `gpt-5.4-mini`
 - Capture API: dedicated bearer-authenticated `POST /api/capture` endpoint for selected text
 - Logging: structured JSON stdout/stderr logs with metadata only
 - Backup: manual verified SQLite backup through `npm run backup`, stored locally in ignored `backups/`
-- Tests: focused Vitest coverage for auth, notes, search, AI boundaries, backup, the capture API, and extension behavior; database tests use temporary SQLite files
+- Tests: Vitest protects the Next.js reference; PHPUnit protects the Laravel foundation using in-memory SQLite
 - Deployment: Hetzner VPS, reached through Tailscale for admin access and Cloudflare Tunnel for web traffic
 
 ## Boundaries
@@ -55,6 +56,23 @@ This is more operational work than Vercel plus Supabase. We become responsible f
 
 Date:
 2026-06-20
+
+### Decision: Side-by-side Laravel migration foundation
+
+Context:
+The product is being migrated without risking current behavior or the live SQLite database.
+
+Decision:
+Run Laravel 13 in `laravel/` beside the current Next.js app. Use Blade, static CSS and JavaScript, PDO SQLite, encrypted cookie sessions, JSON stderr logging, and PHPUnit. Keep Next.js as the behavior reference until parity and cutover are complete.
+
+Reason:
+The separate runtime allows each behavior to be rebuilt and verified in small vertical slices against copied data.
+
+Tradeoff:
+The repository temporarily contains two application runtimes. Laravel is not the production app until every parity and recovery gate passes.
+
+Date:
+2026-08-02
 
 ### Decision: V1 auth
 

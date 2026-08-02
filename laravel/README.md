@@ -4,7 +4,7 @@ This directory contains the side-by-side Laravel migration target. The Next.js a
 
 ## Requirements
 
-- PHP 8.5 with `curl`, `fileinfo`, `mbstring`, `openssl`, `pdo_sqlite`, `sqlite3`, and `zip`
+- PHP 8.5 with `curl`, `dom`, `fileinfo`, `libxml`, `mbstring`, `openssl`, `pdo_sqlite`, `sqlite3`, `xml`, `xmlwriter`, and `zip`
 - Composer 2
 
 ## First Setup
