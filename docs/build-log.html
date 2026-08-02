@@ -970,6 +970,7 @@
         <h3>What Changed</h3>
         <ul>
           <li>Added a five-stage Laravel migration map without changing application code.</li>
+          <li>Added an executable compatibility contract for routes, auth, SQLite, search, AI, extension, UI, logs, and recovery.</li>
           <li>Kept SQLite data, product behavior, OpenAI contracts, and the Chrome extension as compatibility boundaries.</li>
           <li>Made <code>ai/PROJECT_MEMORY.md</code> authoritative for the active side workflow.</li>
           <li>Added deterministic workflow-routing rules to <code>AGENTS.md</code>.</li>
@@ -981,13 +982,52 @@
           <li>Both affected HTML stage maps passed structural parsing.</li>
           <li>The active workflow pointer resolves to an existing file marked active.</li>
           <li>The migration map contains compatibility, safety, completion, and rollback gates.</li>
+          <li>The contract was traced to current application behavior; the existing 49 tests pass.</li>
+          <li>A production build completed; UI parity will be checked in Chrome only after the Blade UI exists.</li>
+          <li>The SQLite backup and isolated restore both passed integrity and count checks; restored backup hashes matched.</li>
         </ul>
 
-        <h3>What Remains</h3>
+        <h3>What Comes Next</h3>
         <p>
-          Stage 1 must freeze current routes, payloads, session behavior, SQLite
-          schema, representative outputs, screenshots, and backup/restore evidence.
-          No Laravel installer has been run.
+          Stage 1 is complete. Stage 2 starts by checking local PHP and Composer,
+          choosing the exact Laravel version, and agreeing on the side-by-side
+          directory. No Laravel installer has been run.
+        </p>
+      </article>
+
+      <article>
+        <h2>2026-08-02: Laravel Foundation Ready</h2>
+
+        <h3>Concept</h3>
+        <p>
+          A migration foundation proves that the new runtime can start, read a
+          safe database copy, create the correct schema for fresh installs, and
+          protect existing data before product behavior is rewritten.
+        </p>
+
+        <h3>What Changed</h3>
+        <ul>
+          <li>Installed PHP 8.5, Composer 2, and Laravel 13 side-by-side in <code>laravel/</code>.</li>
+          <li>Removed Vite, Tailwind, queue workers, and default user/cache/jobs tables.</li>
+          <li>Configured SQLite path compatibility, seven-day encrypted cookie sessions, JSON stderr logging, static assets, and required environment names.</li>
+          <li>Added a fresh-install notes migration that does not rewrite or drop a pre-existing notes table.</li>
+          <li>Documented <code>composer setup</code>, <code>composer dev</code>, and <code>composer test</code>.</li>
+        </ul>
+
+        <h3>How It Was Verified</h3>
+        <ul>
+          <li>Laravel read all 4 ideas from the ignored migration database copy.</li>
+          <li>SQLite integrity returned <code>ok</code> and the copy's SHA-256 remained unchanged after reading.</li>
+          <li>Three PHPUnit foundation tests passed with 9 assertions against in-memory SQLite.</li>
+          <li>The local server returned <code>200</code> for the Blade page and static CSS.</li>
+          <li>Structured logging emitted JSON and session settings matched the compatibility contract.</li>
+        </ul>
+
+        <h3>What Comes Next</h3>
+        <p>
+          Stage 2 is complete. Stage 3 is ready but has not started. The next
+          session begins by teaching and agreeing on authentication, then ports
+          it as the first small vertical slice.
         </p>
       </article>
     </main>

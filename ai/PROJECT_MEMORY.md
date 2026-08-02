@@ -15,9 +15,12 @@ Stable facts future Codex sessions should remember. Keep short.
 
 - Canonical map: `docs/inner-voice.html`
 - Active side workflow: `docs/inner-voice-laravel-migration.html`
-- Status: Planning
-- Current stage: 1 - Freeze The Compatibility Baseline
-- Next checkpoint: record current routes, request/response contracts, session behavior, SQLite schema, representative search/AI cases, screenshots, and verified backup/restore evidence before installing Laravel
+- Required active documents:
+  - `docs/LARAVEL_MIGRATION_CONTRACT.md`
+  - `docs/LARAVEL_MIGRATION_BASELINE.md`
+- Status: Laravel foundation ready; product migration has not started
+- Current stage: 3 - Rebuild Core Product In Vertical Slices (ready, not started)
+- Next checkpoint: teach the authentication slice, agree on its observable behavior and verification, then migrate auth as the first vertical slice
 
 ## Learning Goal
 
@@ -60,6 +63,10 @@ The Chrome capture stage map is `docs/inner-voice-extension.html`: stages 1-4 ar
 - Testing: Vitest in Node; tests use fake secrets and must never use the real notebook database. Capture verification recorded 22 auth/capture-route checks and 19 extension pure/service-worker/options checks passing.
 
 ## Architecture Decisions
+
+### Decision: Laravel migration foundation
+
+Laravel 13 runs side-by-side in `laravel/` on PHP 8.5 with Blade, normal static assets, SQLite, encrypted cookie sessions, JSON stderr logging, and PHPUnit. Vite, Tailwind, queues, database-backed sessions, and default user/cache/jobs tables are excluded. Until cutover, the Next.js app remains the product behavior reference.
 
 ### Decision: V1 stack
 

@@ -116,6 +116,7 @@ Use this workflow for meaningful code changes:
 
 Do not push directly to `main` unless the human explicitly asks for it.
 
+
 ## Project Scope Discipline
 
 The human may choose any project. Codex must keep the first version small.
@@ -127,16 +128,17 @@ Before proposing or implementing work:
 1. Read `ai/PROJECT_MEMORY.md` and find its `Active Workflow` section.
 2. Always read canonical `docs/inner-voice.html` for the overall product journey.
 3. If `Active side workflow` names a file, read that exact file and use its current stage and next checkpoint.
-4. Never choose a workflow by filename, modification date, or guesswork.
-5. Exactly one side workflow may be active unless the human explicitly approves parallel work.
-6. A workflow explicitly named by the human overrides the pointer for that turn. If the direction has changed, update the pointer before implementation.
-7. Completed, deferred, or abandoned workflow files remain historical context and must not be treated as active unless the pointer names them.
+4. Read every file listed under `Required active documents` before planning or implementation.
+5. Never choose a workflow by filename, modification date, or guesswork.
+6. Exactly one side workflow may be active unless the human explicitly approves parallel work.
+7. A workflow explicitly named by the human overrides the pointer for that turn. If the direction has changed, update the pointer before implementation.
+8. Completed, deferred, or abandoned workflow files remain historical context and must not be treated as active unless the pointer names them.
 
 Workflow roles:
 
 - `docs/inner-voice.html`: permanent canonical product journey
 - `docs/inner-voice-<feature>.html`: focused side journey
-- `ai/PROJECT_MEMORY.md`: authority for which side journey is active now
+- `ai/PROJECT_MEMORY.md`: authority for the active side journey and its required supporting documents
 
 Before proposing the next implementation slice, state the canonical stage, active side workflow, and its next checkpoint. If a better learning or product reason suggests changing the order, explain the reason and update the pointer and affected stage maps before acting.
 

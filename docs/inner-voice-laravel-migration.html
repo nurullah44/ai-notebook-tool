@@ -157,7 +157,7 @@
             <tr><td>AI</td><td>Same candidate context, model config, strict output shape, fallback, limits, and safe logs.</td><td>Mocked feature tests plus one approved live call.</td></tr>
             <tr><td>Extension</td><td>Same URL, JSON body, bearer token, limits, status codes, and saved result.</td><td>Extension tests plus unpacked Chrome capture.</td></tr>
             <tr><td>Operations</td><td>Logs stay useful; backup is consistent, integrity-checked, restorable, and count-verified.</td><td>Artisan backup and destructive restore rehearsal on copied data.</td></tr>
-            <tr><td>UI</td><td>Idea cards, flip behavior, search modes, editor, hover feel, and responsive layout remain recognizable.</td><td>Old/new screenshots and manual workflow comparison.</td></tr>
+            <tr><td>UI</td><td>Idea cards, flip behavior, search modes, editor, hover feel, and responsive layout remain recognizable.</td><td>Current source/CSS reference plus manual Chrome comparison after Blade exists.</td></tr>
           </tbody>
         </table>
       </section>
@@ -165,42 +165,42 @@
       <section>
         <h2>Migration Stages</h2>
         <ol class="stages">
-          <li class="stage current">
-            <input type="checkbox" disabled aria-label="Compatibility baseline pending" />
+          <li class="stage">
+            <input type="checkbox" checked disabled aria-label="Compatibility baseline complete" />
             <div>
-              <span class="status">Current</span>
+              <span class="status">Done</span>
               <h3>1. Freeze The Compatibility Baseline</h3>
               <p>Define observable behavior before creating Laravel code.</p>
               <ul>
-                <li>record routes, request/response shapes, cookies, env names, and SQLite schema</li>
-                <li>run current tests and preserve representative search and AI recall cases</li>
-                <li>capture desktop/mobile screenshots of critical workflows</li>
-                <li>create and restore a verified SQLite backup</li>
-                <li>make a migration-only DB copy; never experiment on the original file</li>
+                <li>done: record routes, request/response shapes, cookies, env names, and compatibility requirements in <code>docs/LARAVEL_MIGRATION_CONTRACT.md</code></li>
+                <li>done: current 49 tests pass; representative search and AI recall cases are recorded</li>
+                <li>done: current source and CSS are the UI reference; Chrome comparison waits until Blade exists</li>
+                <li>done: a verified SQLite backup was restored and compared in isolation</li>
+                <li>done: migration-only DB copies exist outside Git; the original file was not modified</li>
               </ul>
             </div>
           </li>
 
           <li class="stage">
-            <input type="checkbox" disabled aria-label="Laravel foundation pending" />
+            <input type="checkbox" checked disabled aria-label="Laravel foundation complete" />
             <div>
-              <span class="status">Pending</span>
+              <span class="status">Done</span>
               <h3>2. Build The Laravel Foundation</h3>
               <p>Create the smallest Laravel runtime beside the current app.</p>
               <ul>
-                <li>install Laravel without starter kits, frontend framework, or unused services</li>
-                <li>connect only to copied SQLite data and prove read compatibility first</li>
-                <li>define fresh-install migration without rewriting existing production data</li>
-                <li>add PHPUnit, session config, structured logging, static assets, and env example</li>
-                <li>document local commands and keep Next.js runnable as reference</li>
+                <li>done: Laravel 13 runs in <code>laravel/</code> without Vite, Tailwind, queues, or default user/cache/jobs tables</li>
+                <li>done: Laravel read 4 ideas from the copied SQLite baseline; integrity passed and its SHA-256 remained unchanged</li>
+                <li>done: fresh-install migration creates the exact notes schema and safely skips an existing notes table</li>
+                <li>done: PHPUnit, encrypted cookie sessions, JSON stderr logging, static assets, and env example are configured</li>
+                <li>done: local setup/run/test commands are documented; Next.js remains the behavior reference</li>
               </ul>
             </div>
           </li>
 
-          <li class="stage">
+          <li class="stage current">
             <input type="checkbox" disabled aria-label="Core product parity pending" />
             <div>
-              <span class="status">Pending</span>
+              <span class="status">Ready</span>
               <h3>3. Rebuild Core Product In Vertical Slices</h3>
               <p>One behavior per reviewed slice. No big-bang frontend rewrite.</p>
               <ul>
@@ -290,7 +290,7 @@
       </section>
 
       <footer>
-        Next checkpoint: Stage 1 only. Record compatibility contracts and baseline evidence before running any Laravel installer command.
+        Next checkpoint: stop before product migration. Teach and agree on the authentication behavior, architecture, and verification, then rebuild auth as the first vertical slice.
       </footer>
     </main>
   </body>
