@@ -36,23 +36,25 @@
                         class="ideaSlot{{ $isSelected ? ' isFlipped' : '' }}"
                         @if ($index >= 3) hidden data-idea-hidden @endif
                     >
-                        <a
+                        <div
                             class="ideaObject"
-                            href="{{ $isSelected ? '/' : '/notes/'.urlencode($idea->id) }}"
-                            aria-label="{{ $isSelected ? 'Return to collection' : 'Read idea: '.($idea->title ?: 'Untitled idea') }}"
+                            role="button"
+                            tabindex="0"
+                            aria-label="Flip idea: {{ $idea->title ?: 'Untitled idea' }}"
+                            aria-pressed="{{ $isSelected ? 'true' : 'false' }}"
                         >
                             <span class="ideaFace ideaFront">
                                 <span class="objectNumber">{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</span>
                                 <strong>{{ $idea->title ?: 'Untitled idea' }}</strong>
-                                <span class="flipHint">Read idea</span>
+                                <span class="flipHint">Turn over</span>
                             </span>
                             <span class="ideaFace ideaBack">
                                 <span class="ideaMeta"><span>Your idea</span></span>
                                 <small>Idea</small>
                                 <p>{{ $idea->body }}</p>
-                                <span class="flipHint">Return to collection</span>
+                                <span class="flipHint">Return to title</span>
                             </span>
-                        </a>
+                        </div>
                     </article>
                 @empty
                     <p class="emptyCollection">Your first idea is waiting.</p>

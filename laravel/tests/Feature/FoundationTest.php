@@ -26,6 +26,7 @@ class FoundationTest extends TestCase
             ->assertSee('Ideas worth returning to.');
 
         $this->assertFileExists(public_path('css/app.css'));
+        $this->assertFileExists(public_path('fonts/geist-latin.woff2'));
         $this->assertFileExists(public_path('js/app.js'));
     }
 

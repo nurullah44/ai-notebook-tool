@@ -49,7 +49,8 @@ class NoteReadTest extends TestCase
             ->assertSee('Selected idea')
             ->assertSee('Selected body')
             ->assertSee('isFlipped', false)
-            ->assertSee('aria-label="Return to collection"', false);
+            ->assertSee('role="button"', false)
+            ->assertSee('tabindex="0"', false);
     }
 
     public function test_missing_direct_idea_returns_not_found(): void

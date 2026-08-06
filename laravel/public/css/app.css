@@ -1,8 +1,16 @@
 :root {
     color-scheme: light;
-    font-family: Arial, sans-serif;
+    font-family: Geist, Arial, Helvetica, sans-serif;
     --ink: #10203a;
     --blue: #1264e8;
+}
+
+@font-face {
+    font-family: Geist;
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/fonts/geist-latin.woff2') format('woff2');
 }
 
 * {
@@ -140,6 +148,7 @@ textarea {
     height: 100%;
     color: inherit;
     text-decoration: none;
+    cursor: pointer;
     transform-style: preserve-3d;
     transition: transform 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
 }

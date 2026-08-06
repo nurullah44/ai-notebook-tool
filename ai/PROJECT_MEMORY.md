@@ -74,7 +74,7 @@ Laravel now owns the first migrated product slice: one password from `AUTH_PASSW
 
 ### Decision: Laravel note read views
 
-Laravel now reads the configured compatible SQLite notes table through Query Builder. Authenticated `/` and `/notes/{id}` render the shared Blade collection, newest-first with a 100-note query limit; a direct note is moved into the first visible batch and opened to its body. Fifteen Laravel tests currently pass with 46 assertions.
+Laravel now reads the configured compatible SQLite notes table through Query Builder. Authenticated `/` and `/notes/{id}` render the shared Blade collection, newest-first with a 100-note query limit; a direct note is moved into the first visible batch and opened to its body. Fifteen Laravel tests currently pass with 48 assertions.
 
 ### Decision: V1 stack
 

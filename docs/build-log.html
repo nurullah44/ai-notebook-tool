@@ -1075,14 +1075,14 @@
         <h3>What Changed</h3>
         <ul>
           <li>Added protected collection and direct-note routes backed by Laravel Query Builder.</li>
-          <li>Rebuilt the shared Idea Store collection in Blade with newest-first cards and an explicit empty state.</li>
+          <li>Rebuilt the shared Idea Store collection in Blade with Geist typography, newest-first cards, click/keyboard flipping, and an explicit empty state.</li>
           <li>Kept direct notes inside the collection, moved the selection into the first batch, and opened its body side.</li>
           <li>Added a tiny static script that reveals three more ideas near the bottom of the page.</li>
         </ul>
 
         <h3>How It Was Verified</h3>
         <ul>
-          <li>Fifteen PHPUnit tests passed with 46 assertions; Laravel Pint passed.</li>
+          <li>Fifteen PHPUnit tests passed with 48 assertions; Laravel Pint passed.</li>
           <li>Tests used in-memory SQLite and covered ordering, auth protection, direct reads, missing IDs, and empty state.</li>
           <li>Chrome verified three-card visibility, scroll reveal, direct-note body view, and return to collection against the ignored migration database copy.</li>
         </ul>

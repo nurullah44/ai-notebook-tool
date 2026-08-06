@@ -104,7 +104,7 @@ Reason:
 One shared view preserves the existing collection-state behavior and avoids a separate detail-page abstraction while the product is still being migrated slice by slice.
 
 Tradeoff:
-Cards navigate to direct URLs instead of flipping in place during this read-only slice. Create, edit, delete, search, and richer card interaction remain deferred to their own slices.
+The read slice restores click and keyboard card flipping, but create, edit, delete, search, and their controls remain deferred to their own slices.
 
 Date:
 2026-08-06
