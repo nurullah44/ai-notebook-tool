@@ -10,6 +10,7 @@ Prototype
 - Laravel login regenerates the encrypted cookie session; logout invalidates it and regenerates the CSRF token
 - Laravel login and logout forms use CSRF protection; protected product routes require founder session middleware
 - Laravel collection and direct-note routes require the founder session; Blade escapes private titles and bodies before rendering
+- Laravel create, update, and delete routes require the founder session and CSRF-checked POST forms; empty bodies are rejected before database writes
 - Laravel session cookies are HTTP-only, SameSite=Lax, and forced Secure when `APP_ENV=production`
 - Secrets are in environment variables, never committed
 - SQLite database files are ignored by git
@@ -19,7 +20,7 @@ Prototype
 - The unpacked extension can reach only `http://localhost:3000/*`
 - Capture accepts only trimmed selected text from 3-5,000 characters and limits valid captures to 10 per minute per server process
 - Search uses parameterized SQLite queries
-- Delete note requires authentication and browser confirmation
+- Delete note requires authentication, CSRF protection, and browser confirmation
 - AI calls limit question length, retrieved note count, snippet size, and output length
 - User-provided note and selected text is not trusted as instructions
 - Dangerous actions require human approval

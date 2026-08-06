@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [NoteController::class, 'index'])->middleware('founder');
 Route::get('/notes/{id}', [NoteController::class, 'show'])->middleware('founder');
+Route::post('/api/notes', [NoteController::class, 'store'])->middleware('founder');
+Route::post('/api/notes/{id}', [NoteController::class, 'update'])->middleware('founder');
+Route::post('/api/notes/{id}/delete', [NoteController::class, 'destroy'])->middleware('founder');
 
 Route::get('/login', [AuthController::class, 'showLogin']);
 Route::post('/api/login', [AuthController::class, 'login']);

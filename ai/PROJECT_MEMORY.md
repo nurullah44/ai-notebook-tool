@@ -9,7 +9,7 @@ Stable facts future Codex sessions should remember. Keep short.
 - Audience: founder-only V1
 - Real problem: user remembers rough shape of ideas but not exact note wording or location
 - Smallest useful version: login, create/read/edit/delete notes, search notes, ask AI about own notes, logs, backups, targeted tests, deployment notes
-- Current stage: Prototype; Laravel migration planning is active before deployment. The V2 collection UI and Chrome capture implementation remain reference behavior. Manual unpacked Chrome verification remains pending but inactive during migration planning.
+- Current stage: Prototype; Laravel migration implementation is active before deployment. Founder authentication, note read views, and note CRUD are migrated, while search, AI recall, and Chrome capture remain reference behavior until cutover.
 
 ## Active Workflow
 
@@ -18,9 +18,9 @@ Stable facts future Codex sessions should remember. Keep short.
 - Required active documents:
   - `docs/LARAVEL_MIGRATION_CONTRACT.md`
   - `docs/LARAVEL_MIGRATION_BASELINE.md`
-- Status: Laravel foundation, founder authentication, and note read views are implemented and verified
+- Status: Laravel foundation, founder authentication, note read views, and note CRUD are implemented and verified
 - Current stage: 3 - Rebuild Core Product In Vertical Slices (in progress)
-- Next checkpoint: teach and plan create, edit, cancel, save, and delete, then migrate them as the third vertical slice
+- Next checkpoint: teach and plan keyword search and local lexical ranking, then migrate them as the fourth vertical slice
 
 ## Learning Goal
 
@@ -75,6 +75,10 @@ Laravel now owns the first migrated product slice: one password from `AUTH_PASSW
 ### Decision: Laravel note read views
 
 Laravel now reads the configured compatible SQLite notes table through Query Builder. Authenticated `/` and `/notes/{id}` render the shared Blade collection, newest-first with a 100-note query limit; a direct note is moved into the first visible batch and opened to its body. Fifteen Laravel tests currently pass with 48 assertions.
+
+### Decision: Laravel note CRUD
+
+Authenticated, CSRF-protected POST routes now create, update, and delete notes through Query Builder. Blade and minimal JavaScript provide create/edit composers, cancel behavior, word counting, and browser delete confirmation. Empty bodies are rejected without writes, note content is never logged, and 24 Laravel tests currently pass with 93 assertions.
 
 ### Decision: V1 stack
 
