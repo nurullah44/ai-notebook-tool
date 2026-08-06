@@ -1123,6 +1123,35 @@
           Keep Stage 3 open. Teach and plan keyword search and local lexical ranking as the next vertical slice.
         </p>
       </article>
+
+      <article>
+        <h2>2026-08-06: Laravel UI Parity Correction</h2>
+
+        <h3>Concept</h3>
+        <p>
+          A migration should preserve the reference product's interaction language, not merely
+          reproduce its data and routes. The Next.js implementation remains the visual source of truth.
+        </p>
+
+        <h3>What Changed</h3>
+        <ul>
+          <li>Matched the migrated collection cards, controls, motion, colors, typography, spacing, and responsive behavior to the Next.js UI.</li>
+          <li>Replaced approximate text controls with the reference icons and restored the full-screen create and edit composer.</li>
+          <li>Added the same human-readable update-time labels shown on flipped cards.</li>
+        </ul>
+
+        <h3>How It Was Verified</h3>
+        <ul>
+          <li>Twenty-four PHPUnit tests passed with 93 assertions; Laravel Pint, JavaScript syntax, and whitespace checks passed.</li>
+          <li>Chrome comparison covered the login and collection surfaces against the running Next.js reference.</li>
+        </ul>
+
+        <h3>What Comes Next</h3>
+        <p>
+          Keep Stage 3 open. Keyword search and local lexical ranking remain the next vertical slice;
+          the Laravel header will gain the reference search control with that functional migration.
+        </p>
+      </article>
     </main>
   </body>
 </html>

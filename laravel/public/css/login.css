@@ -1,10 +1,21 @@
 * {
     box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+@font-face {
+    font-family: Geist;
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url('/fonts/geist-latin.woff2') format('woff2');
 }
 
 body {
-    margin: 0;
-    font-family: Arial, sans-serif;
+    font-family: Geist, Arial, Helvetica, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .loginPage {
@@ -59,7 +70,7 @@ body {
 .loginForm label {
     color: #435a78;
     font-size: 0.9rem;
-    font-weight: 700;
+    font-weight: 760;
 }
 
 .loginForm input {

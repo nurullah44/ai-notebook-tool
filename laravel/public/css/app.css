@@ -15,12 +15,31 @@
 
 * {
     box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+html {
+    height: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
 }
 
 body {
-    margin: 0;
+    display: flex;
+    min-height: 100%;
+    max-width: 100vw;
+    flex-direction: column;
+    overflow-x: hidden;
     color: var(--ink);
     background: #f4f7fb;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
 }
 
 button,
@@ -71,31 +90,40 @@ textarea {
     font-size: 15px;
 }
 
-.headerMeta,
-.headerMeta form {
+.headerMeta {
     display: flex;
     align-items: center;
-}
-
-.headerMeta {
+    justify-content: flex-end;
     gap: 22px;
     color: #6b7b91;
     font-size: 12px;
 }
 
+.headerMeta form {
+    display: contents;
+}
+
 .headerMeta button {
-    min-height: 36px;
-    padding: 0 12px;
+    display: grid;
+    width: 36px;
+    height: 36px;
+    place-items: center;
     color: #52647e;
-    border: 1px solid #ced9e6;
+    border: 0;
     background: transparent;
     cursor: pointer;
+    transition: color 0.18s ease, background 0.18s ease;
 }
 
 .headerMeta button:hover {
     color: var(--blue);
-    border-color: #91acd1;
     background: #e7eef8;
+}
+
+.headerMeta svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
 }
 
 .collectionHeader {
@@ -139,6 +167,25 @@ textarea {
     height: min(58vh, 590px);
     min-height: 400px;
     perspective: 1200px;
+    animation: arrive 0.55s both;
+    animation-delay: var(--delay);
+    transition: transform 0.7s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@keyframes arrive {
+    from {
+        opacity: 0;
+        transform: translateY(22px);
+    }
+}
+
+.ideaSlot:hover {
+    transform: scale(1.003);
+}
+
+.ideaSlot:active {
+    transform: scale(0.998);
+    transition-duration: 0.16s;
 }
 
 .ideaObject {
@@ -151,6 +198,7 @@ textarea {
     cursor: pointer;
     transform-style: preserve-3d;
     transition: transform 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
+    will-change: transform;
 }
 
 .ideaObject:focus-visible {
@@ -170,12 +218,13 @@ textarea {
     padding: clamp(24px, 3vw, 44px);
     overflow: hidden;
     backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
     box-shadow: 0 18px 45px rgba(31, 58, 91, 0.08);
-    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+    transition: box-shadow 0.65s cubic-bezier(0.22, 0.61, 0.36, 1), border-color 0.65s ease;
 }
 
 .ideaSlot:hover .ideaFace {
-    box-shadow: 0 30px 72px rgba(30, 76, 137, 0.18);
+    box-shadow: 0 30px 72px rgba(30, 76, 137, 0.18), 0 0 0 1px rgba(126, 167, 225, 0.2);
 }
 
 .ideaFront {
@@ -184,27 +233,62 @@ textarea {
     background: #fbfcfe;
 }
 
+.ideaSlot:hover .ideaFront {
+    border-color: #9db9df;
+}
+
+.ideaFront::before {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, transparent 8%, rgba(212, 230, 255, 0.22) 34%, rgba(181, 214, 255, 0.58) 51%, rgba(235, 244, 255, 0.3) 68%, transparent 92%);
+    content: "";
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-22%);
+    transition: opacity 0.45s ease, transform 1s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.ideaSlot:hover .ideaFront::before {
+    opacity: 1;
+    transform: translateX(8%);
+}
+
 .objectNumber {
+    position: relative;
     align-self: flex-end;
     color: #8a99ad;
 }
 
 .ideaFront strong {
+    position: relative;
     max-width: 12ch;
     margin: auto 0;
     font-size: clamp(25px, 2.6vw, 44px);
     font-weight: 590;
     line-height: 1.08;
+    text-align: left;
+    transition: color 0.55s ease;
+}
+
+.ideaSlot:hover .ideaFront strong {
+    color: #0d54b8;
 }
 
 .ideaBack {
     color: #ffffff;
     background: var(--blue);
     transform: rotateY(180deg);
+    transition: background 0.65s ease, box-shadow 0.65s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.ideaSlot:hover .ideaBack {
+    background: #1c6dea;
 }
 
 .ideaMeta {
     display: flex;
+    justify-content: space-between;
+    gap: 18px;
     color: rgba(255, 255, 255, 0.68);
 }
 
@@ -217,37 +301,66 @@ textarea {
     margin: 20px 0 auto;
     font-size: clamp(19px, 2vw, 30px);
     line-height: 1.3;
+    text-align: left;
 }
 
 .ideaActions {
+    position: absolute;
+    right: 28px;
+    bottom: 25px;
+    z-index: 2;
     display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 22px;
+    gap: 8px;
 }
 
 .ideaActions form {
-    margin: 0;
+    display: contents;
 }
 
 .ideaActions a,
 .ideaActions button {
+    display: grid;
+    width: 40px;
+    height: 40px;
+    place-items: center;
     padding: 0;
     color: #ffffff;
-    border: 0;
-    background: transparent;
-    font-size: 12px;
-    text-decoration: underline;
-    text-underline-offset: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    background: rgba(7, 35, 82, 0.35);
+    box-shadow: 0 5px 16px rgba(7, 35, 82, 0.2);
     cursor: pointer;
+    transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+}
+
+.ideaActions a:hover,
+.ideaActions button:hover {
+    border-color: #ffffff;
+    background: rgba(7, 35, 82, 0.68);
+    transform: translateY(-2px);
+}
+
+.ideaActions svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
 }
 
 .flipHint {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 7px;
     color: #718198;
 }
 
 .ideaBack .flipHint {
     color: rgba(255, 255, 255, 0.7);
+}
+
+.flipHint svg {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
 }
 
 .emptyCollection {
@@ -270,35 +383,43 @@ textarea {
 
 .createButton {
     position: fixed;
-    right: clamp(22px, 5vw, 78px);
-    bottom: 34px;
+    right: clamp(22px, 4vw, 60px);
+    bottom: clamp(22px, 4vw, 52px);
     z-index: 25;
-    width: 58px;
-    height: 58px;
+    display: grid;
+    width: 72px;
+    height: 72px;
+    place-items: center;
     color: #ffffff;
     border: 0;
     border-radius: 50%;
-    background: var(--ink);
-    box-shadow: 0 16px 36px rgba(16, 32, 58, 0.24);
-    font-size: 32px;
-    font-weight: 300;
-    line-height: 1;
+    background: var(--blue);
+    box-shadow: 0 18px 42px rgba(18, 100, 232, 0.34);
     cursor: pointer;
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
 }
 
 .createButton:hover {
-    background: var(--blue);
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 26px 58px rgba(18, 100, 232, 0.42);
+}
+
+.createButton svg {
+    width: 28px;
+    height: 28px;
+    fill: currentColor;
 }
 
 .overlay {
     position: fixed;
     inset: 0;
-    z-index: 40;
+    z-index: 100;
     display: grid;
-    place-items: center;
-    padding: clamp(14px, 4vw, 54px);
-    background: rgba(16, 32, 58, 0.58);
-    backdrop-filter: blur(12px);
+    place-items: start center;
+    overflow-y: auto;
+    padding: 18vh max(24px, 5vw) 80px;
+    background: rgba(9, 20, 36, 0.68);
+    backdrop-filter: blur(16px);
 }
 
 .overlay[hidden] {
@@ -307,105 +428,156 @@ textarea {
 
 .composer {
     display: flex;
-    width: min(960px, 100%);
-    height: min(720px, 92vh);
+    width: 100%;
+    min-height: 100vh;
     flex-direction: column;
-    background: #fbfcfe;
-    box-shadow: 0 28px 90px rgba(8, 23, 45, 0.28);
+    color: var(--ink);
+    background: #f7faff;
+    animation: composerIn 0.38s ease-out;
+}
+
+@keyframes composerIn {
+    from {
+        opacity: 0;
+        transform: translateY(24px) scale(0.98);
+    }
+}
+
+.editorWorld {
+    place-items: stretch;
+    overflow: hidden;
+    padding: 0;
+    background: rgba(9, 20, 36, 0.48);
 }
 
 .composerHeader {
     display: flex;
-    min-height: 78px;
+    min-height: 88px;
     align-items: center;
     justify-content: space-between;
-    gap: 20px;
-    padding: 0 clamp(20px, 4vw, 46px);
+    gap: 24px;
+    padding: 0 clamp(24px, 5vw, 76px);
     border-bottom: 1px solid #dbe3ed;
-    font-size: 13px;
-    font-weight: 650;
+    background: rgba(255, 255, 255, 0.72);
+}
+
+.composerHeader > span {
+    color: #687993;
+    font-size: 11px;
+    text-transform: uppercase;
 }
 
 .composerHeader > div {
     display: flex;
+    align-items: center;
     gap: 10px;
 }
 
-.editorCancel,
-.editorSave {
-    min-height: 38px;
-    padding: 0 15px;
-    border: 1px solid #cbd7e6;
+.composerHeader button {
+    min-height: 42px;
+    padding: 0 16px;
+    border: 0;
     cursor: pointer;
+    transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
 }
 
 .editorCancel {
-    color: #52647e;
+    color: #53657e;
     background: transparent;
 }
 
-.editorSave {
+.editorCancel:hover {
+    color: var(--ink);
+    background: #e8eef6;
+    transform: translateY(-1px);
+}
+
+.composerHeader .editorSave {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     color: #ffffff;
-    border-color: var(--blue);
     background: var(--blue);
 }
 
+.composerHeader .editorSave:hover {
+    background: #0c57ce;
+    box-shadow: 0 9px 22px rgba(18, 100, 232, 0.25);
+    transform: translateY(-2px);
+}
+
+.editorSave svg {
+    width: 17px;
+    height: 17px;
+    fill: currentColor;
+}
+
 .formError {
-    margin: 0;
-    padding: 12px clamp(20px, 4vw, 46px);
-    color: #9a2e2e;
-    background: #fff0f0;
+    margin: 16px 0 -18px;
+    color: #b42318;
     font-size: 13px;
 }
 
 .writingSurface {
     display: flex;
-    min-height: 0;
+    width: min(980px, calc(100% - 48px));
+    min-height: calc(100vh - 88px);
     flex: 1;
     flex-direction: column;
-    padding: clamp(28px, 6vw, 72px);
+    margin: 0 auto;
+    padding: clamp(52px, 8vh, 92px) clamp(4px, 4vw, 54px) 28px;
 }
 
-.writingSurface input,
-.writingSurface textarea {
-    width: 100%;
+.composer input {
+    padding: 0 0 20px;
+    border: 0;
+    border-bottom: 1px solid #cad5e4;
+    outline: 0;
     color: var(--ink);
+    background: transparent;
+    font-size: clamp(21px, 2.5vw, 30px);
+    font-weight: 620;
+    line-height: 1.2;
+}
+
+.composer textarea {
+    min-height: 320px;
+    flex: 1;
+    margin: 30px 0 20px;
+    padding: 0;
     border: 0;
     outline: 0;
-    background: transparent;
-}
-
-.writingSurface input {
-    padding: 0 0 22px;
-    border-bottom: 1px solid #dbe3ed;
-    font-size: clamp(28px, 4vw, 48px);
-    font-weight: 620;
-}
-
-.writingSurface textarea {
-    min-height: 0;
-    flex: 1;
-    padding: 28px 0;
     resize: none;
-    font-size: clamp(18px, 2vw, 24px);
-    line-height: 1.55;
+    color: var(--ink);
+    background: transparent;
+    font-size: clamp(16px, 1.5vw, 20px);
+    line-height: 1.7;
+}
+
+.composer input::placeholder,
+.composer textarea::placeholder {
+    color: #9aabc0;
 }
 
 .editorFooter {
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    color: #7b8ba0;
+    padding-top: 18px;
+    color: #7a8a9f;
+    border-top: 1px solid #dbe3ed;
     font-size: 11px;
     text-transform: uppercase;
 }
 
 @media (max-width: 860px) {
     .header {
-        min-height: 76px;
+        gap: 16px;
         padding: 0 18px;
     }
 
-    .brand strong {
+    .brand strong,
+    .headerMeta {
         display: none;
     }
 
@@ -426,18 +598,27 @@ textarea {
         min-height: 390px;
     }
 
-    .createButton {
-        right: 18px;
-        bottom: 22px;
+    .overlay {
+        padding-top: 120px;
     }
 
-    .overlay {
+    .editorWorld {
         padding: 0;
     }
 
-    .composer {
+    .composerHeader {
+        min-height: 74px;
+        padding: 0 18px;
+    }
+
+    .composerHeader button {
+        padding: 0 12px;
+    }
+
+    .writingSurface {
         width: 100%;
-        height: 100%;
+        min-height: calc(100vh - 74px);
+        padding: 42px 22px 20px;
     }
 }
 
