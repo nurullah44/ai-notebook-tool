@@ -1030,6 +1030,38 @@
           it as the first small vertical slice.
         </p>
       </article>
+
+      <article>
+        <h2>2026-08-06: Laravel Authentication Vertical Slice</h2>
+
+        <h3>Concept</h3>
+        <p>
+          Authentication is a full request path: the login form sends a CSRF-protected
+          password, Laravel verifies it, regenerates the session, protects private routes,
+          and destroys the session on logout.
+        </p>
+
+        <h3>What Changed</h3>
+        <ul>
+          <li>Added founder-only password login using <code>AUTH_PASSWORD</code> and Laravel's encrypted cookie session.</li>
+          <li>Added route middleware that redirects guests to <code>/login</code>.</li>
+          <li>Added login and logout controllers, safe auth event logs, and a Blade login page adapted from the reference UI.</li>
+          <li>Added a visible CSRF-protected logout control to the temporary protected page.</li>
+        </ul>
+
+        <h3>How It Was Verified</h3>
+        <ul>
+          <li>Nine PHPUnit tests passed with 26 assertions; Laravel Pint passed.</li>
+          <li>A cookie-preserving HTTP session verified guest redirect, wrong-password feedback, valid login, refresh persistence, logout, and post-logout protection.</li>
+          <li>No real password or production database was used.</li>
+        </ul>
+
+        <h3>What Comes Next</h3>
+        <p>
+          Keep Stage 3 open. The next vertical slice ports the idea collection read view
+          and direct note view without adding create, edit, or delete yet.
+        </p>
+      </article>
     </main>
   </body>
 </html>

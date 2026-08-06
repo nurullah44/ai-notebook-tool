@@ -18,7 +18,8 @@ class FoundationTest extends TestCase
 
     public function test_foundation_page_and_static_css_are_available(): void
     {
-        $this->get('/')
+        $this->withSession(['founder_authenticated' => true])
+            ->get('/')
             ->assertOk()
             ->assertSee('Laravel foundation is running.');
 
