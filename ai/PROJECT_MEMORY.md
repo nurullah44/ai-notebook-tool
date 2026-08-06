@@ -70,7 +70,7 @@ Laravel 13 runs side-by-side in `laravel/` on PHP 8.5 with Blade, normal static 
 
 ### Decision: Laravel founder authentication
 
-Laravel now owns the first migrated product slice: one password from `AUTH_PASSWORD`, a regenerated encrypted cookie session, founder route middleware, CSRF-protected login/logout forms, and metadata-only auth logs. Nine Laravel tests currently pass with 26 assertions.
+Laravel now owns the first migrated product slice: one password from `AUTH_PASSWORD`, a regenerated encrypted cookie session, founder route middleware, CSRF-protected login/logout forms, production-secure cookies, and metadata-only auth logs. Ten Laravel tests currently pass with 27 assertions.
 
 ### Decision: V1 stack
 

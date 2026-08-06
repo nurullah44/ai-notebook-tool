@@ -7,6 +7,9 @@ Prototype
 ## Minimum Checks
 
 - One-password auth is required before viewing the notebook
+- Laravel login regenerates the encrypted cookie session; logout invalidates it and regenerates the CSRF token
+- Laravel login and logout forms use CSRF protection; protected product routes require founder session middleware
+- Laravel session cookies are HTTP-only, SameSite=Lax, and forced Secure when `APP_ENV=production`
 - Secrets are in environment variables, never committed
 - SQLite database files are ignored by git
 - SQLite backup files are ignored by git and treated as private notebook data
@@ -34,6 +37,7 @@ Prototype
 
 - `npm audit` reports a moderate PostCSS advisory through Next.js 16.2.9. The suggested forced fix would make a breaking Next.js downgrade, so keep Next.js updated and recheck rather than applying `npm audit fix --force` blindly.
 - `AUTH_PASSWORD` is stored as a plain environment variable for prototype simplicity. Before real production use, consider switching to a password hash.
+- Laravel production must run behind HTTPS with `APP_ENV=production`; otherwise browsers cannot safely return Secure session cookies.
 - Login has no application-level rate limit yet. Before accepting public traffic, add app throttling or enforce an equivalent proxy-level limit.
 - AI recall has no application-level rate limit yet. Before public use, add throttling or enforce an equivalent proxy-level limit.
 - The capture token is stored in `chrome.storage.local`. Treat the Chrome profile as trusted local storage and rotate the token if that profile is exposed.
