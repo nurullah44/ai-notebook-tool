@@ -126,8 +126,8 @@
 .formError { margin: 16px 0 -18px; color: #b42318; font-size: 13px; }
 
 @media (max-width: 860px) {
-  .header { grid-template-columns: auto 1fr; gap: 16px; padding: 0 18px; }
-  .brand strong, .headerMeta { display: none; }
+  .header { grid-template-columns: auto 1fr auto; gap: 16px; padding: 0 18px; }
+  .brand strong, .headerMeta > span { display: none; }
   .collectionHeader { min-height: 150px; padding-right: 22px; padding-left: 22px; }
   .collection { grid-template-columns: 1fr; padding-right: 18px; padding-left: 18px; }
   .ideaSlot { height: 56vh; min-height: 390px; }

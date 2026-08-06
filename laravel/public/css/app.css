@@ -577,7 +577,7 @@ textarea {
     }
 
     .brand strong,
-    .headerMeta {
+    .headerMeta > span {
         display: none;
     }
 
