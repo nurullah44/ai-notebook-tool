@@ -1062,6 +1062,36 @@
           and direct note view without adding create, edit, or delete yet.
         </p>
       </article>
+
+      <article>
+        <h2>2026-08-06: Laravel Note Read Views</h2>
+
+        <h3>Concept</h3>
+        <p>
+          A read slice can cross routing, authorization, database access, server rendering,
+          responsive UI, and browser interaction without introducing data mutation.
+        </p>
+
+        <h3>What Changed</h3>
+        <ul>
+          <li>Added protected collection and direct-note routes backed by Laravel Query Builder.</li>
+          <li>Rebuilt the shared Idea Store collection in Blade with newest-first cards and an explicit empty state.</li>
+          <li>Kept direct notes inside the collection, moved the selection into the first batch, and opened its body side.</li>
+          <li>Added a tiny static script that reveals three more ideas near the bottom of the page.</li>
+        </ul>
+
+        <h3>How It Was Verified</h3>
+        <ul>
+          <li>Fifteen PHPUnit tests passed with 46 assertions; Laravel Pint passed.</li>
+          <li>Tests used in-memory SQLite and covered ordering, auth protection, direct reads, missing IDs, and empty state.</li>
+          <li>Chrome verified three-card visibility, scroll reveal, direct-note body view, and return to collection against the ignored migration database copy.</li>
+        </ul>
+
+        <h3>What Comes Next</h3>
+        <p>
+          Keep Stage 3 open. Teach and plan create, edit, cancel, save, and delete as the next vertical slice.
+        </p>
+      </article>
     </main>
   </body>
 </html>

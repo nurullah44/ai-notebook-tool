@@ -18,9 +18,9 @@ Stable facts future Codex sessions should remember. Keep short.
 - Required active documents:
   - `docs/LARAVEL_MIGRATION_CONTRACT.md`
   - `docs/LARAVEL_MIGRATION_BASELINE.md`
-- Status: Laravel foundation and first product slice are ready; Laravel auth is implemented and verified
+- Status: Laravel foundation, founder authentication, and note read views are implemented and verified
 - Current stage: 3 - Rebuild Core Product In Vertical Slices (in progress)
-- Next checkpoint: teach and plan the idea collection read view and direct note view, then migrate them as the second vertical slice
+- Next checkpoint: teach and plan create, edit, cancel, save, and delete, then migrate them as the third vertical slice
 
 ## Learning Goal
 
@@ -71,6 +71,10 @@ Laravel 13 runs side-by-side in `laravel/` on PHP 8.5 with Blade, normal static 
 ### Decision: Laravel founder authentication
 
 Laravel now owns the first migrated product slice: one password from `AUTH_PASSWORD`, a regenerated encrypted cookie session, founder route middleware, CSRF-protected login/logout forms, production-secure cookies, and metadata-only auth logs. Ten Laravel tests currently pass with 27 assertions.
+
+### Decision: Laravel note read views
+
+Laravel now reads the configured compatible SQLite notes table through Query Builder. Authenticated `/` and `/notes/{id}` render the shared Blade collection, newest-first with a 100-note query limit; a direct note is moved into the first visible batch and opened to its body. Fifteen Laravel tests currently pass with 46 assertions.
 
 ### Decision: V1 stack
 
