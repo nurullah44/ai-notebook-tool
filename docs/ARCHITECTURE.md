@@ -5,15 +5,15 @@ Keep this document factual and short. Update it only after decisions are stable.
 ## Current Shape
 
 - Product reference: the working Next.js and TypeScript app remains authoritative until cutover
-- Migration runtime: Laravel 13 with Blade and normal static assets runs side-by-side in `laravel/`; founder authentication and note read views are migrated
+- Migration runtime: Laravel 13 with Blade and normal static assets runs side-by-side in `laravel/`; founder authentication, note read views, and note CRUD are migrated
 - Extension: unpacked Manifest V3 Chrome extension in `extension/`, implemented in plain JavaScript
-- Database: the Next.js reference uses SQLite through `better-sqlite3`; Laravel uses Query Builder over PDO SQLite and currently reads an ignored migration copy
+- Database: the Next.js reference uses SQLite through `better-sqlite3`; Laravel uses Query Builder over PDO SQLite against a configured compatible database path
 - Auth: Next.js and Laravel both preserve founder-only login; Laravel uses `AUTH_PASSWORD`, encrypted cookie sessions, CSRF-protected forms, and founder route middleware
 - AI: OpenAI Responses API for rough-memory note lookup and capture-title generation, defaulting to `gpt-5.4-mini`
 - Capture API: dedicated bearer-authenticated `POST /api/capture` endpoint for selected text
 - Logging: structured JSON stdout/stderr logs with metadata only
 - Backup: manual verified SQLite backup through `npm run backup`, stored locally in ignored `backups/`
-- Tests: Vitest protects the Next.js reference; PHPUnit protects the Laravel foundation, founder authentication, and note read routes using isolated test state
+- Tests: Vitest protects the Next.js reference; PHPUnit protects the Laravel foundation, founder authentication, note reads, and note mutations using isolated test state
 - Deployment: Hetzner VPS, reached through Tailscale for admin access and Cloudflare Tunnel for web traffic
 
 ## Boundaries
@@ -25,6 +25,7 @@ Keep this document factual and short. Update it only after decisions are stable.
 - AI calls: Server-only calls using selected note context for recall or selected text for capture-title generation
 - Auth/session: Founder-only protected routes plus a separate capture token for the extension
 - Laravel note reads: protected Blade routes query at most 100 recent notes; a direct note is loaded by text ID and missing IDs return `404`
+- Laravel note writes: protected, CSRF-checked POST routes create UUID notes, update existing rows, and delete by text ID; empty bodies never write
 - Logs: Server-only operational metadata through `src/lib/logger.ts`; capture logs never include the token, selected text, or generated title
 
 ## Decisions
@@ -105,6 +106,23 @@ One shared view preserves the existing collection-state behavior and avoids a se
 
 Tradeoff:
 The read slice restores click and keyboard card flipping, but create, edit, delete, search, and their controls remain deferred to their own slices.
+
+Date:
+2026-08-06
+
+### Decision: Laravel note CRUD
+
+Context:
+Authenticated Laravel reads are stable, so the next parity risk is intentional mutation of private SQLite data.
+
+Decision:
+Use protected, CSRF-checked POST routes on the existing `NoteController` for create, update, and delete. Normalize string inputs with trimming, allow an empty title, reject an empty body before writing, generate UUIDs for new notes, and log only operation metadata. Keep the create/edit composer and delete confirmation in the shared Blade view with minimal static JavaScript.
+
+Reason:
+This matches the approved behavior without adding an ORM model, service layer, frontend framework, or dependency for a single-table workflow.
+
+Tradeoff:
+Delete remains permanent until backup restoration is available, and the server-rendered error redirect does not preserve rejected draft text. Search remains deferred to the next slice.
 
 Date:
 2026-08-06

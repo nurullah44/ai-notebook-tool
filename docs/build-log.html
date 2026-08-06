@@ -1092,6 +1092,37 @@
           Keep Stage 3 open. Teach and plan create, edit, cancel, save, and delete as the next vertical slice.
         </p>
       </article>
+
+      <article>
+        <h2>2026-08-06: Laravel Note CRUD</h2>
+
+        <h3>Concept</h3>
+        <p>
+          A mutation slice must prove more than a happy-path save: private writes stay behind
+          authentication and CSRF, invalid bodies do not change SQLite, cancel remains non-destructive,
+          and deletion requires an explicit browser decision.
+        </p>
+
+        <h3>What Changed</h3>
+        <ul>
+          <li>Added protected create, update, and delete POST routes using Laravel Query Builder.</li>
+          <li>Added one shared Blade composer for create and edit, including cancel behavior, validation feedback, and a live word count.</li>
+          <li>Added edit and delete controls to flipped cards with browser delete confirmation.</li>
+          <li>Kept logs metadata-only and rejected empty bodies before any database write.</li>
+        </ul>
+
+        <h3>How It Was Verified</h3>
+        <ul>
+          <li>Twenty-four PHPUnit tests passed with 93 assertions; Laravel Pint and JavaScript syntax checks passed.</li>
+          <li>Mutation tests cover trimming, empty-body rejection, missing updates, guest protection, read/edit mode boundaries, and deletion.</li>
+          <li>Chrome verified create cancel, create/save, edit cancel, edit/save, word count, delete confirmation, and deletion against a temporary SQLite database.</li>
+        </ul>
+
+        <h3>What Comes Next</h3>
+        <p>
+          Keep Stage 3 open. Teach and plan keyword search and local lexical ranking as the next vertical slice.
+        </p>
+      </article>
     </main>
   </body>
 </html>
