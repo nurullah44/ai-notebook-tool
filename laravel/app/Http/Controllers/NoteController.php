@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -31,6 +32,7 @@ class NoteController extends Controller
             ->first();
 
         abort_if($selectedIdea === null, 404);
+        $selectedIdea->updated_at_label = $this->updatedAtLabel($selectedIdea->updated_at);
 
         $ideas = $this->recentIdeas()
             ->reject(fn (object $idea): bool => $idea->id === $selectedIdea->id)
@@ -131,6 +133,34 @@ class NoteController extends Controller
             ->select(['id', 'title', 'body', 'created_at', 'updated_at'])
             ->orderByDesc('updated_at')
             ->limit(100)
-            ->get();
+            ->get()
+            ->map(function (object $idea): object {
+                $idea->updated_at_label = $this->updatedAtLabel($idea->updated_at);
+
+                return $idea;
+            });
+    }
+
+    private function updatedAtLabel(string $isoDate): string
+    {
+        $diffMinutes = max(0, (int) floor((now('UTC')->getTimestamp() - Carbon::parse($isoDate)->getTimestamp()) / 60));
+
+        if ($diffMinutes < 1) {
+            return 'Just now';
+        }
+
+        if ($diffMinutes < 60) {
+            return $diffMinutes.'m ago';
+        }
+
+        $diffHours = (int) floor($diffMinutes / 60);
+
+        if ($diffHours < 24) {
+            return $diffHours.'h ago';
+        }
+
+        $diffDays = (int) floor($diffHours / 24);
+
+        return $diffDays === 1 ? 'Yesterday' : $diffDays.' days ago';
     }
 }

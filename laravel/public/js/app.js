@@ -60,6 +60,7 @@ const composer = document.querySelector('[data-composer]');
 const composerForm = document.querySelector('[data-composer-form]');
 const composerTitle = document.querySelector('[data-composer-title]');
 const composerSave = document.querySelector('[data-composer-save]');
+const composerSaveLabel = document.querySelector('[data-composer-save-label]');
 const titleInput = document.querySelector('[data-title-input]');
 const bodyInput = document.querySelector('[data-body-input]');
 const wordCount = document.querySelector('[data-word-count]');
@@ -74,7 +75,7 @@ function updateWordCount() {
 }
 
 function openCreateComposer() {
-    if (!composer || !composerForm || !composerTitle || !composerSave || !titleInput || !bodyInput) {
+    if (!composer || !composerForm || !composerTitle || !composerSave || !composerSaveLabel || !titleInput || !bodyInput) {
         return;
     }
 
@@ -82,7 +83,7 @@ function openCreateComposer() {
     composer.dataset.cancelUrl = '';
     composerForm.action = '/api/notes';
     composerTitle.textContent = 'New idea';
-    composerSave.textContent = 'Keep idea';
+    composerSaveLabel.textContent = 'Keep idea';
     titleInput.value = '';
     bodyInput.value = '';
     composer.hidden = false;
