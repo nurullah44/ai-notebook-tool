@@ -18,12 +18,16 @@ class FoundationTest extends TestCase
 
     public function test_foundation_page_and_static_css_are_available(): void
     {
+        $this->artisan('migrate')->assertSuccessful();
+
         $this->withSession(['founder_authenticated' => true])
             ->get('/')
             ->assertOk()
-            ->assertSee('Laravel foundation is running.');
+            ->assertSee('Ideas worth returning to.');
 
         $this->assertFileExists(public_path('css/app.css'));
+        $this->assertFileExists(public_path('fonts/geist-latin.woff2'));
+        $this->assertFileExists(public_path('js/app.js'));
     }
 
     public function test_fresh_database_receives_the_compatible_notes_schema(): void

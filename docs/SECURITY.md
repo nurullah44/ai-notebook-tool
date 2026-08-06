@@ -9,6 +9,7 @@ Prototype
 - One-password auth is required before viewing the notebook
 - Laravel login regenerates the encrypted cookie session; logout invalidates it and regenerates the CSRF token
 - Laravel login and logout forms use CSRF protection; protected product routes require founder session middleware
+- Laravel collection and direct-note routes require the founder session; Blade escapes private titles and bodies before rendering
 - Laravel session cookies are HTTP-only, SameSite=Lax, and forced Secure when `APP_ENV=production`
 - Secrets are in environment variables, never committed
 - SQLite database files are ignored by git

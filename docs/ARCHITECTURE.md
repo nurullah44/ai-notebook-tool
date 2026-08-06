@@ -5,15 +5,15 @@ Keep this document factual and short. Update it only after decisions are stable.
 ## Current Shape
 
 - Product reference: the working Next.js and TypeScript app remains authoritative until cutover
-- Migration runtime: Laravel 13 with Blade and normal static assets runs side-by-side in `laravel/`; founder authentication is the first migrated product slice
+- Migration runtime: Laravel 13 with Blade and normal static assets runs side-by-side in `laravel/`; founder authentication and note read views are migrated
 - Extension: unpacked Manifest V3 Chrome extension in `extension/`, implemented in plain JavaScript
-- Database: the Next.js reference uses SQLite through `better-sqlite3`; Laravel uses PDO SQLite and currently reads only an ignored migration copy
+- Database: the Next.js reference uses SQLite through `better-sqlite3`; Laravel uses Query Builder over PDO SQLite and currently reads an ignored migration copy
 - Auth: Next.js and Laravel both preserve founder-only login; Laravel uses `AUTH_PASSWORD`, encrypted cookie sessions, CSRF-protected forms, and founder route middleware
 - AI: OpenAI Responses API for rough-memory note lookup and capture-title generation, defaulting to `gpt-5.4-mini`
 - Capture API: dedicated bearer-authenticated `POST /api/capture` endpoint for selected text
 - Logging: structured JSON stdout/stderr logs with metadata only
 - Backup: manual verified SQLite backup through `npm run backup`, stored locally in ignored `backups/`
-- Tests: Vitest protects the Next.js reference; PHPUnit protects the Laravel foundation and founder authentication using isolated test state
+- Tests: Vitest protects the Next.js reference; PHPUnit protects the Laravel foundation, founder authentication, and note read routes using isolated test state
 - Deployment: Hetzner VPS, reached through Tailscale for admin access and Cloudflare Tunnel for web traffic
 
 ## Boundaries
@@ -24,6 +24,7 @@ Keep this document factual and short. Update it only after decisions are stable.
 - Database access: Server-only SQLite access
 - AI calls: Server-only calls using selected note context for recall or selected text for capture-title generation
 - Auth/session: Founder-only protected routes plus a separate capture token for the extension
+- Laravel note reads: protected Blade routes query at most 100 recent notes; a direct note is loaded by text ID and missing IDs return `404`
 - Logs: Server-only operational metadata through `src/lib/logger.ts`; capture logs never include the token, selected text, or generated title
 
 ## Decisions
@@ -87,6 +88,23 @@ This preserves the approved single-user contract while using Laravel's normal se
 
 Tradeoff:
 This remains founder-only authentication with no signup, password reset, user table, roles, or login throttling. Public deployment still requires a strong secret, HTTPS, and rate limiting at the app or proxy boundary.
+
+Date:
+2026-08-06
+
+### Decision: Laravel note read views
+
+Context:
+Authentication is migrated, so the next smallest parity slice is reading private ideas without introducing data mutation.
+
+Decision:
+Use a protected `NoteController` with Laravel Query Builder for `/` and `/notes/{id}`. Render both routes through one Blade collection; order recent notes by `updated_at DESC`, limit the normal collection to 100, and move a directly requested note into the first visible batch with its body side open. Use a tiny static JavaScript file only to reveal three more cards near the page bottom.
+
+Reason:
+One shared view preserves the existing collection-state behavior and avoids a separate detail-page abstraction while the product is still being migrated slice by slice.
+
+Tradeoff:
+The read slice restores click and keyboard card flipping, but create, edit, delete, search, and their controls remain deferred to their own slices.
 
 Date:
 2026-08-06
