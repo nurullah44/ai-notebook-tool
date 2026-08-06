@@ -18,9 +18,9 @@ Stable facts future Codex sessions should remember. Keep short.
 - Required active documents:
   - `docs/LARAVEL_MIGRATION_CONTRACT.md`
   - `docs/LARAVEL_MIGRATION_BASELINE.md`
-- Status: Laravel foundation ready; product migration has not started
-- Current stage: 3 - Rebuild Core Product In Vertical Slices (ready, not started)
-- Next checkpoint: teach the authentication slice, agree on its observable behavior and verification, then migrate auth as the first vertical slice
+- Status: Laravel foundation and first product slice are ready; Laravel auth is implemented and verified
+- Current stage: 3 - Rebuild Core Product In Vertical Slices (in progress)
+- Next checkpoint: teach and plan the idea collection read view and direct note view, then migrate them as the second vertical slice
 
 ## Learning Goal
 
@@ -67,6 +67,10 @@ The Chrome capture stage map is `docs/inner-voice-extension.html`: stages 1-4 ar
 ### Decision: Laravel migration foundation
 
 Laravel 13 runs side-by-side in `laravel/` on PHP 8.5 with Blade, normal static assets, SQLite, encrypted cookie sessions, JSON stderr logging, and PHPUnit. Vite, Tailwind, queues, database-backed sessions, and default user/cache/jobs tables are excluded. Until cutover, the Next.js app remains the product behavior reference.
+
+### Decision: Laravel founder authentication
+
+Laravel now owns the first migrated product slice: one password from `AUTH_PASSWORD`, a regenerated encrypted cookie session, founder route middleware, CSRF-protected login/logout forms, production-secure cookies, and metadata-only auth logs. Ten Laravel tests currently pass with 27 assertions.
 
 ### Decision: V1 stack
 

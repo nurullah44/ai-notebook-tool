@@ -5,15 +5,15 @@ Keep this document factual and short. Update it only after decisions are stable.
 ## Current Shape
 
 - Product reference: the working Next.js and TypeScript app remains authoritative until cutover
-- Migration runtime: Laravel 13 with Blade and normal static assets runs side-by-side in `laravel/`; product behavior migration has not started
+- Migration runtime: Laravel 13 with Blade and normal static assets runs side-by-side in `laravel/`; founder authentication is the first migrated product slice
 - Extension: unpacked Manifest V3 Chrome extension in `extension/`, implemented in plain JavaScript
 - Database: the Next.js reference uses SQLite through `better-sqlite3`; Laravel uses PDO SQLite and currently reads only an ignored migration copy
-- Auth: Founder-only login with a secure session
+- Auth: Next.js and Laravel both preserve founder-only login; Laravel uses `AUTH_PASSWORD`, encrypted cookie sessions, CSRF-protected forms, and founder route middleware
 - AI: OpenAI Responses API for rough-memory note lookup and capture-title generation, defaulting to `gpt-5.4-mini`
 - Capture API: dedicated bearer-authenticated `POST /api/capture` endpoint for selected text
 - Logging: structured JSON stdout/stderr logs with metadata only
 - Backup: manual verified SQLite backup through `npm run backup`, stored locally in ignored `backups/`
-- Tests: Vitest protects the Next.js reference; PHPUnit protects the Laravel foundation using in-memory SQLite
+- Tests: Vitest protects the Next.js reference; PHPUnit protects the Laravel foundation and founder authentication using isolated test state
 - Deployment: Hetzner VPS, reached through Tailscale for admin access and Cloudflare Tunnel for web traffic
 
 ## Boundaries
@@ -73,6 +73,23 @@ The repository temporarily contains two application runtimes. Laravel is not the
 
 Date:
 2026-08-02
+
+### Decision: Laravel founder authentication
+
+Context:
+The Laravel foundation is ready, and private note routes must remain inaccessible while product behavior is migrated one slice at a time.
+
+Decision:
+Use one password from `AUTH_PASSWORD`, Laravel's encrypted cookie session, a founder route middleware alias, and CSRF-protected login/logout forms. Regenerate the session after login, invalidate it on logout, and force secure session cookies whenever `APP_ENV=production`.
+
+Reason:
+This preserves the approved single-user contract while using Laravel's normal session and CSRF protections instead of recreating the old Next.js token format.
+
+Tradeoff:
+This remains founder-only authentication with no signup, password reset, user table, roles, or login throttling. Public deployment still requires a strong secret, HTTPS, and rate limiting at the app or proxy boundary.
+
+Date:
+2026-08-06
 
 ### Decision: V1 auth
 

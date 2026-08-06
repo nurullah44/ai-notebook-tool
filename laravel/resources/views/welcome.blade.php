@@ -10,6 +10,10 @@
         <main>
             <h1>Idea Store</h1>
             <p>Laravel foundation is running.</p>
+            <form action="/api/logout" method="post">
+                @csrf
+                <button type="submit">Log out</button>
+            </form>
         </main>
     </body>
 </html>
