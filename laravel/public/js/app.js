@@ -96,7 +96,7 @@ function closeComposer() {
     }
 
     if (composer.dataset.purpose === 'edit' && composer.dataset.cancelUrl) {
-        window.location.assign(composer.dataset.cancelUrl);
+        window.location.replace(composer.dataset.cancelUrl);
         return;
     }
 
