@@ -9,7 +9,7 @@ Stable facts future Codex sessions should remember. Keep short.
 - Audience: founder-only V1
 - Real problem: user remembers rough shape of ideas but not exact note wording or location
 - Smallest useful version: login, create/read/edit/delete notes, search notes, ask AI about own notes, logs, backups, targeted tests, deployment notes
-- Current stage: Prototype; Laravel migration implementation is active before deployment. Founder authentication, note read views, and note CRUD are migrated, while search, AI recall, and Chrome capture remain reference behavior until cutover.
+- Current stage: Prototype; Laravel migration Stage 3 is complete. Founder auth, note CRUD, UI, keyword search, and AI recall now have automated and Chrome parity evidence. Stage 4 starts with the extension capture API.
 
 ## Active Workflow
 
@@ -18,9 +18,16 @@ Stable facts future Codex sessions should remember. Keep short.
 - Required active documents:
   - `docs/LARAVEL_MIGRATION_CONTRACT.md`
   - `docs/LARAVEL_MIGRATION_BASELINE.md`
-- Status: Laravel foundation, founder authentication, note read views, and note CRUD are implemented and verified
-- Current stage: 3 - Rebuild Core Product In Vertical Slices (in progress)
-- Next checkpoint: teach and plan keyword search and local lexical ranking, then migrate them as the fourth vertical slice
+- Status: Stage 3 core-product parity is complete. The Laravel suite passes 31 tests with 130 assertions; Chrome verified keyword and AI modes against the Next.js production reference; one approved live OpenAI call succeeded through Laravel.
+- Current stage: 4 - Restore AI, Extension, And Operations Parity (in progress)
+- Next checkpoint: port the exact bearer-authenticated `POST /api/capture` contract to Laravel, with focused tests before connecting the unchanged extension.
+
+## Current Execution Constraints
+
+- Migration work changes Laravel only. The Next.js implementation is read-only reference code.
+- Normal `AGENTS.md` branch, review, documentation, and learning workflow is restored.
+- Playwright is forbidden. Manual browser verification uses the provided Chrome integration only.
+- Work one Stage 4 vertical slice at a time, beginning with the capture API contract.
 
 ## Learning Goal
 
@@ -79,6 +86,10 @@ Laravel now reads the configured compatible SQLite notes table through Query Bui
 ### Decision: Laravel note CRUD
 
 Authenticated, CSRF-protected POST routes now create, update, and delete notes through Query Builder. Blade and minimal JavaScript provide create/edit composers, cancel behavior, word counting, and browser delete confirmation. Empty bodies are rejected without writes, note content is never logged, and 24 Laravel tests currently pass with 93 assertions.
+
+### Decision: Laravel keyword search and AI recall
+
+Laravel owns URL keyword search, wildcard escaping, newest-first results, local lexical candidate ranking, and authenticated OpenAI Responses API recall. Recall sends bounded candidate snippets, uses strict structured output with `store: false`, validates returned IDs, falls back locally, and logs safe model/latency/outcome/token metadata. The suite passes 31 tests with 130 assertions; Chrome parity and one approved live OpenAI call passed.
 
 ### Decision: V1 stack
 

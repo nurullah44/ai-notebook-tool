@@ -197,30 +197,32 @@
             </div>
           </li>
 
-          <li class="stage current">
-            <input type="checkbox" disabled aria-label="Core product parity pending" />
+          <li class="stage">
+            <input type="checkbox" checked disabled aria-label="Core product parity complete" />
             <div>
-              <span class="status">In progress</span>
+              <span class="status">Done</span>
               <h3>3. Rebuild Core Product In Vertical Slices</h3>
               <p>One behavior per reviewed slice. No big-bang frontend rewrite.</p>
               <ul>
                 <li>done: single-user login, route protection, and logout</li>
                 <li>done: idea collection read view and direct note view</li>
                 <li>done: create, edit, cancel, save, and delete</li>
-                <li>keyword search and local lexical recall ranking</li>
-                <li>Blade UI, existing CSS adaptation, and minimal DOM interaction modules</li>
+                <li>done: Blade collection/composer UI parity, existing CSS adaptation, and minimal DOM interaction modules</li>
+                <li>done: keyword search, SQL wildcard escaping, and local lexical recall ranking</li>
+                <li>done: fullscreen keyword/AI search UI and authenticated AI recall</li>
+                <li>evidence: 31 Laravel tests with 130 assertions, Chrome parity checks, and one approved live OpenAI call passed</li>
               </ul>
             </div>
           </li>
 
-          <li class="stage">
+          <li class="stage current">
             <input type="checkbox" disabled aria-label="AI extension and operations parity pending" />
             <div>
-              <span class="status">Pending</span>
+              <span class="status">In progress</span>
               <h3>4. Restore AI, Extension, And Operations Parity</h3>
               <p>Reconnect paid and operational boundaries only after core behavior is stable.</p>
               <ul>
-                <li>port Responses API calls, strict JSON Schema parsing, timeout, fallback, and rate limits</li>
+                <li>done: accept the Stage 3 AI recall port after automated, Chrome, and approved live-call verification</li>
                 <li>restore <code>/api/capture</code> bearer auth without session or CSRF coupling</li>
                 <li>convert extension tests from Vitest to Node built-in tests without changing extension behavior</li>
                 <li>port structured logs and privacy rules</li>
@@ -290,7 +292,7 @@
       </section>
 
       <footer>
-        Next checkpoint: teach and agree on keyword search and local lexical ranking, then rebuild them as the fourth Stage 3 vertical slice.
+        Next checkpoint: port and test Laravel's exact bearer-authenticated <code>POST /api/capture</code> contract. Keep the Next.js implementation read-only and do not connect the extension until the server contract passes.
       </footer>
     </main>
   </body>

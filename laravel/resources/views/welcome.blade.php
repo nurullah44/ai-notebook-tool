@@ -3,6 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
         <title>Idea Store</title>
         <link rel="stylesheet" href="{{ asset('css/app.css') }}">
         <script src="{{ asset('js/app.js') }}" defer></script>
@@ -14,6 +15,12 @@
                     <span>IS</span>
                     <strong>Idea Store</strong>
                 </a>
+
+                <button class="searchLauncher" type="button" data-open-search>
+                    <svg viewBox="0 0 256 256" aria-hidden="true"><path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/></svg>
+                    <span>Search your ideas</span>
+                    <svg viewBox="0 0 256 256" aria-hidden="true"><path d="M208,144a15.78,15.78,0,0,1-10.42,14.94L146,178l-19,51.62a15.92,15.92,0,0,1-29.88,0L78,178l-51.62-19a15.92,15.92,0,0,1,0-29.88L78,110l19-51.62a15.92,15.92,0,0,1,29.88,0L146,110l51.62,19A15.78,15.78,0,0,1,208,144ZM152,48h16V64a8,8,0,0,0,16,0V48h16a8,8,0,0,0,0-16H184V16a8,8,0,0,0-16,0V32H152a8,8,0,0,0,0,16Zm88,32h-8V72a8,8,0,0,0-16,0v8h-8a8,8,0,0,0,0,16h8v8a8,8,0,0,0,16,0V96h8a8,8,0,0,0,0-16Z"/></svg>
+                </button>
 
                 <div class="headerMeta">
                     <span>{{ $ideas->count() }} ideas</span>
@@ -90,6 +97,40 @@
             <button class="createButton" type="button" data-open-create aria-label="Create an idea">
                 <svg viewBox="0 0 256 256" aria-hidden="true"><path d="M228,128a12,12,0,0,1-12,12H140v76a12,12,0,0,1-24,0V140H40a12,12,0,0,1,0-24h76V40a12,12,0,0,1,24,0v76h76A12,12,0,0,1,228,128Z"/></svg>
             </button>
+
+            <div class="overlay searchOverlay" data-search data-mode="keyword" @if ($searchQuery === '') hidden @endif>
+                <button class="closeOverlay" type="button" data-close-search aria-label="Close search">
+                    <svg viewBox="0 0 256 256" aria-hidden="true"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg>
+                </button>
+                <div class="searchStage" data-search-stage>
+                    <form class="expandedSearch" action="/" method="get" data-search-form>
+                        <button class="searchSubmit" type="submit" data-search-submit aria-label="Run keyword search">
+                            <svg data-keyword-icon viewBox="0 0 256 256" aria-hidden="true"><path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/></svg>
+                            <svg data-ai-icon viewBox="0 0 256 256" aria-hidden="true" hidden><path d="M208,144a15.78,15.78,0,0,1-10.42,14.94L146,178l-19,51.62a15.92,15.92,0,0,1-29.88,0L78,178l-51.62-19a15.92,15.92,0,0,1,0-29.88L78,110l19-51.62a15.92,15.92,0,0,1,29.88,0L146,110l51.62,19A15.78,15.78,0,0,1,208,144ZM152,48h16V64a8,8,0,0,0,16,0V48h16a8,8,0,0,0,0-16H184V16a8,8,0,0,0-16,0V32H152a8,8,0,0,0,0,16Zm88,32h-8V72a8,8,0,0,0-16,0v8h-8a8,8,0,0,0,0,16h8v8a8,8,0,0,0,16,0V96h8a8,8,0,0,0,0-16Z"/></svg>
+                        </button>
+                        <input name="q" value="{{ $searchQuery }}" placeholder="Search exact words in your ideas..." data-search-input @if ($searchQuery !== '') autofocus @endif>
+                        <button type="button" class="modeButton" data-search-mode>
+                            <svg data-mode-ai-icon viewBox="0 0 256 256" aria-hidden="true"><path d="M208,144a15.78,15.78,0,0,1-10.42,14.94L146,178l-19,51.62a15.92,15.92,0,0,1-29.88,0L78,178l-51.62-19a15.92,15.92,0,0,1,0-29.88L78,110l19-51.62a15.92,15.92,0,0,1,29.88,0L146,110l51.62,19A15.78,15.78,0,0,1,208,144Z"/></svg>
+                            <svg data-mode-keyword-icon viewBox="0 0 256 256" aria-hidden="true" hidden><path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/></svg>
+                            <span data-mode-label>Ask AI</span>
+                        </button>
+                    </form>
+                    <p class="searchModeLabel" data-search-label>Keyword search checks exact title and text</p>
+                    <div class="searchResults" data-search-results>
+                        @if ($searchQuery !== '')
+                            @forelse ($ideas->take(3) as $idea)
+                                <a href="/notes/{{ urlencode($idea->id) }}">
+                                    <span>Exact match</span>
+                                    <strong>{{ $idea->title ?: 'Untitled idea' }}</strong>
+                                    <svg viewBox="0 0 256 256" aria-hidden="true"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"/></svg>
+                                </a>
+                            @empty
+                                <p class="searchMessage">No matching idea found.</p>
+                            @endforelse
+                        @endif
+                    </div>
+                </div>
+            </div>
 
             <div
                 class="overlay editorWorld"

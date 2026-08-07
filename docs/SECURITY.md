@@ -22,6 +22,7 @@ Prototype
 - Search uses parameterized SQLite queries
 - Delete note requires authentication, CSRF protection, and browser confirmation
 - AI calls limit question length, retrieved note count, snippet size, and output length
+- The Laravel AI recall endpoint requires the founder session, limits questions to 500 characters, sends only retrieved candidate snippets, uses `store: false`, validates returned note IDs against retrieved candidates, and falls back to local matches. Automated, Chrome, and approved live-call verification passed.
 - User-provided note and selected text is not trusted as instructions
 - Dangerous actions require human approval
 - Logs include operational metadata only and avoid passwords, full notes, AI prompts, note snippets, API keys, and raw model responses

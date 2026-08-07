@@ -15,12 +15,15 @@ class NoteController extends Controller
 {
     public function index(Request $request): View
     {
+        $searchQuery = trim((string) $request->query('q', ''));
+
         return view('welcome', [
-            'ideas' => $this->recentIdeas(),
+            'ideas' => $this->recentIdeas($searchQuery),
             'selectedIdeaId' => null,
             'editorMode' => $request->query('error') === 'empty-note' ? 'create' : null,
             'editorIdea' => null,
             'editorError' => $request->query('error') === 'empty-note',
+            'searchQuery' => $searchQuery,
         ]);
     }
 
@@ -46,6 +49,7 @@ class NoteController extends Controller
             'editorIdea' => $selectedIdea,
             'editorError' => $request->query('mode') === 'edit'
                 && $request->query('error') === 'empty-note',
+            'searchQuery' => '',
         ]);
     }
 
@@ -127,12 +131,19 @@ class NoteController extends Controller
     }
 
     /** @return Collection<int, object> */
-    private function recentIdeas(): Collection
+    private function recentIdeas(string $searchQuery = ''): Collection
     {
-        return DB::table('notes')
+        $query = DB::table('notes')
             ->select(['id', 'title', 'body', 'created_at', 'updated_at'])
-            ->orderByDesc('updated_at')
-            ->limit(100)
+            ->orderByDesc('updated_at');
+
+        if ($searchQuery !== '') {
+            $escapedQuery = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $searchQuery);
+            $pattern = '%'.$escapedQuery.'%';
+            $query->whereRaw("(title LIKE ? ESCAPE '\\' OR body LIKE ? ESCAPE '\\')", [$pattern, $pattern]);
+        }
+
+        return $query->limit(100)
             ->get()
             ->map(function (object $idea): object {
                 $idea->updated_at_label = $this->updatedAtLabel($idea->updated_at);
