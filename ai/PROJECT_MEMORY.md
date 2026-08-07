@@ -9,7 +9,7 @@ Stable facts future Codex sessions should remember. Keep short.
 - Audience: founder-only V1
 - Real problem: user remembers rough shape of ideas but not exact note wording or location
 - Smallest useful version: login, create/read/edit/delete notes, search notes, ask AI about own notes, logs, backups, targeted tests, deployment notes
-- Current stage: Prototype; Laravel migration Stage 3 is complete. Founder auth, note CRUD, UI, keyword search, and AI recall now have automated and Chrome parity evidence. Stage 4 starts with the extension capture API.
+- Current stage: Prototype; Laravel migration Stage 4 is in progress. Founder auth, note CRUD, UI, keyword search, and AI recall have parity evidence, and the Laravel capture API contract now passes focused automated tests.
 
 ## Active Workflow
 
@@ -18,16 +18,16 @@ Stable facts future Codex sessions should remember. Keep short.
 - Required active documents:
   - `docs/LARAVEL_MIGRATION_CONTRACT.md`
   - `docs/LARAVEL_MIGRATION_BASELINE.md`
-- Status: Stage 3 core-product parity is complete. The Laravel suite passes 31 tests with 130 assertions; Chrome verified keyword and AI modes against the Next.js production reference; one approved live OpenAI call succeeded through Laravel.
+- Status: Stage 3 core-product parity is complete. In Stage 4, the bearer-authenticated Laravel `POST /api/capture` contract is implemented; 38 Laravel tests with 176 assertions pass. The extension has not yet been connected to Laravel, and no Chrome or live capture-title API verification has been recorded for this slice.
 - Current stage: 4 - Restore AI, Extension, And Operations Parity (in progress)
-- Next checkpoint: port the exact bearer-authenticated `POST /api/capture` contract to Laravel, with focused tests before connecting the unchanged extension.
+- Next checkpoint: connect the unchanged extension to Laravel, then convert its tests from Vitest to the Node built-in test runner without changing extension behavior.
 
 ## Current Execution Constraints
 
 - Migration work changes Laravel only. The Next.js implementation is read-only reference code.
 - Normal `AGENTS.md` branch, review, documentation, and learning workflow is restored.
 - Playwright is forbidden. Manual browser verification uses the provided Chrome integration only.
-- Work one Stage 4 vertical slice at a time, beginning with the capture API contract.
+- Work one Stage 4 vertical slice at a time; the next slice connects the unchanged extension to the tested Laravel capture contract.
 
 ## Learning Goal
 
@@ -91,6 +91,10 @@ Authenticated, CSRF-protected POST routes now create, update, and delete notes t
 
 Laravel owns URL keyword search, wildcard escaping, newest-first results, local lexical candidate ranking, and authenticated OpenAI Responses API recall. Recall sends bounded candidate snippets, uses strict structured output with `store: false`, validates returned IDs, falls back locally, and logs safe model/latency/outcome/token metadata. The suite passes 31 tests with 130 assertions; Chrome parity and one approved live OpenAI call passed.
 
+### Decision: Laravel extension capture API
+
+Laravel now owns bearer-authenticated `POST /api/capture` without founder-session or CSRF coupling. Missing capture-token configuration returns `503`; an invalid bearer token returns `401` before JSON parsing. Valid input is trimmed to 3-5,000 characters and limited to 10 valid requests per minute through a Laravel cache-backed sliding window. Title generation uses OpenAI strict structured output for 4-10 words and at most 80 characters, with `store: false` and a 25-second timeout; invalid output or provider failure uses a safe fallback. Successful persistence writes a UUID and UTC timestamps to SQLite. Logs contain metadata only, and unexpected failures return a safe `500`. Focused automated tests pass; extension, Chrome, and live capture-title API verification remain pending.
+
 ### Decision: V1 stack
 
 Use Next.js, TypeScript, SQLite, OpenAI API, and a Hetzner VPS. This keeps the app mainstream and TypeScript-based while preserving a simple single-file database model.
@@ -117,7 +121,7 @@ Use a plain-JavaScript Manifest V3 extension as a separate local client. It send
 - Search: home route supports URL query search with `/?q=...`, scanning note title and body
 - AI Recall V1: app retrieves notes first with ranked keyword search, sends only top candidate snippets to OpenAI when `OPENAI_API_KEY` exists, and returns closest notes with short reasons
 - Chrome capture: `extension/background.js` registers one selection-only context menu and shows `...`, check, or `!` badge state with a tooltip; there is no popup, content script, retry, URL, page title, HTML, or tag capture
-- Capture API: `POST /api/capture` uses `EXTENSION_CAPTURE_TOKEN`, trims and validates 3-5,000 characters, limits 10 valid captures per minute per process, and always saves with an AI or deterministic fallback title unless persistence itself fails
+- Capture API: Laravel `POST /api/capture` uses `EXTENSION_CAPTURE_TOKEN`, rejects missing configuration with `503`, rejects invalid bearer auth with `401` before parsing JSON, trims and validates 3-5,000 characters, and limits 10 valid captures per minute with a Laravel cache-backed sliding window. It saves UUID notes with UTC timestamps using an OpenAI or safe fallback title unless persistence itself fails.
 - Logging: `src/lib/logger.ts` writes safe JSON server logs for auth, note operations, and AI recall metadata
 - Backup: `scripts/backup-sqlite.mjs` reads the configured SQLite path, creates a timestamped backup, and runs an integrity check
 - AI Recall V1 non-goals: no whole-notebook dump, no LLM tool calling, no vector database, no chat history, no streaming, no advisor behavior yet

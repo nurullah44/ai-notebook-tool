@@ -223,8 +223,8 @@
               <p>Reconnect paid and operational boundaries only after core behavior is stable.</p>
               <ul>
                 <li>done: accept the Stage 3 AI recall port after automated, Chrome, and approved live-call verification</li>
-                <li>restore <code>/api/capture</code> bearer auth without session or CSRF coupling</li>
-                <li>convert extension tests from Vitest to Node built-in tests without changing extension behavior</li>
+                <li>done: restore <code>/api/capture</code> bearer auth without session or CSRF coupling; focused tests pass</li>
+                <li>connect the unchanged extension to Laravel, then convert its tests from Vitest to Node built-in tests without changing extension behavior</li>
                 <li>port structured logs and privacy rules</li>
                 <li>replace Node backup with verified Artisan backup and restore commands</li>
               </ul>
@@ -292,7 +292,7 @@
       </section>
 
       <footer>
-        Next checkpoint: port and test Laravel's exact bearer-authenticated <code>POST /api/capture</code> contract. Keep the Next.js implementation read-only and do not connect the extension until the server contract passes.
+        Next checkpoint: connect the unchanged extension to Laravel's focused-test-verified bearer-authenticated <code>POST /api/capture</code> contract, then convert extension tests later. Chrome and live capture-title API verification are still pending.
       </footer>
     </main>
   </body>

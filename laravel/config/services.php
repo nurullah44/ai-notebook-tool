@@ -27,6 +27,10 @@ return [
         'model' => env('OPENAI_MODEL', 'gpt-5.4-mini'),
     ],
 
+    'extension' => [
+        'capture_token' => env('EXTENSION_CAPTURE_TOKEN'),
+    ],
+
     'ses' => [
         'key' => env('AWS_ACCESS_KEY_ID'),
         'secret' => env('AWS_SECRET_ACCESS_KEY'),

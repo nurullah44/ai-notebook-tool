@@ -16,9 +16,9 @@ Prototype
 - SQLite database files are ignored by git
 - SQLite backup files are ignored by git and treated as private notebook data
 - Inputs are validated
-- Extension capture uses a dedicated bearer token, not the founder password or website session
+- Laravel extension capture uses a dedicated bearer token, not the founder password or website session; missing server token configuration returns `503`, and invalid auth returns `401` before the request JSON is parsed
 - The unpacked extension can reach only `http://localhost:3000/*`
-- Capture accepts only trimmed selected text from 3-5,000 characters and limits valid captures to 10 per minute per server process
+- Capture accepts only trimmed selected text from 3-5,000 characters and limits valid captures to 10 per minute with a Laravel cache-backed sliding window
 - Search uses parameterized SQLite queries
 - Delete note requires authentication, CSRF protection, and browser confirmation
 - AI calls limit question length, retrieved note count, snippet size, and output length
@@ -27,6 +27,7 @@ Prototype
 - Dangerous actions require human approval
 - Logs include operational metadata only and avoid passwords, full notes, AI prompts, note snippets, API keys, and raw model responses
 - Capture logs may include text length, duration, model or title source, and error name, but never the bearer token, selected text, or generated title
+- Capture persistence generates UUID note IDs and UTC timestamps; unexpected failures return a safe `500` without leaking private content or internals
 
 ## AI-Specific Risks
 
@@ -34,7 +35,7 @@ Prototype
 - Sensitive data exposure: Do not send the full notebook. AI Recall V1 sends only top retrieved note snippets; capture title generation sends only the selected text, with `store: false`.
 - Insecure structured output: Validate the AI response shape before rendering matches. Unknown note ids should not be trusted.
 - Excessive agency: AI Recall V1 has no tools, no file access, no database writes, no shell, no email, and no autonomous actions.
-- Runaway cost: Recall limits question/context/output sizes. Capture limits selected-text and title sizes, permits 10 valid requests per minute per process, and aborts OpenAI after 25 seconds so the response can finish below Chrome's 30-second service-worker fetch limit.
+- Runaway cost: Recall limits question/context/output sizes. Capture limits selected-text and title sizes, permits 10 valid requests per minute through Laravel cache, requires strict 4-10 word and at-most-80-character title output, uses `store: false`, and times out OpenAI after 25 seconds.
 
 ## Open Risks
 
@@ -45,6 +46,7 @@ Prototype
 - AI recall has no application-level rate limit yet. Before public use, add throttling or enforce an equivalent proxy-level limit.
 - The capture token is stored in `chrome.storage.local`. Treat the Chrome profile as trusted local storage and rotate the token if that profile is exposed.
 - Production capture is not enabled: update both the extension host permission and configured app domain only after deployment is defined.
+- The Laravel capture contract has focused automated coverage, but the unchanged extension is not connected yet; Chrome and live capture-title API verification remain pending.
 - Note bodies are private data. Do not log full note text unless a future debugging policy explicitly allows redacted logging.
 - Deleting a note is permanent until backups or revision history exist.
 - AI Recall V1 sends selected private note snippets to OpenAI only after the user explicitly configures `OPENAI_API_KEY`. Requests use `store: false`.
