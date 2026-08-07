@@ -1169,6 +1169,25 @@
         <h3>What Comes Next</h3>
         <p>Stage 4 starts with the exact bearer-authenticated Laravel <code>POST /api/capture</code> contract.</p>
       </article>
+      <article>
+        <h2>2026-08-07: Laravel Capture API Contract</h2>
+        <h3>Concept</h3>
+        <p>A narrow extension endpoint must reject unauthenticated work early, bound AI cost, preserve private content, and still save safely when title generation fails.</p>
+        <h3>What Changed</h3>
+        <ul>
+          <li>Added bearer-authenticated Laravel <code>POST /api/capture</code> without founder-session or CSRF coupling; missing token configuration returns <code>503</code>, and invalid auth returns <code>401</code> before JSON parsing.</li>
+          <li>Added JavaScript-compatible Unicode trim/length validation and an atomic Laravel-cache sliding limit of 10 valid captures per minute across workers.</li>
+          <li>Added strict OpenAI title generation for 4-10 words and at most 80 characters with <code>store: false</code> and a 25-second timeout, plus a safe fallback.</li>
+          <li>Added UUID and UTC-timestamp SQLite persistence, metadata-only logging, and a safe <code>500</code> response for unexpected failures.</li>
+        </ul>
+        <h3>How It Was Verified</h3>
+        <ul>
+          <li>Eight focused capture tests pass; the full Laravel suite passes 39 tests with 184 assertions.</li>
+          <li>No Chrome extension workflow or live capture-title API verification was claimed or run for this slice.</li>
+        </ul>
+        <h3>What Comes Next</h3>
+        <p>Keep Stage 4 open. Connect the unchanged extension to Laravel, then convert the extension tests later without changing extension behavior.</p>
+      </article>
     </main>
   </body>
 </html>

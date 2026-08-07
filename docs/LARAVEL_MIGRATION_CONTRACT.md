@@ -214,10 +214,10 @@ Authentication and validation:
 
 - Missing server token configuration returns `503`.
 - Missing or invalid bearer token returns `401` before processing body.
-- `text` is trimmed.
-- Text length must be 3-5,000 characters inclusive.
+- `text` uses JavaScript-compatible Unicode whitespace trimming.
+- Text length must be 3-5,000 JavaScript UTF-16 code units inclusive.
 - Malformed or invalid JSON returns `400`.
-- Ten validated captures are allowed per sliding 60-second process-local window.
+- Ten validated captures are allowed per atomic sliding 60-second Laravel-cache window shared by server workers.
 - Exceeding limit returns `429`.
 
 Title generation:
@@ -319,7 +319,7 @@ These are observed behaviors, not automatically protected product requirements:
 - Closing keyword search does not clear URL `q` or restore unfiltered server data until navigation/refresh.
 - AI success with zero matches has no visible empty-state message because UI ignores `answer`.
 - AI recall has no request timeout or rate limit.
-- Capture limiter is process-local, shared by valid callers, and resets on restart.
+- The Next.js capture limiter is process-local and resets on restart. Laravel intentionally uses an atomic cache-backed window shared by workers, preserving the same request limit while preventing concurrent paid-call bypasses; entries expire after 60 seconds instead of resetting with a worker restart.
 - Create/update have no server-side text length limits.
 - Mobile keyword search extends past the right edge and hides its trailing controls.
 - Development prototype route is not available in production.

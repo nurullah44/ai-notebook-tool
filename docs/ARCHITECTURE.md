@@ -10,10 +10,10 @@ Keep this document factual and short. Update it only after decisions are stable.
 - Database: the Next.js reference uses SQLite through `better-sqlite3`; Laravel uses Query Builder over PDO SQLite against a configured compatible database path
 - Auth: Next.js and Laravel both preserve founder-only login; Laravel uses `AUTH_PASSWORD`, encrypted cookie sessions, CSRF-protected forms, and founder route middleware
 - AI: OpenAI Responses API for rough-memory note lookup and capture-title generation, defaulting to `gpt-5.4-mini`
-- Capture API: dedicated bearer-authenticated `POST /api/capture` endpoint for selected text
+- Capture API: Laravel owns the dedicated bearer-authenticated `POST /api/capture` endpoint; its focused tests pass, while extension connection and Chrome/live capture verification remain pending
 - Logging: structured JSON stdout/stderr logs with metadata only; Laravel AI recall records model, latency, outcome, candidate count, token usage when available, HTTP status, and error type without private content
 - Backup: manual verified SQLite backup through `npm run backup`, stored locally in ignored `backups/`
-- Tests: Vitest protects the read-only Next.js reference; PHPUnit protects the Laravel foundation, founder authentication, note reads, note mutations, keyword search, and AI recall using isolated test state. Laravel passes 31 tests with 130 assertions.
+- Tests: Vitest protects the read-only Next.js reference; PHPUnit protects the Laravel foundation, founder authentication, note reads, note mutations, keyword search, AI recall, and capture contract using isolated test state. Laravel passes 39 tests with 184 assertions.
 - Deployment: Hetzner VPS, reached through Tailscale for admin access and Cloudflare Tunnel for web traffic
 
 ## Boundaries
@@ -27,6 +27,7 @@ Keep this document factual and short. Update it only after decisions are stable.
 - Laravel note reads: protected Blade routes query at most 100 recent notes; a direct note is loaded by text ID and missing IDs return `404`
 - Laravel note writes: protected, CSRF-checked POST routes create UUID notes, update existing rows, and delete by text ID; empty bodies never write
 - Laravel search/AI: `/?q=...` performs parameterized title/body search, and protected `POST /api/ai/recall` retrieves bounded local candidates before any optional OpenAI call. Strict output validation, local fallback, Chrome parity, and an approved live call are verified.
+- Laravel capture: `POST /api/capture` checks capture-token configuration and bearer auth before parsing JSON, validates 3-5,000 trimmed characters, applies a Laravel cache-backed sliding limit of 10 valid requests per minute, generates a bounded title, and writes a UUID note with UTC timestamps to SQLite. Missing configuration returns `503`, bad auth returns `401`, and unexpected failures return a content-safe `500`.
 - Logs: Server-only operational metadata through `src/lib/logger.ts`; capture logs never include the token, selected text, or generated title
 
 ## Decisions
@@ -300,13 +301,13 @@ Capturing a useful idea from another page required copying text, switching tabs,
 Decision:
 Use an unpacked plain-JavaScript Manifest V3 extension in `extension/`. It registers one selected-text context-menu action, stores `appUrl` and the capture token in `chrome.storage.local`, and has host permission only for `http://localhost:3000/*`. It sends only trimmed selected text to `POST /api/capture`; it does not send a page URL, page title, HTML, tags, or browsing data.
 
-The server authenticates a dedicated bearer token, accepts 3-5,000 characters, and permits 10 valid captures per minute per process. It asks the OpenAI Responses API for a 4-10 word title no longer than 80 characters, using `gpt-5.4-mini` by default, `store: false`, prompt-injection protection, and a 25-second abort. The shorter AI budget leaves room below Chrome's 30-second service-worker fetch limit. Invalid AI output, timeout, or AI failure uses a deterministic fallback title and still saves the note to the existing SQLite database. Capture logs contain metadata only: text length, duration, model or source, and error name.
+The Laravel server requires capture-token configuration, authenticates a dedicated bearer token before parsing JSON, accepts 3-5,000 trimmed characters, and permits 10 valid captures per minute through a Laravel cache-backed sliding window. Missing configuration returns `503`, invalid auth returns `401`, and unexpected failures return a safe `500`. It asks the OpenAI Responses API for a strict 4-10 word title no longer than 80 characters, using `gpt-5.4-mini` by default, `store: false`, prompt-injection protection, and a 25-second timeout. Invalid AI output, timeout, or provider failure uses a safe fallback title and still saves the note with a UUID and UTC timestamps to SQLite. Capture logs contain metadata only: text length, duration, model or source, and error name.
 
 Reason:
 This keeps extension power narrow and keeps authentication, validation, AI cost, private-data handling, and persistence on the server. Badge text and tooltips provide loading, success, or failure feedback without adding a popup, content script, retry queue, or second data model.
 
 Tradeoff:
-V1 is local and unpacked. The rate limit is process-local, the capture token is stored in the Chrome profile, and the actual unpacked context-menu workflow still needs a manual Chrome check. Production domain and host-permission changes remain deferred until deployment.
+V1 is local and unpacked. Laravel intentionally replaces the reference process-local limiter with an atomic cache-backed sliding window shared by server workers, preventing concurrent paid-call bypasses. The capture token is stored in the Chrome profile, and the unchanged extension has not yet been connected to Laravel. The actual unpacked context-menu workflow and live capture-title API still need explicit verification. Production domain and host-permission changes remain deferred until deployment.
 
 Date:
 2026-07-17
