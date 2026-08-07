@@ -56,7 +56,8 @@ textarea {
     position: sticky;
     top: 0;
     z-index: 20;
-    display: flex;
+    display: grid;
+    grid-template-columns: 220px minmax(280px, 620px) 220px;
     min-height: 92px;
     align-items: center;
     justify-content: space-between;
@@ -65,6 +66,38 @@ textarea {
     border-bottom: 1px solid #dbe3ed;
     background: rgba(244, 247, 251, 0.9);
     backdrop-filter: blur(18px);
+}
+
+.searchLauncher {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    width: 100%;
+    height: 48px;
+    align-items: center;
+    gap: 13px;
+    padding: 0 16px;
+    color: #687993;
+    border: 1px solid #ced9e6;
+    background: rgba(255, 255, 255, 0.78);
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.searchLauncher:hover {
+    border-color: #91acd1;
+    box-shadow: 0 8px 24px rgba(31, 58, 91, 0.1);
+    transform: translateY(-1px);
+}
+
+.searchLauncher svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
+
+.searchLauncher svg:last-child {
+    color: var(--blue);
 }
 
 .brand {
@@ -426,6 +459,191 @@ textarea {
     display: none;
 }
 
+.closeOverlay {
+    position: fixed;
+    top: calc(18vh - 50px);
+    right: max(5vw, calc((100vw - 1040px) / 2));
+    display: grid;
+    width: 38px;
+    height: 38px;
+    place-items: center;
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    background: rgba(0, 0, 0, 0.12);
+    cursor: pointer;
+    transition: transform 0.18s ease, background 0.18s ease;
+}
+
+.closeOverlay:hover {
+    background: rgba(0, 0, 0, 0.38);
+    transform: scale(1.06);
+}
+
+.closeOverlay svg {
+    width: 21px;
+    height: 21px;
+    fill: currentColor;
+}
+
+.searchStage {
+    width: min(1040px, 100%);
+    animation: searchArrive 0.48s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes searchArrive {
+    from {
+        opacity: 0;
+        transform: translateY(-70px) scale(0.8);
+    }
+}
+
+.expandedSearch {
+    display: flex;
+    min-height: 92px;
+    align-items: center;
+    gap: 18px;
+    padding: 0 24px;
+    color: var(--ink);
+    background: #ffffff;
+    box-shadow: 0 34px 100px rgba(0, 0, 0, 0.25);
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+.expandedSearch.aiMode {
+    color: #ffffff;
+    background: var(--blue);
+}
+
+.searchSubmit {
+    display: grid;
+    width: 44px;
+    height: 44px;
+    flex: 0 0 auto;
+    place-items: center;
+    padding: 0;
+    color: inherit;
+    border: 1px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+}
+
+.searchSubmit:hover {
+    border-color: currentColor;
+    background: rgba(16, 32, 58, 0.07);
+    transform: scale(1.05);
+}
+
+.aiMode .searchSubmit:hover,
+.aiMode .modeButton:hover {
+    background: rgba(255, 255, 255, 0.14);
+}
+
+.searchSubmit svg {
+    width: 26px;
+    height: 26px;
+    fill: currentColor;
+}
+
+.searchSubmit svg[hidden],
+.modeButton svg[hidden] {
+    display: none;
+}
+
+.expandedSearch input {
+    min-width: 0;
+    flex: 1;
+    color: inherit;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    font-size: clamp(20px, 3vw, 38px);
+}
+
+.expandedSearch input::placeholder {
+    color: currentColor;
+    opacity: 0.42;
+}
+
+.modeButton {
+    display: flex;
+    min-height: 46px;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 8px;
+    padding: 0 15px;
+    color: inherit;
+    border: 1px solid currentColor;
+    background: transparent;
+    cursor: pointer;
+    font-size: 12px;
+    transition: transform 0.18s ease, background 0.18s ease;
+}
+
+.modeButton:hover {
+    background: rgba(16, 32, 58, 0.08);
+    transform: translateY(-1px);
+}
+
+.modeButton svg {
+    width: 17px;
+    height: 17px;
+    fill: currentColor;
+}
+
+.searchModeLabel {
+    margin: 14px 0 28px;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 12px;
+}
+
+.searchResults {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+}
+
+.searchResults > a {
+    display: flex;
+    min-height: 250px;
+    flex-direction: column;
+    padding: 24px;
+    color: var(--ink);
+    background: #f4f8fd;
+    transition: transform 0.25s ease;
+}
+
+.searchResults > a:hover {
+    transform: translateY(-5px);
+}
+
+.searchResults a span {
+    color: #667791;
+    font-size: 10px;
+    text-transform: uppercase;
+}
+
+.searchResults a strong {
+    margin: auto 0;
+    font-size: 23px;
+    line-height: 1.12;
+}
+
+.searchResults a svg {
+    width: 19px;
+    height: 19px;
+    align-self: flex-end;
+    fill: currentColor;
+}
+
+.searchMessage {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 40px;
+    color: #ffffff;
+    text-align: center;
+}
+
 .composer {
     display: flex;
     width: 100%;
@@ -572,6 +790,7 @@ textarea {
 
 @media (max-width: 860px) {
     .header {
+        grid-template-columns: auto 1fr auto;
         gap: 16px;
         padding: 0 18px;
     }
@@ -600,6 +819,31 @@ textarea {
 
     .overlay {
         padding-top: 120px;
+    }
+
+    .closeOverlay {
+        top: 68px;
+        right: 24px;
+    }
+
+    .expandedSearch {
+        min-height: 76px;
+        padding: 0 16px;
+    }
+
+    .modeButton {
+        width: 44px;
+        justify-content: center;
+        padding: 0;
+        font-size: 0;
+    }
+
+    .searchResults {
+        grid-template-columns: 1fr;
+    }
+
+    .searchResults > a {
+        min-height: 160px;
     }
 
     .editorWorld {

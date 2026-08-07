@@ -5,7 +5,7 @@ Keep this document factual and short. Update it only after decisions are stable.
 ## Current Shape
 
 - Product reference: the working Next.js and TypeScript app remains authoritative until cutover
-- Migration runtime: Laravel 13 with Blade and normal static assets runs side-by-side in `laravel/`; founder authentication, note read views, and note CRUD are migrated
+- Migration runtime: Laravel 13 with Blade and normal static assets runs side-by-side in `laravel/`; founder authentication, note CRUD, migrated UI parity, keyword search, and AI recall have passed Stage 3 parity verification.
 - Extension: unpacked Manifest V3 Chrome extension in `extension/`, implemented in plain JavaScript
 - Database: the Next.js reference uses SQLite through `better-sqlite3`; Laravel uses Query Builder over PDO SQLite against a configured compatible database path
 - Auth: Next.js and Laravel both preserve founder-only login; Laravel uses `AUTH_PASSWORD`, encrypted cookie sessions, CSRF-protected forms, and founder route middleware
@@ -13,7 +13,7 @@ Keep this document factual and short. Update it only after decisions are stable.
 - Capture API: dedicated bearer-authenticated `POST /api/capture` endpoint for selected text
 - Logging: structured JSON stdout/stderr logs with metadata only
 - Backup: manual verified SQLite backup through `npm run backup`, stored locally in ignored `backups/`
-- Tests: Vitest protects the Next.js reference; PHPUnit protects the Laravel foundation, founder authentication, note reads, and note mutations using isolated test state
+- Tests: Vitest protects the read-only Next.js reference; PHPUnit protects the Laravel foundation, founder authentication, note reads, note mutations, keyword search, and AI recall using isolated test state. Laravel passes 29 tests with 118 assertions.
 - Deployment: Hetzner VPS, reached through Tailscale for admin access and Cloudflare Tunnel for web traffic
 
 ## Boundaries
@@ -26,6 +26,7 @@ Keep this document factual and short. Update it only after decisions are stable.
 - Auth/session: Founder-only protected routes plus a separate capture token for the extension
 - Laravel note reads: protected Blade routes query at most 100 recent notes; a direct note is loaded by text ID and missing IDs return `404`
 - Laravel note writes: protected, CSRF-checked POST routes create UUID notes, update existing rows, and delete by text ID; empty bodies never write
+- Laravel search/AI: `/?q=...` performs parameterized title/body search, and protected `POST /api/ai/recall` retrieves bounded local candidates before any optional OpenAI call. Strict output validation, local fallback, Chrome parity, and an approved live call are verified.
 - Logs: Server-only operational metadata through `src/lib/logger.ts`; capture logs never include the token, selected text, or generated title
 
 ## Decisions
