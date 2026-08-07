@@ -68,6 +68,15 @@ class CaptureTest extends TestCase
             ->postJson('/api/capture', ['text' => str_repeat('x', 5001)])
             ->assertStatus(400)
             ->assertExactJson(['error' => 'Selected text must be 5000 characters or fewer.']);
+
+        $this->withHeaders(['Authorization' => 'Bearer capture-secret'])
+            ->postJson('/api/capture', ['text' => "\u{00A0}😀a\u{00A0}"])
+            ->assertCreated();
+
+        $this->withHeaders(['Authorization' => 'Bearer capture-secret'])
+            ->postJson('/api/capture', ['text' => '😀'])
+            ->assertStatus(400)
+            ->assertExactJson(['error' => 'Selected text must be at least 3 characters.']);
     }
 
     public function test_capture_saves_trimmed_text_with_a_bounded_fallback_title(): void

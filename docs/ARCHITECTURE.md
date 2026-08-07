@@ -13,7 +13,7 @@ Keep this document factual and short. Update it only after decisions are stable.
 - Capture API: Laravel owns the dedicated bearer-authenticated `POST /api/capture` endpoint; its focused tests pass, while extension connection and Chrome/live capture verification remain pending
 - Logging: structured JSON stdout/stderr logs with metadata only; Laravel AI recall records model, latency, outcome, candidate count, token usage when available, HTTP status, and error type without private content
 - Backup: manual verified SQLite backup through `npm run backup`, stored locally in ignored `backups/`
-- Tests: Vitest protects the read-only Next.js reference; PHPUnit protects the Laravel foundation, founder authentication, note reads, note mutations, keyword search, AI recall, and capture contract using isolated test state. Laravel passes 38 tests with 176 assertions.
+- Tests: Vitest protects the read-only Next.js reference; PHPUnit protects the Laravel foundation, founder authentication, note reads, note mutations, keyword search, AI recall, and capture contract using isolated test state. Laravel passes 38 tests with 179 assertions.
 - Deployment: Hetzner VPS, reached through Tailscale for admin access and Cloudflare Tunnel for web traffic
 
 ## Boundaries
@@ -307,7 +307,7 @@ Reason:
 This keeps extension power narrow and keeps authentication, validation, AI cost, private-data handling, and persistence on the server. Badge text and tooltips provide loading, success, or failure feedback without adding a popup, content script, retry queue, or second data model.
 
 Tradeoff:
-V1 is local and unpacked. The cache-backed limit still depends on the configured Laravel cache store, the capture token is stored in the Chrome profile, and the unchanged extension has not yet been connected to Laravel. The actual unpacked context-menu workflow and live capture-title API still need explicit verification. Production domain and host-permission changes remain deferred until deployment.
+V1 is local and unpacked. Laravel intentionally replaces the reference process-local limiter with an atomic cache-backed sliding window shared by server workers, preventing concurrent paid-call bypasses. The capture token is stored in the Chrome profile, and the unchanged extension has not yet been connected to Laravel. The actual unpacked context-menu workflow and live capture-title API still need explicit verification. Production domain and host-permission changes remain deferred until deployment.
 
 Date:
 2026-07-17

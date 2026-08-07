@@ -18,7 +18,7 @@ Stable facts future Codex sessions should remember. Keep short.
 - Required active documents:
   - `docs/LARAVEL_MIGRATION_CONTRACT.md`
   - `docs/LARAVEL_MIGRATION_BASELINE.md`
-- Status: Stage 3 core-product parity is complete. In Stage 4, the bearer-authenticated Laravel `POST /api/capture` contract is implemented; 38 Laravel tests with 176 assertions pass. The extension has not yet been connected to Laravel, and no Chrome or live capture-title API verification has been recorded for this slice.
+- Status: Stage 3 core-product parity is complete. In Stage 4, the bearer-authenticated Laravel `POST /api/capture` contract is implemented; 38 Laravel tests with 179 assertions pass. The extension has not yet been connected to Laravel, and no Chrome or live capture-title API verification has been recorded for this slice.
 - Current stage: 4 - Restore AI, Extension, And Operations Parity (in progress)
 - Next checkpoint: connect the unchanged extension to Laravel, then convert its tests from Vitest to the Node built-in test runner without changing extension behavior.
 
@@ -93,7 +93,7 @@ Laravel owns URL keyword search, wildcard escaping, newest-first results, local 
 
 ### Decision: Laravel extension capture API
 
-Laravel now owns bearer-authenticated `POST /api/capture` without founder-session or CSRF coupling. Missing capture-token configuration returns `503`; an invalid bearer token returns `401` before JSON parsing. Valid input is trimmed to 3-5,000 characters and limited to 10 valid requests per minute through a Laravel cache-backed sliding window. Title generation uses OpenAI strict structured output for 4-10 words and at most 80 characters, with `store: false` and a 25-second timeout; invalid output or provider failure uses a safe fallback. Successful persistence writes a UUID and UTC timestamps to SQLite. Logs contain metadata only, and unexpected failures return a safe `500`. Focused automated tests pass; extension, Chrome, and live capture-title API verification remain pending.
+Laravel now owns bearer-authenticated `POST /api/capture` in the session-free API route group. Missing capture-token configuration returns `503`; an invalid bearer token returns `401` before JSON parsing. Input follows JavaScript Unicode trim/length behavior and is limited to 3-5,000 UTF-16 code units. An atomic Laravel-cache sliding window permits 10 valid requests per minute across workers. Title generation uses OpenAI strict structured output for 4-10 words and at most 80 characters, with `store: false` and a 25-second timeout; invalid output or provider failure uses a safe fallback. Successful persistence writes a UUID and UTC timestamps to SQLite. Logs contain metadata only, and unexpected failures return a safe `500`. Focused automated tests pass; extension, Chrome, and live capture-title API verification remain pending.
 
 ### Decision: V1 stack
 

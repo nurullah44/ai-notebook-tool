@@ -16,6 +16,8 @@ class CaptureController extends Controller
 {
     private const RATE_LIMIT_KEY = 'extension_capture_timestamps';
 
+    private const RATE_LIMIT_LOCK_KEY = 'extension_capture_timestamps_lock';
+
     private const MIN_TEXT_LENGTH = 3;
 
     private const MAX_TEXT_LENGTH = 5000;
@@ -56,18 +58,18 @@ class CaptureController extends Controller
             return response()->json(['error' => 'Selected text is required.'], 400);
         }
 
-        $text = trim($payload['text']);
+        $text = $this->trimLikeJavaScript($payload['text']);
 
-        if (mb_strlen($text) < self::MIN_TEXT_LENGTH) {
+        if ($this->javascriptLength($text) < self::MIN_TEXT_LENGTH) {
             Log::warning('capture.rejected', ['reason' => 'text_too_short']);
 
             return response()->json(['error' => 'Selected text must be at least 3 characters.'], 400);
         }
 
-        if (mb_strlen($text) > self::MAX_TEXT_LENGTH) {
+        if ($this->javascriptLength($text) > self::MAX_TEXT_LENGTH) {
             Log::warning('capture.rejected', [
                 'reason' => 'text_too_long',
-                'textLength' => mb_strlen($text),
+                'textLength' => $this->javascriptLength($text),
             ]);
 
             return response()->json(['error' => 'Selected text must be 5000 characters or fewer.'], 400);
@@ -94,14 +96,14 @@ class CaptureController extends Controller
                 } else {
                     Log::warning('capture.title_fallback', [
                         'reason' => 'invalid_ai_title',
-                        'textLength' => mb_strlen($text),
+                        'textLength' => $this->javascriptLength($text),
                     ]);
                 }
             } catch (Throwable $exception) {
                 Log::warning('capture.title_fallback', [
                     'errorType' => $exception::class,
                     'reason' => 'ai_request_failed',
-                    'textLength' => mb_strlen($text),
+                    'textLength' => $this->javascriptLength($text),
                 ]);
             }
         }
@@ -121,7 +123,7 @@ class CaptureController extends Controller
             Log::error('capture.failed', [
                 'errorType' => $exception::class,
                 'durationMs' => (int) ((hrtime(true) - $startedAt) / 1_000_000),
-                'textLength' => mb_strlen($text),
+                'textLength' => $this->javascriptLength($text),
                 'titleSource' => $titleSource,
                 'usedOpenAI' => $apiKey !== '',
             ]);
@@ -132,7 +134,7 @@ class CaptureController extends Controller
         Log::info('capture.completed', [
             'durationMs' => (int) ((hrtime(true) - $startedAt) / 1_000_000),
             'model' => $model,
-            'textLength' => mb_strlen($text),
+            'textLength' => $this->javascriptLength($text),
             'titleSource' => $titleSource,
             'usedOpenAI' => $apiKey !== '',
         ]);
@@ -142,37 +144,45 @@ class CaptureController extends Controller
 
     private function fallbackTitle(string $text): string
     {
-        $words = array_slice(preg_split('/\s+/u', $text) ?: [], 0, 10);
+        $words = array_slice(preg_split('/[\s\x{FEFF}]+/u', $text) ?: [], 0, 10);
         $title = '';
 
         foreach ($words as $word) {
             $candidate = $title === '' ? $word : $title.' '.$word;
 
-            if (mb_strlen($candidate) > 80) {
+            if ($this->javascriptLength($candidate) > 80) {
                 break;
             }
 
             $title = $candidate;
         }
 
-        return $title !== '' ? $title : mb_substr($words[0] ?? 'Captured idea', 0, 80);
+        return $title !== '' ? $title : $this->truncateToJavaScriptLength($words[0] ?? 'Captured idea', 80);
     }
 
     private function consumeRateLimit(): bool
     {
-        $now = microtime(true);
-        $timestamps = collect(Cache::get(self::RATE_LIMIT_KEY, []))
-            ->filter(fn (mixed $timestamp): bool => is_float($timestamp) && ($now - $timestamp) < 60)
-            ->values();
+        try {
+            return Cache::lock(self::RATE_LIMIT_LOCK_KEY, 5)->block(2, function (): bool {
+                $now = microtime(true);
+                $timestamps = collect(Cache::get(self::RATE_LIMIT_KEY, []))
+                    ->filter(fn (mixed $timestamp): bool => is_float($timestamp) && ($now - $timestamp) < 60)
+                    ->values();
 
-        if ($timestamps->count() >= 10) {
+                if ($timestamps->count() >= 10) {
+                    return false;
+                }
+
+                $timestamps->push($now);
+                Cache::put(self::RATE_LIMIT_KEY, $timestamps->all(), 60);
+
+                return true;
+            });
+        } catch (Throwable $exception) {
+            Log::error('capture.rate_limit_failed', ['errorType' => $exception::class]);
+
             return false;
         }
-
-        $timestamps->push($now);
-        Cache::put(self::RATE_LIMIT_KEY, $timestamps->all(), 60);
-
-        return true;
     }
 
     private function generateAiTitle(string $text, string $apiKey, string $model): ?string
@@ -269,10 +279,35 @@ class CaptureController extends Controller
         $title = is_array($parsed) && is_string($parsed['title'] ?? null) ? trim($parsed['title']) : '';
         $wordCount = count(preg_split('/\s+/u', $title, -1, PREG_SPLIT_NO_EMPTY) ?: []);
 
-        if ($title === '' || mb_strlen($title) > 80 || $wordCount < 4 || $wordCount > 10 || preg_match('/["“”]/u', $title) === 1) {
+        if ($title === '' || $this->javascriptLength($title) > 80 || $wordCount < 4 || $wordCount > 10 || preg_match('/["“”]/u', $title) === 1) {
             return null;
         }
 
         return $title;
+    }
+
+    private function trimLikeJavaScript(string $value): string
+    {
+        return preg_replace('/^[\s\x{FEFF}]+|[\s\x{FEFF}]+$/u', '', $value) ?? $value;
+    }
+
+    private function javascriptLength(string $value): int
+    {
+        return intdiv(strlen(mb_convert_encoding($value, 'UTF-16LE', 'UTF-8')), 2);
+    }
+
+    private function truncateToJavaScriptLength(string $value, int $maximum): string
+    {
+        $result = '';
+
+        foreach (mb_str_split($value) as $character) {
+            if ($this->javascriptLength($result.$character) > $maximum) {
+                break;
+            }
+
+            $result .= $character;
+        }
+
+        return $result;
     }
 }
