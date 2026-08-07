@@ -77,6 +77,15 @@ class CaptureTest extends TestCase
             ->postJson('/api/capture', ['text' => '😀'])
             ->assertStatus(400)
             ->assertExactJson(['error' => 'Selected text must be at least 3 characters.']);
+
+        $nextLineText = "\u{0085}abc\u{0085}";
+        $response = $this->withHeaders(['Authorization' => 'Bearer capture-secret'])
+            ->postJson('/api/capture', ['text' => $nextLineText])
+            ->assertCreated();
+
+        $this->withSession(['founder_authenticated' => true])
+            ->get('/notes/'.$response->json('id'))
+            ->assertSee($nextLineText);
     }
 
     public function test_capture_saves_trimmed_text_with_a_bounded_fallback_title(): void
@@ -173,5 +182,15 @@ class CaptureTest extends TestCase
             return $event === 'capture.failed'
                 && ! str_contains(json_encode($context, JSON_THROW_ON_ERROR), 'Private text');
         });
+    }
+
+    public function test_capture_returns_a_safe_error_when_the_rate_limit_store_fails(): void
+    {
+        config()->set('cache.default', 'missing-store');
+
+        $this->withHeaders(['Authorization' => 'Bearer capture-secret'])
+            ->postJson('/api/capture', ['text' => 'Valid capture text'])
+            ->assertStatus(500)
+            ->assertExactJson(['error' => 'Idea could not be saved.']);
     }
 }

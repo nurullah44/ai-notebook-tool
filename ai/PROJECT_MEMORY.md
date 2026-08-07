@@ -18,7 +18,7 @@ Stable facts future Codex sessions should remember. Keep short.
 - Required active documents:
   - `docs/LARAVEL_MIGRATION_CONTRACT.md`
   - `docs/LARAVEL_MIGRATION_BASELINE.md`
-- Status: Stage 3 core-product parity is complete. In Stage 4, the bearer-authenticated Laravel `POST /api/capture` contract is implemented; 38 Laravel tests with 179 assertions pass. The extension has not yet been connected to Laravel, and no Chrome or live capture-title API verification has been recorded for this slice.
+- Status: Stage 3 core-product parity is complete. In Stage 4, the bearer-authenticated Laravel `POST /api/capture` contract is implemented; 39 Laravel tests with 184 assertions pass. The extension has not yet been connected to Laravel, and no Chrome or live capture-title API verification has been recorded for this slice.
 - Current stage: 4 - Restore AI, Extension, And Operations Parity (in progress)
 - Next checkpoint: connect the unchanged extension to Laravel, then convert its tests from Vitest to the Node built-in test runner without changing extension behavior.
 

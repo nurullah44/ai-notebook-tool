@@ -13,7 +13,7 @@ Keep this document factual and short. Update it only after decisions are stable.
 - Capture API: Laravel owns the dedicated bearer-authenticated `POST /api/capture` endpoint; its focused tests pass, while extension connection and Chrome/live capture verification remain pending
 - Logging: structured JSON stdout/stderr logs with metadata only; Laravel AI recall records model, latency, outcome, candidate count, token usage when available, HTTP status, and error type without private content
 - Backup: manual verified SQLite backup through `npm run backup`, stored locally in ignored `backups/`
-- Tests: Vitest protects the read-only Next.js reference; PHPUnit protects the Laravel foundation, founder authentication, note reads, note mutations, keyword search, AI recall, and capture contract using isolated test state. Laravel passes 38 tests with 179 assertions.
+- Tests: Vitest protects the read-only Next.js reference; PHPUnit protects the Laravel foundation, founder authentication, note reads, note mutations, keyword search, AI recall, and capture contract using isolated test state. Laravel passes 39 tests with 184 assertions.
 - Deployment: Hetzner VPS, reached through Tailscale for admin access and Cloudflare Tunnel for web traffic
 
 ## Boundaries

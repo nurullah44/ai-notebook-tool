@@ -14,6 +14,8 @@ use Throwable;
 
 class CaptureController extends Controller
 {
+    private const JAVASCRIPT_WHITESPACE = '\x{0009}-\x{000D}\x{0020}\x{00A0}\x{1680}\x{2000}-\x{200A}\x{2028}\x{2029}\x{202F}\x{205F}\x{3000}\x{FEFF}';
+
     private const RATE_LIMIT_KEY = 'extension_capture_timestamps';
 
     private const RATE_LIMIT_LOCK_KEY = 'extension_capture_timestamps_lock';
@@ -75,7 +77,15 @@ class CaptureController extends Controller
             return response()->json(['error' => 'Selected text must be 5000 characters or fewer.'], 400);
         }
 
-        if (! $this->consumeRateLimit()) {
+        try {
+            $withinRateLimit = $this->consumeRateLimit();
+        } catch (Throwable $exception) {
+            Log::error('capture.rate_limit_failed', ['errorType' => $exception::class]);
+
+            return response()->json(['error' => 'Idea could not be saved.'], 500);
+        }
+
+        if (! $withinRateLimit) {
             Log::warning('capture.rate_limited');
 
             return response()->json(['error' => 'Capture limit reached. Try again in a minute.'], 429);
@@ -144,7 +154,7 @@ class CaptureController extends Controller
 
     private function fallbackTitle(string $text): string
     {
-        $words = array_slice(preg_split('/[\s\x{FEFF}]+/u', $text) ?: [], 0, 10);
+        $words = array_slice(preg_split('/['.self::JAVASCRIPT_WHITESPACE.']+/u', $text) ?: [], 0, 10);
         $title = '';
 
         foreach ($words as $word) {
@@ -162,27 +172,21 @@ class CaptureController extends Controller
 
     private function consumeRateLimit(): bool
     {
-        try {
-            return Cache::lock(self::RATE_LIMIT_LOCK_KEY, 5)->block(2, function (): bool {
-                $now = microtime(true);
-                $timestamps = collect(Cache::get(self::RATE_LIMIT_KEY, []))
-                    ->filter(fn (mixed $timestamp): bool => is_float($timestamp) && ($now - $timestamp) < 60)
-                    ->values();
+        return Cache::lock(self::RATE_LIMIT_LOCK_KEY, 5)->block(2, function (): bool {
+            $now = microtime(true);
+            $timestamps = collect(Cache::get(self::RATE_LIMIT_KEY, []))
+                ->filter(fn (mixed $timestamp): bool => is_float($timestamp) && ($now - $timestamp) < 60)
+                ->values();
 
-                if ($timestamps->count() >= 10) {
-                    return false;
-                }
+            if ($timestamps->count() >= 10) {
+                return false;
+            }
 
-                $timestamps->push($now);
-                Cache::put(self::RATE_LIMIT_KEY, $timestamps->all(), 60);
+            $timestamps->push($now);
+            Cache::put(self::RATE_LIMIT_KEY, $timestamps->all(), 60);
 
-                return true;
-            });
-        } catch (Throwable $exception) {
-            Log::error('capture.rate_limit_failed', ['errorType' => $exception::class]);
-
-            return false;
-        }
+            return true;
+        });
     }
 
     private function generateAiTitle(string $text, string $apiKey, string $model): ?string
@@ -277,7 +281,7 @@ class CaptureController extends Controller
 
         $parsed = json_decode($outputText, true);
         $title = is_array($parsed) && is_string($parsed['title'] ?? null) ? trim($parsed['title']) : '';
-        $wordCount = count(preg_split('/\s+/u', $title, -1, PREG_SPLIT_NO_EMPTY) ?: []);
+        $wordCount = count(preg_split('/['.self::JAVASCRIPT_WHITESPACE.']+/u', $title, -1, PREG_SPLIT_NO_EMPTY) ?: []);
 
         if ($title === '' || $this->javascriptLength($title) > 80 || $wordCount < 4 || $wordCount > 10 || preg_match('/["“”]/u', $title) === 1) {
             return null;
@@ -288,7 +292,7 @@ class CaptureController extends Controller
 
     private function trimLikeJavaScript(string $value): string
     {
-        return preg_replace('/^[\s\x{FEFF}]+|[\s\x{FEFF}]+$/u', '', $value) ?? $value;
+        return preg_replace('/^['.self::JAVASCRIPT_WHITESPACE.']+|['.self::JAVASCRIPT_WHITESPACE.']+$/u', '', $value) ?? $value;
     }
 
     private function javascriptLength(string $value): int
