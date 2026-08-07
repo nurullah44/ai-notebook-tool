@@ -125,7 +125,7 @@ class CaptureTest extends TestCase
         config()->set('services.openai.key', 'test-key');
         config()->set('services.openai.model', 'test-model');
         Http::fake(['api.openai.com/*' => Http::response([
-            'output_text' => json_encode(['title' => 'A Safe Captured Idea'], JSON_THROW_ON_ERROR),
+            'output_text' => json_encode(['title' => "\u{00A0}A Safe Captured Idea\u{FEFF}"], JSON_THROW_ON_ERROR),
             'usage' => ['input_tokens' => 20, 'output_tokens' => 5],
         ])]);
 

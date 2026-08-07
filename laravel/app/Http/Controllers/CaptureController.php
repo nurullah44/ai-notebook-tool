@@ -280,7 +280,7 @@ class CaptureController extends Controller
         }
 
         $parsed = json_decode($outputText, true);
-        $title = is_array($parsed) && is_string($parsed['title'] ?? null) ? trim($parsed['title']) : '';
+        $title = is_array($parsed) && is_string($parsed['title'] ?? null) ? $this->trimLikeJavaScript($parsed['title']) : '';
         $wordCount = count(preg_split('/['.self::JAVASCRIPT_WHITESPACE.']+/u', $title, -1, PREG_SPLIT_NO_EMPTY) ?: []);
 
         if ($title === '' || $this->javascriptLength($title) > 80 || $wordCount < 4 || $wordCount > 10 || preg_match('/["“”]/u', $title) === 1) {
