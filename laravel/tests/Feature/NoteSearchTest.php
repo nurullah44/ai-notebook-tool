@@ -45,7 +45,9 @@ class NoteSearchTest extends TestCase
             $this->note('literal-percent', 'Improve by 100%', 'Exact target', '2026-08-03T10:00:00.000Z'),
             $this->note('wildcard-trap', 'Improve by 100x', 'Should not match', '2026-08-04T10:00:00.000Z'),
             $this->note('literal-underscore', 'snake_case', 'Exact target', '2026-08-03T10:00:00.000Z'),
+            $this->note('underscore-trap', 'snakeXcase', 'Should not match', '2026-08-04T10:00:00.000Z'),
             $this->note('literal-backslash', 'path\\notes', 'Exact target', '2026-08-03T10:00:00.000Z'),
+            $this->note('backslash-trap', 'pathXnotes', 'Should not match', '2026-08-04T10:00:00.000Z'),
         ]);
 
         $this->withSession(['founder_authenticated' => true])
@@ -55,9 +57,11 @@ class NoteSearchTest extends TestCase
             ->assertDontSee('wildcard-trap', false);
 
         $this->withSession(['founder_authenticated' => true])->get('/?q=snake_case')
-            ->assertSee('literal-underscore', false);
+            ->assertSee('literal-underscore', false)
+            ->assertDontSee('underscore-trap', false);
         $this->withSession(['founder_authenticated' => true])->get('/?q=path%5Cnotes')
-            ->assertSee('literal-backslash', false);
+            ->assertSee('literal-backslash', false)
+            ->assertDontSee('backslash-trap', false);
     }
 
     public function test_keyword_search_is_newest_first_and_limited_to_one_hundred_results(): void
@@ -156,6 +160,20 @@ class NoteSearchTest extends TestCase
             && $context['model'] === 'test-model'
             && $context['outcome'] === 'invalid_output'
             && isset($context['durationMs']));
+    }
+
+    public function test_ai_recall_falls_back_when_model_output_is_malformed(): void
+    {
+        config()->set('services.openai.key', 'test-key');
+        DB::table('notes')->insert(
+            $this->note('candidate-1', 'Buying tools too early', 'Choose the problem first.', '2026-08-03T10:00:00.000Z'),
+        );
+        Http::fake(['api.openai.com/*' => Http::response(['output_text' => '{broken'])]);
+
+        $this->withSession(['founder_authenticated' => true])
+            ->postJson('/api/ai/recall', ['question' => 'buying tools too early'])
+            ->assertOk()
+            ->assertJsonPath('matches.0.noteId', 'candidate-1');
     }
 
     /** @return array{id: string, title: string, body: string, created_at: string, updated_at: string} */
