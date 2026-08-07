@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class AiRecallController extends Controller
 {
@@ -43,11 +44,14 @@ class AiRecallController extends Controller
             return response()->json($localResult);
         }
 
+        $model = (string) config('services.openai.model', 'gpt-5.4-mini');
+        $startedAt = hrtime(true);
+
         try {
             $response = Http::withToken($apiKey)
                 ->timeout(25)
                 ->post('https://api.openai.com/v1/responses', [
-                    'model' => config('services.openai.model', 'gpt-5.4-mini'),
+                    'model' => $model,
                     'store' => false,
                     'max_output_tokens' => 700,
                     'reasoning' => ['effort' => 'low'],
@@ -99,13 +103,19 @@ class AiRecallController extends Controller
                 ]);
 
             if (! $response->successful()) {
+                $this->logAiCall($model, $startedAt, $candidates->count(), 'http_error', $response->json(), $response->status());
+
                 return response()->json($this->failedAiResult($candidates));
             }
 
-            return response()->json(
-                $this->parseAiResult($this->extractOutputText($response->json()), $candidates) ?? $localResult
-            );
-        } catch (ConnectionException) {
+            $payload = $response->json();
+            $parsed = $this->parseAiResult($this->extractOutputText($payload), $candidates);
+            $this->logAiCall($model, $startedAt, $candidates->count(), $parsed === null ? 'invalid_output' : 'success', $payload);
+
+            return response()->json($parsed ?? $localResult);
+        } catch (ConnectionException $exception) {
+            $this->logAiCall($model, $startedAt, $candidates->count(), 'connection_error', null, null, $exception::class);
+
             return response()->json($this->failedAiResult($candidates));
         }
     }
@@ -171,9 +181,11 @@ class AiRecallController extends Controller
         $indexes = $terms->map(fn (string $term): int|false => mb_strpos($lowerBody, $term))->filter(fn (int|false $index): bool => $index !== false);
         $firstIndex = $indexes->isEmpty() ? 0 : (int) $indexes->min();
         $start = max(0, $firstIndex - 180);
-        $snippet = mb_substr($body, $start, 700);
+        $prefix = $start > 0 ? '...' : '';
+        $suffix = ($start + 700) < mb_strlen($body) ? '...' : '';
+        $snippet = mb_substr($body, $start, 700 - mb_strlen($prefix) - mb_strlen($suffix));
 
-        return ($start > 0 ? '...' : '').$snippet.(($start + 700) < mb_strlen($body) ? '...' : '');
+        return $prefix.$snippet.$suffix;
     }
 
     /** @param Collection<int, array{id: string, title: string, reason: string}> $candidates */
@@ -263,5 +275,21 @@ class AiRecallController extends Controller
             'answer' => trim($parsed['answer']) !== '' ? trim($parsed['answer']) : 'Here are the closest notes I found.',
             'matches' => $matches,
         ];
+    }
+
+    private function logAiCall(string $model, int $startedAt, int $candidateCount, string $outcome, mixed $payload = null, ?int $status = null, ?string $errorType = null): void
+    {
+        $usage = is_array($payload) && is_array($payload['usage'] ?? null) ? $payload['usage'] : [];
+
+        Log::info('ai.recall_completed', array_filter([
+            'model' => $model,
+            'durationMs' => (int) ((hrtime(true) - $startedAt) / 1_000_000),
+            'candidateCount' => $candidateCount,
+            'outcome' => $outcome,
+            'status' => $status,
+            'errorType' => $errorType,
+            'inputTokens' => is_int($usage['input_tokens'] ?? null) ? $usage['input_tokens'] : null,
+            'outputTokens' => is_int($usage['output_tokens'] ?? null) ? $usage['output_tokens'] : null,
+        ], fn (mixed $value): bool => $value !== null));
     }
 }

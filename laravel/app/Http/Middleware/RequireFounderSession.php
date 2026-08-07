@@ -11,7 +11,7 @@ class RequireFounderSession
     public function handle(Request $request, Closure $next): Response
     {
         if ($request->session()->get('founder_authenticated') !== true) {
-            if ($request->expectsJson()) {
+            if ($request->expectsJson() || $request->routeIs('ai.recall')) {
                 return response()->json(['error' => 'Not authenticated.'], 401);
             }
 

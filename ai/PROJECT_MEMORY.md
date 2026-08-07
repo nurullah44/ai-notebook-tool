@@ -18,7 +18,7 @@ Stable facts future Codex sessions should remember. Keep short.
 - Required active documents:
   - `docs/LARAVEL_MIGRATION_CONTRACT.md`
   - `docs/LARAVEL_MIGRATION_BASELINE.md`
-- Status: Stage 3 core-product parity is complete. The Laravel suite passes 29 tests with 118 assertions; Chrome verified keyword and AI modes against the Next.js production reference; one approved live OpenAI call succeeded through Laravel.
+- Status: Stage 3 core-product parity is complete. The Laravel suite passes 30 tests with 125 assertions; Chrome verified keyword and AI modes against the Next.js production reference; one approved live OpenAI call succeeded through Laravel.
 - Current stage: 4 - Restore AI, Extension, And Operations Parity (in progress)
 - Next checkpoint: port the exact bearer-authenticated `POST /api/capture` contract to Laravel, with focused tests before connecting the unchanged extension.
 
@@ -89,7 +89,7 @@ Authenticated, CSRF-protected POST routes now create, update, and delete notes t
 
 ### Decision: Laravel keyword search and AI recall
 
-Laravel owns URL keyword search, wildcard escaping, newest-first results, local lexical candidate ranking, and authenticated OpenAI Responses API recall. Recall sends bounded candidate snippets, uses strict structured output with `store: false`, validates returned IDs, and falls back locally. The suite passes 29 tests with 118 assertions; Chrome parity and one approved live OpenAI call passed.
+Laravel owns URL keyword search, wildcard escaping, newest-first results, local lexical candidate ranking, and authenticated OpenAI Responses API recall. Recall sends bounded candidate snippets, uses strict structured output with `store: false`, validates returned IDs, falls back locally, and logs safe model/latency/outcome/token metadata. The suite passes 30 tests with 125 assertions; Chrome parity and one approved live OpenAI call passed.
 
 ### Decision: V1 stack
 
