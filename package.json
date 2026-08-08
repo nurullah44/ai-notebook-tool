@@ -10,7 +10,7 @@
     "lint": "eslint",
     "test": "npm run test:reference && npm run test:extension",
     "test:reference": "vitest run --exclude extension/**/*.test.js",
-    "test:extension": "node --experimental-default-type=module --test extension/background.test.js extension/capture.test.js extension/options.test.js"
+    "test:extension": "node --test extension/background.test.js extension/capture.test.js extension/options.test.js"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",

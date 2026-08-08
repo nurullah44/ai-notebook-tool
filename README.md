@@ -16,7 +16,7 @@ During the migration, run Laravel from `laravel/` with `composer dev`; it keeps 
 
 1. Start the chosen local runtime and keep it available at exactly `http://localhost:3000`.
 2. Open `chrome://extensions`, enable Developer mode, choose **Load unpacked**, and select the `extension/` folder.
-3. Open the extension options. Set the app URL to exactly `http://localhost:3000` and copy the `EXTENSION_CAPTURE_TOKEN` value from the ignored `.env.local` file into the capture-token field.
+3. Set one identical `EXTENSION_CAPTURE_TOKEN` value in the active server environment and the extension options: use `laravel/.env` for Laravel or root `.env.local` for the Next.js reference. Keep the app URL exactly `http://localhost:3000`.
 4. Highlight 3-5,000 characters on a web page, right-click, and choose **Save to Idea Store**.
 
 After editing files under `extension/`, return to `chrome://extensions` and reload the extension before testing the change.
