@@ -4,19 +4,35 @@ A private, founder-only notebook that saves text notes, searches them, and uses 
 
 ## Local Setup
 
-1. Copy `.env.example` to `.env.local` and fill the local secrets.
-2. Install dependencies with `npm install`.
-3. Start the app with `npm run dev`.
+Laravel is now the primary local runtime. Next.js remains installed but passive for later comparison or fallback.
+
+1. Enter `laravel/` and run `composer setup`.
+2. Configure `laravel/.env`, including a physical `SQLITE_DB_PATH`, `AUTH_PASSWORD`, and `EXTENSION_CAPTURE_TOKEN`.
+3. Run `php artisan notebook:ready`.
+4. If the database already contains notes, run `php artisan notebook:backup` before promoting Laravel.
+5. Start Laravel with `composer start`.
 
 Open `http://localhost:3000`.
 
+`composer start` runs the secret-safe readiness gate before serving. It is the local-primary command, not a production web server. Future deployment must first pass `php artisan notebook:ready --production` and use an HTTPS-capable production server stack.
+
+## Passive Next.js Reference
+
+Next.js is not deleted and should remain stopped while Laravel owns port 3000. When comparison is needed, build it first and start it explicitly:
+
+```powershell
+npm install
+npm run build
+npm run start
+```
+
 ## Local Chrome Extension
 
-During the migration, run Laravel from `laravel/` with `composer dev`; it keeps the existing extension contract available at exactly `http://localhost:3000`. The Next.js reference starts only after `npm run build`, using `npm run start`.
+Run Laravel from `laravel/` with `composer start`; it keeps the existing extension contract available at exactly `http://localhost:3000`.
 
-1. Start the chosen local runtime and keep it available at exactly `http://localhost:3000`.
+1. Start Laravel and keep it available at exactly `http://localhost:3000`.
 2. Open `chrome://extensions`, enable Developer mode, choose **Load unpacked**, and select the `extension/` folder.
-3. Set one identical `EXTENSION_CAPTURE_TOKEN` value in the active server environment and the extension options: use `laravel/.env` for Laravel or root `.env.local` for the Next.js reference. Keep the app URL exactly `http://localhost:3000`.
+3. Set one identical `EXTENSION_CAPTURE_TOKEN` value in `laravel/.env` and the extension options. Keep the app URL exactly `http://localhost:3000`.
 4. Highlight 3-5,000 characters on a web page, right-click, and choose **Save to Idea Store**.
 
 After editing files under `extension/`, return to `chrome://extensions` and reload the extension before testing the change.

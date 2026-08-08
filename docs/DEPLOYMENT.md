@@ -2,47 +2,59 @@
 
 ## Current Target
 
-- Platform: Hetzner VPS
-- Domain:
-- Database: SQLite file on the VPS
-- Environment: Single Node.js app process, exact process manager deferred
+- Status: deferred; no deployment or traffic switch is authorized yet
+- Planned platform: Hetzner VPS
+- Domain: undecided
+- Application: Laravel/PHP with SQLite
+- Web server/process manager: undecided
+- Next.js: retained as a stopped, passive reference; deletion is not planned
 
 ## Environment Variables
 
 ```text
 AUTH_PASSWORD
-SESSION_SECRET
 SQLITE_DB_PATH
 EXTENSION_CAPTURE_TOKEN
 OPENAI_API_KEY
 OPENAI_MODEL
+APP_KEY
+APP_ENV
+APP_DEBUG
+APP_URL
 ```
 
-`OPENAI_MODEL` defaults to `gpt-5.4-mini`. Keep `EXTENSION_CAPTURE_TOKEN` separate from the founder password and session secret.
+`OPENAI_MODEL` defaults to `gpt-5.4-mini`. Keep `EXTENSION_CAPTURE_TOKEN` separate from the founder password and `APP_KEY`. `SESSION_SECRET` remains relevant only to the passive Next.js reference.
+
+Before any future deployment, `APP_ENV=production`, `APP_DEBUG=false`, an HTTPS `APP_URL`, and secure session cookies must make `php artisan notebook:ready --production` pass.
 
 ## Deploy Steps
+
+These steps are a deferred plan, not completed deployment evidence:
 
 1. Provision a small Hetzner VPS.
 2. Install and verify Tailscale for private admin access.
 3. Lock down public inbound access before treating the server as production.
-4. Deploy the Next.js app and SQLite database file.
+4. Deploy Laravel and a freshly verified SQLite backup.
 5. Publish the app through Cloudflare Tunnel.
-6. Verify login, note creation, search, AI lookup, logs, and backup.
+6. Run `php artisan notebook:ready --production`, then verify login, note creation, search, AI lookup, capture, logs, and backup.
 
 ## Chrome Extension Deployment
 
 The current unpacked extension is local-only and permits only `http://localhost:3000/*`. Do not treat capture as production-ready until a production app domain is chosen and both the manifest host permission and extension app URL are updated together. Chrome Web Store distribution is not part of this slice.
 
-For migration verification, run Laravel with `composer dev` from `laravel/`; it binds to `http://localhost:3000`, matching the unchanged extension permission and saved app URL exactly.
+For current local use, run Laravel with `composer start` from `laravel/`; it binds to `http://localhost:3000`, matching the unchanged extension permission and saved app URL exactly.
 
 ## Migration Notes
 
-- Database migration command: table creation currently runs at app startup through `src/lib/db.ts`.
+- Fresh Laravel database migration command: `php artisan migrate`; existing compatible notebook data must not be recreated or reshaped.
 - Database backup command: `cd laravel && php artisan notebook:backup`.
-- Rollback plan: Stop the app, restore the previous app release and chosen SQLite backup, restart, then verify the critical flows.
+- Local fallback: stop Laravel; keep Next.js source passive unless an intentional comparison/fallback run is needed.
+- Future rollback plan: stop the app, restore the previous Laravel release and chosen SQLite backup, restart, then verify critical flows. Git rollback is not database rollback.
 
 ## Verification
 
+- Local readiness: `php artisan notebook:ready`
+- Future production readiness: `php artisan notebook:ready --production`
 - App loads:
 - Login works:
 - Notes flow works:

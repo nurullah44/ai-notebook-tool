@@ -518,14 +518,14 @@
           Laravel migration implementation is active before deployment. Founder
           authentication, note read views, note CRUD, and migrated UI parity are merged.
           Keyword search and AI recall passed automated, Chrome parity, and approved live-call
-          verification. The existing Next.js application
-          remains read-only behavior reference until cutover.
+          verification. Laravel is now the primary local runtime. The existing Next.js application
+          remains installed but passive; deployment is deferred.
         </p>
         <p>
           Follow
           <a href="inner-voice-laravel-migration.html">Laravel Migration Inner Voice</a>
           for the current stage and next checkpoint. Stage 4 is complete: Laravel owns the verified
-          capture, logging/privacy, and Artisan backup/restore paths. Stage 5 cutover planning is next; Next.js remains the rollback reference until its observation window ends.
+          capture, logging/privacy, Artisan backup/restore, and secret-safe readiness paths. Stage 5 is local Laravel observation; Next.js remains passive and deployment waits for an explicit future decision.
         </p>
       </section>
 
@@ -558,7 +558,7 @@
       </section>
 
       <footer>
-        Active checkpoint: Laravel Migration Stage 5 is next. Prepare deployment, smoke checks, traffic switch, observation window, and rollback rehearsal without retiring Next.js early.
+        Active checkpoint: use Laravel locally through composer start and collect observations. Deployment and Next.js retirement are deferred.
       </footer>
     </main>
   </body>

@@ -30,6 +30,8 @@ Prototype
 - Capture logs may include text length, duration, model or title source, and error name, but never the bearer token, selected text, or generated title
 - Capture persistence generates UUID note IDs and UTC timestamps; unexpected failures return a safe `500` without leaking private content or internals
 - Laravel backup/restore uses consistent SQLite copies, validates integrity and note count, requires explicit `--force` for restore, and preserves the previous target as a private safety backup before replacement
+- `notebook:ready` reports only named pass/fail checks; it never prints secret values or private note content
+- Local primary use keeps Next.js stopped so two runtimes cannot write the same SQLite database concurrently
 
 ## AI-Specific Risks
 
@@ -54,3 +56,4 @@ Prototype
 - AI Recall V1 sends selected private note snippets to OpenAI only after the user explicitly configures `OPENAI_API_KEY`. Requests use `store: false`.
 - Log retention, rotation, and access control are not configured yet. Decide this during VPS deployment.
 - Backup encryption, off-server storage, retention, and access control are not configured yet. Decide these during VPS deployment.
+- `composer start` uses Laravel's development server and is local-only. A real deployment still requires an HTTPS-capable web server/process manager and `notebook:ready --production`.

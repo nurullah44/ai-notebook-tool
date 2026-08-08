@@ -9,7 +9,7 @@ Stable facts future Codex sessions should remember. Keep short.
 - Audience: founder-only V1
 - Real problem: user remembers rough shape of ideas but not exact note wording or location
 - Smallest useful version: login, create/read/edit/delete notes, search notes, ask AI about own notes, logs, backups, targeted tests, deployment notes
-- Current stage: Prototype; Laravel migration Stage 4 is complete. Founder auth, note CRUD, UI, keyword search, AI recall, extension capture, logging/privacy, and backup/restore have parity evidence.
+- Current stage: Prototype; Laravel migration Stage 4 is complete and Laravel is prepared as the primary local runtime. Next.js remains installed but passive. Deployment is deferred.
 
 ## Active Workflow
 
@@ -18,16 +18,16 @@ Stable facts future Codex sessions should remember. Keep short.
 - Required active documents:
   - `docs/LARAVEL_MIGRATION_CONTRACT.md`
   - `docs/LARAVEL_MIGRATION_BASELINE.md`
-- Status: Stage 4 operations parity is complete. Laravel owns the extension capture path, structured logging/privacy, and verified Artisan SQLite backup/restore. The combined reference/extension suite passes 49 tests, and Laravel passes 47 tests with 231 assertions.
-- Current stage: 5 - Cut Over With A Rollback Gate (next)
-- Next checkpoint: prepare the Laravel VPS deployment, smoke checks, traffic switch, observation window, and rollback rehearsal without retiring Next.js early.
+- Status: Stage 5 local-promotion gate is implemented. `notebook:ready` checks required configuration, physical SQLite schema/integrity/writability, PHP SQLite support, and private storage without exposing secrets; `composer start` makes readiness mandatory before local serving. Next.js stays stopped/passive. Deployment/cutover is not active.
+- Current stage: 5 - Local Laravel Observation (active; deployment deferred)
+- Next checkpoint: use Laravel locally through `composer start`; collect real-use observations. Revisit VPS/domain/HTTPS/cutover only when explicitly chosen.
 
 ## Current Execution Constraints
 
 - Migration work changes Laravel only. The Next.js implementation is read-only reference code.
 - Normal `AGENTS.md` branch, review, documentation, and learning workflow is restored.
 - Playwright is forbidden. Manual browser verification uses the provided Chrome integration only.
-- Work one Stage 5 vertical slice at a time; deployment and cutover must preserve the verified database backup and rollback gate.
+- Do not deploy, switch external traffic, or retire Next.js until the human explicitly resumes deployment work.
 
 ## Learning Goal
 
@@ -58,14 +58,14 @@ The Chrome capture stage map is `docs/inner-voice-extension.html`: stages 1-4 ar
 
 ## Stack Decisions
 
-- Frontend: Next.js App Router with TypeScript
-- Backend: Next.js server routes and server components
-- Database/storage: SQLite through `better-sqlite3`, default file `data/notebook.db`
-- Auth: founder-only one-password login with signed HTTP-only session cookie
+- Primary local runtime: Laravel 13 with Blade; `composer start` runs readiness then serves `http://localhost:3000`
+- Passive reference: Next.js App Router with TypeScript remains installed and starts only through `npm run build` then `npm run start`
+- Database/storage: Laravel Query Builder/PDO over the configured physical SQLite notebook
+- Auth: founder-only one-password login with Laravel encrypted cookie session
 - AI provider: OpenAI Responses API for rough-memory note lookup and capture-title generation, default model `gpt-5.4-mini`
 - Extension: local unpacked Manifest V3 client in plain JavaScript; selection-only context menu, settings in `chrome.storage.local`, and host permission only for `http://localhost:3000/*`
 - Deployment: Hetzner VPS planned, with Tailscale admin access and Cloudflare Tunnel web access
-- Logging: structured JSON stdout/stderr logs with metadata only
+- Logging: Laravel structured JSON stderr logs with metadata only
 - Backup: `php artisan notebook:backup` creates an integrity/count-checked SQLite copy in ignored Laravel private storage; `notebook:restore --force` validates the chosen backup, preserves the current target as a safety backup, and restores with count/integrity verification. Scheduling and off-server storage are deferred to deployment.
 - Testing: Vitest protects the read-only Next.js reference; Node's built-in runner protects the 19 extension checks; PHPUnit protects Laravel. Tests use fake secrets and must never use the real notebook database.
 
@@ -130,8 +130,8 @@ Use a plain-JavaScript Manifest V3 extension as a separate local client. It send
 - AI Recall V1: app retrieves notes first with ranked keyword search, sends only top candidate snippets to OpenAI when `OPENAI_API_KEY` exists, and returns closest notes with short reasons
 - Chrome capture: `extension/background.js` registers one selection-only context menu and shows `...`, check, or `!` badge state with a tooltip; there is no popup, content script, retry, URL, page title, HTML, or tag capture
 - Capture API: Laravel `POST /api/capture` uses `EXTENSION_CAPTURE_TOKEN`, rejects missing configuration with `503`, rejects invalid bearer auth with `401` before parsing JSON, trims and validates 3-5,000 characters, and limits 10 valid captures per minute with a Laravel cache-backed sliding window. It saves UUID notes with UTC timestamps using an OpenAI or safe fallback title unless persistence itself fails.
-- Logging: `src/lib/logger.ts` writes safe JSON server logs for auth, note operations, and AI recall metadata
-- Backup: `scripts/backup-sqlite.mjs` reads the configured SQLite path, creates a timestamped backup, and runs an integrity check
+- Logging: Laravel Monolog writes safe JSON stderr events for auth, note operations, capture, and AI recall metadata
+- Backup: Laravel `notebook:backup` and `notebook:restore` provide verified SQLite recovery; the Node script remains passive reference code
 - AI Recall V1 non-goals: no whole-notebook dump, no LLM tool calling, no vector database, no chat history, no streaming, no advisor behavior yet
 - Styling: CSS modules with restrained blue idea cards, focused hover, 3D flip, and blurred fullscreen search/composer overlays
 - Deferred UI: the idea body/editor field still feels narrow; expand it in a later frontend refinement, not the extension slice

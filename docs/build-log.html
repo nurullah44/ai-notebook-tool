@@ -1262,6 +1262,28 @@
         <h3>What Comes Next</h3>
         <p>Stage 4 is complete. Enter Stage 5 with deployment, smoke-test, traffic-switch, observation-window, and rollback gates.</p>
       </article>
+      <article>
+        <h2>2026-08-08: Laravel Becomes The Primary Local Runtime</h2>
+        <h3>Concept</h3>
+        <p>Production-ready code and actual deployment are separate decisions. The app can enter local observation without provisioning a server or deleting its reference implementation.</p>
+        <h3>What Changed</h3>
+        <ul>
+          <li>Added secret-safe <code>notebook:ready</code> checks for configuration, PHP SQLite support, physical database schema/integrity/writability, and private storage.</li>
+          <li>Added <code>--production</code> checks for production environment, disabled debug output, HTTPS URL, and Secure session cookies.</li>
+          <li>Added <code>composer start</code>, which requires readiness before serving Laravel on localhost port 3000.</li>
+          <li>Made Laravel the documented primary local runtime while keeping Next.js installed and passive.</li>
+          <li>Deferred VPS, domain, HTTPS, external traffic switch, and Next.js retirement.</li>
+        </ul>
+        <h3>How It Was Verified</h3>
+        <ul>
+          <li>Readiness tests use only generated temporary SQLite files and fake secret values.</li>
+          <li>Fifty Laravel tests passed with 246 assertions; Pint and Composer validation passed.</li>
+          <li>The passive Next.js reference and extension suite passed 49 tests.</li>
+          <li>No paid OpenAI request, deployment, or real notebook write was performed.</li>
+        </ul>
+        <h3>What Comes Next</h3>
+        <p>Use Laravel locally and collect observations. Resume deployment only through a new explicit decision.</p>
+      </article>
     </main>
   </body>
 </html>
