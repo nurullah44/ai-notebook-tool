@@ -23,7 +23,9 @@ cd laravel
 composer dev
 ```
 
-Open `http://localhost:8000`.
+Open `http://localhost:3000`.
+
+The unpacked extension already permits exactly `http://localhost:3000/*`, so keeping Laravel on port 3000 preserves the extension contract without changing its production files. In the extension options, keep the app URL as `http://localhost:3000` and use the same `EXTENSION_CAPTURE_TOKEN` configured in this Laravel runtime.
 
 ## Test
 

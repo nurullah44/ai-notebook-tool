@@ -1,90 +1,106 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import assert from "node:assert/strict";
+import { afterEach, beforeEach, describe, it, mock } from "node:test";
 
 const TEST_TEXT = "A selected product idea worth capturing.";
 
 let installedListener;
 let contextMenuClickListener;
 let chromeMock;
+let originalChrome;
+let originalFetch;
+let originalSetTimeout;
+let originalClearTimeout;
+let importNumber = 0;
 
 async function importBackground() {
-  await import("./background.js");
+  importNumber += 1;
+  await import(`./background.js?test=${importNumber}`);
 }
 
-async function waitForCall(mock, expectedCalls = 1) {
-  for (let attempt = 0; attempt < 20 && mock.mock.calls.length < expectedCalls; attempt += 1) {
+async function waitForCall(mockFunction, expectedCalls = 1) {
+  for (
+    let attempt = 0;
+    attempt < 20 && mockFunction.mock.calls.length < expectedCalls;
+    attempt += 1
+  ) {
     await Promise.resolve();
   }
 
-  expect(mock).toHaveBeenCalledTimes(expectedCalls);
+  assert.equal(mockFunction.mock.calls.length, expectedCalls);
 }
 
 describe("Idea Store extension service worker", () => {
   beforeEach(() => {
-    vi.resetModules();
+    originalChrome = globalThis.chrome;
+    originalFetch = globalThis.fetch;
+    originalSetTimeout = globalThis.setTimeout;
+    originalClearTimeout = globalThis.clearTimeout;
+    globalThis.setTimeout = mock.fn(() => 1);
+    globalThis.clearTimeout = mock.fn();
     installedListener = undefined;
     contextMenuClickListener = undefined;
     chromeMock = {
       action: {
-        setBadgeBackgroundColor: vi.fn().mockResolvedValue(undefined),
-        setBadgeText: vi.fn().mockResolvedValue(undefined),
-        setTitle: vi.fn().mockResolvedValue(undefined),
+        setBadgeBackgroundColor: mock.fn(async () => undefined),
+        setBadgeText: mock.fn(async () => undefined),
+        setTitle: mock.fn(async () => undefined),
       },
       contextMenus: {
-        create: vi.fn(),
+        create: mock.fn(),
         onClicked: {
-          addListener: vi.fn((listener) => {
+          addListener: mock.fn((listener) => {
             contextMenuClickListener = listener;
           }),
         },
-        removeAll: vi.fn((callback) => callback()),
+        removeAll: mock.fn((callback) => callback()),
       },
       runtime: {
         onInstalled: {
-          addListener: vi.fn((listener) => {
+          addListener: mock.fn((listener) => {
             installedListener = listener;
           }),
         },
       },
       storage: {
         local: {
-          get: vi.fn().mockResolvedValue({
+          get: mock.fn(async () => ({
             appUrl: "http://localhost:3000",
             captureToken: "test-capture-token",
-          }),
+          })),
         },
       },
     };
 
-    vi.stubGlobal("chrome", chromeMock);
+    globalThis.chrome = chromeMock;
   });
 
   afterEach(() => {
-    vi.clearAllTimers();
-    vi.useRealTimers();
-    vi.unstubAllGlobals();
+    globalThis.chrome = originalChrome;
+    globalThis.fetch = originalFetch;
+    globalThis.setTimeout = originalSetTimeout;
+    globalThis.clearTimeout = originalClearTimeout;
   });
 
   it("registers one context-menu action for selected text", async () => {
     await importBackground();
 
-    expect(installedListener).toBeTypeOf("function");
+    assert.equal(typeof installedListener, "function");
     installedListener();
 
-    expect(chromeMock.contextMenus.create).toHaveBeenCalledWith({
+    assert.deepEqual(chromeMock.contextMenus.create.mock.calls[0].arguments, [{
       id: "save-to-idea-store",
       title: "Save to Idea Store",
       contexts: ["selection"],
-    });
+    }]);
   });
 
   it("sends an authenticated request and shows success status", async () => {
-    vi.useFakeTimers();
-    const fetchMock = vi.fn().mockResolvedValue(
+    const fetchMock = mock.fn(async () =>
       new Response(JSON.stringify({ id: "note-1", title: "Captured Idea" }), {
         status: 201,
       }),
     );
-    vi.stubGlobal("fetch", fetchMock);
+    globalThis.fetch = fetchMock;
     await importBackground();
 
     contextMenuClickListener({
@@ -93,7 +109,7 @@ describe("Idea Store extension service worker", () => {
     });
     await waitForCall(fetchMock);
 
-    expect(fetchMock).toHaveBeenCalledWith(
+    assert.deepEqual(fetchMock.mock.calls[0].arguments, [
       "http://localhost:3000/api/capture",
       {
         method: "POST",
@@ -103,29 +119,26 @@ describe("Idea Store extension service worker", () => {
         },
         body: JSON.stringify({ text: TEST_TEXT }),
       },
-    );
+    ]);
 
     await waitForCall(chromeMock.action.setTitle, 2);
-    expect(chromeMock.action.setBadgeText).toHaveBeenNthCalledWith(1, { text: "..." });
-    expect(chromeMock.action.setBadgeText).toHaveBeenNthCalledWith(2, {
-      text: "\u2713",
-    });
-    expect(chromeMock.action.setTitle).toHaveBeenLastCalledWith({
+    assert.deepEqual(chromeMock.action.setBadgeText.mock.calls[0].arguments, [{ text: "..." }]);
+    assert.deepEqual(chromeMock.action.setBadgeText.mock.calls[1].arguments, [{ text: "\u2713" }]);
+    assert.deepEqual(chromeMock.action.setTitle.mock.calls.at(-1).arguments, [{
       title: "Selection saved to Idea Store.",
-    });
+    }]);
 
-    await vi.advanceTimersByTimeAsync(3_000);
-    expect(chromeMock.action.setBadgeText).toHaveBeenLastCalledWith({ text: "" });
+    await waitForCall(globalThis.setTimeout);
+    globalThis.setTimeout.mock.calls[0].arguments[0]();
+    await waitForCall(chromeMock.action.setBadgeText, 3);
+    assert.deepEqual(chromeMock.action.setBadgeText.mock.calls.at(-1).arguments, [{ text: "" }]);
   });
 
   it("shows the server error in the failure tooltip", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue(
-        new Response(JSON.stringify({ error: "Invalid capture token." }), {
-          status: 401,
-        }),
-      ),
+    globalThis.fetch = mock.fn(async () =>
+      new Response(JSON.stringify({ error: "Invalid capture token." }), {
+        status: 401,
+      }),
     );
     await importBackground();
 
@@ -135,21 +148,22 @@ describe("Idea Store extension service worker", () => {
     });
     await waitForCall(chromeMock.action.setTitle, 2);
 
-    expect(chromeMock.action.setBadgeText).toHaveBeenLastCalledWith({ text: "!" });
-    expect(chromeMock.action.setTitle).toHaveBeenLastCalledWith({
+    assert.deepEqual(chromeMock.action.setBadgeText.mock.calls.at(-1).arguments, [{ text: "!" }]);
+    assert.deepEqual(chromeMock.action.setTitle.mock.calls.at(-1).arguments, [{
       title: "Idea Store capture failed: Invalid capture token.",
-    });
+    }]);
+    await waitForCall(globalThis.setTimeout);
   });
 
   it("ignores another capture while the first request is active", async () => {
     let finishRequest;
-    const fetchMock = vi.fn().mockImplementation(
+    const fetchMock = mock.fn(
       () =>
         new Promise((resolve) => {
           finishRequest = () => resolve(new Response("{}", { status: 201 }));
         }),
     );
-    vi.stubGlobal("fetch", fetchMock);
+    globalThis.fetch = fetchMock;
     await importBackground();
 
     contextMenuClickListener({
@@ -162,8 +176,9 @@ describe("Idea Store extension service worker", () => {
     });
     await waitForCall(fetchMock);
 
-    expect(fetchMock).toHaveBeenCalledOnce();
+    assert.equal(fetchMock.mock.calls.length, 1);
     finishRequest();
     await waitForCall(chromeMock.action.setTitle, 2);
+    await waitForCall(globalThis.setTimeout);
   });
 });

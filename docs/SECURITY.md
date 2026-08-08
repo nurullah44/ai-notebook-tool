@@ -46,7 +46,7 @@ Prototype
 - AI recall has no application-level rate limit yet. Before public use, add throttling or enforce an equivalent proxy-level limit.
 - The capture token is stored in `chrome.storage.local`. Treat the Chrome profile as trusted local storage and rotate the token if that profile is exposed.
 - Production capture is not enabled: update both the extension host permission and configured app domain only after deployment is defined.
-- The Laravel capture contract has focused automated coverage, but the unchanged extension is not connected yet; Chrome and live capture-title API verification remain pending.
+- Laravel now serves on the unchanged extension's exact localhost origin, and 19 extension tests pass with Node's built-in runner; Chrome and live capture-title API verification remain pending.
 - Note bodies are private data. Do not log full note text unless a future debugging policy explicitly allows redacted logging.
 - Deleting a note is permanent until backups or revision history exist.
 - AI Recall V1 sends selected private note snippets to OpenAI only after the user explicitly configures `OPENAI_API_KEY`. Requests use `store: false`.

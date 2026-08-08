@@ -224,7 +224,8 @@
               <ul>
                 <li>done: accept the Stage 3 AI recall port after automated, Chrome, and approved live-call verification</li>
                 <li>done: restore <code>/api/capture</code> bearer auth without session or CSRF coupling; focused tests pass</li>
-                <li>connect the unchanged extension to Laravel, then convert its tests from Vitest to Node built-in tests without changing extension behavior</li>
+                <li>done: connect the unchanged extension by serving Laravel on <code>http://localhost:3000</code>, then convert its 19 tests from Vitest to Node built-in tests without changing extension behavior</li>
+                <li>verify unpacked Chrome capture and one approved live capture-title API call against isolated data</li>
                 <li>port structured logs and privacy rules</li>
                 <li>replace Node backup with verified Artisan backup and restore commands</li>
               </ul>
@@ -292,7 +293,7 @@
       </section>
 
       <footer>
-        Next checkpoint: connect the unchanged extension to Laravel's focused-test-verified bearer-authenticated <code>POST /api/capture</code> contract, then convert extension tests later. Chrome and live capture-title API verification are still pending.
+        Next checkpoint: verify the unchanged unpacked extension against Laravel in Chrome, including one approved live OpenAI capture-title call against isolated data.
       </footer>
     </main>
   </body>

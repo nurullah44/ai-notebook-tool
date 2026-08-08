@@ -1188,6 +1188,24 @@
         <h3>What Comes Next</h3>
         <p>Keep Stage 4 open. Connect the unchanged extension to Laravel, then convert the extension tests later without changing extension behavior.</p>
       </article>
+      <article>
+        <h2>2026-08-08: Unchanged Extension Connected To Laravel</h2>
+        <h3>Concept</h3>
+        <p>Preserve a client contract by moving the replacement server onto the existing origin instead of changing working extension code.</p>
+        <h3>What Changed</h3>
+        <ul>
+          <li>Laravel's local development command now binds to <code>http://localhost:3000</code>, matching the unchanged extension URL and host permission.</li>
+          <li>Migrated all 19 extension tests from Vitest to Node's built-in test runner while retaining Vitest for the read-only Next.js reference tests.</li>
+          <li>Production extension files remained unchanged.</li>
+        </ul>
+        <h3>How It Was Verified</h3>
+        <ul>
+          <li>The combined reference and extension suite passes 49 tests.</li>
+          <li>The Laravel suite passes 39 tests with 184 assertions.</li>
+        </ul>
+        <h3>What Comes Next</h3>
+        <p>Keep Stage 4 open. Verify unpacked Chrome capture and one approved live OpenAI capture-title call against isolated data.</p>
+      </article>
     </main>
   </body>
 </html>
