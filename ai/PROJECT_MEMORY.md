@@ -9,7 +9,7 @@ Stable facts future Codex sessions should remember. Keep short.
 - Audience: founder-only V1
 - Real problem: user remembers rough shape of ideas but not exact note wording or location
 - Smallest useful version: login, create/read/edit/delete notes, search notes, ask AI about own notes, logs, backups, targeted tests, deployment notes
-- Current stage: Prototype; Laravel migration Stage 4 is in progress. Founder auth, note CRUD, UI, keyword search, AI recall, and the extension capture path have parity evidence.
+- Current stage: Prototype; Laravel migration Stage 4 is complete. Founder auth, note CRUD, UI, keyword search, AI recall, extension capture, logging/privacy, and backup/restore have parity evidence.
 
 ## Active Workflow
 
@@ -18,16 +18,16 @@ Stable facts future Codex sessions should remember. Keep short.
 - Required active documents:
   - `docs/LARAVEL_MIGRATION_CONTRACT.md`
   - `docs/LARAVEL_MIGRATION_BASELINE.md`
-- Status: Stage 3 core-product parity is complete. In Stage 4, Laravel owns the extension capture path and structured logging/privacy parity. Local and OpenAI recall branches log safe completion metadata; provider failures use error-level failure events; note read/write exceptions cannot expose private SQL bindings. The combined reference/extension suite passes 49 tests, and Laravel passes 43 tests with 203 assertions.
-- Current stage: 4 - Restore AI, Extension, And Operations Parity (in progress)
-- Next checkpoint: replace the Node backup path with verified Artisan backup and restore commands.
+- Status: Stage 4 operations parity is complete. Laravel owns the extension capture path, structured logging/privacy, and verified Artisan SQLite backup/restore. The combined reference/extension suite passes 49 tests, and Laravel passes 46 tests with 227 assertions.
+- Current stage: 5 - Cut Over With A Rollback Gate (next)
+- Next checkpoint: prepare the Laravel VPS deployment, smoke checks, traffic switch, observation window, and rollback rehearsal without retiring Next.js early.
 
 ## Current Execution Constraints
 
 - Migration work changes Laravel only. The Next.js implementation is read-only reference code.
 - Normal `AGENTS.md` branch, review, documentation, and learning workflow is restored.
 - Playwright is forbidden. Manual browser verification uses the provided Chrome integration only.
-- Work one Stage 4 vertical slice at a time; the next slice ports backup and restore verification to Artisan.
+- Work one Stage 5 vertical slice at a time; deployment and cutover must preserve the verified database backup and rollback gate.
 
 ## Learning Goal
 
@@ -66,7 +66,7 @@ The Chrome capture stage map is `docs/inner-voice-extension.html`: stages 1-4 ar
 - Extension: local unpacked Manifest V3 client in plain JavaScript; selection-only context menu, settings in `chrome.storage.local`, and host permission only for `http://localhost:3000/*`
 - Deployment: Hetzner VPS planned, with Tailscale admin access and Cloudflare Tunnel web access
 - Logging: structured JSON stdout/stderr logs with metadata only
-- Backup: manual `npm run backup` command creates an integrity-checked SQLite copy in ignored `backups/`; an isolated local restore test passed; scheduling and off-server storage are deferred to deployment
+- Backup: `php artisan notebook:backup` creates an integrity/count-checked SQLite copy in ignored Laravel private storage; `notebook:restore --force` validates the chosen backup, preserves the current target as a safety backup, and restores with count/integrity verification. Scheduling and off-server storage are deferred to deployment.
 - Testing: Vitest protects the read-only Next.js reference; Node's built-in runner protects the 19 extension checks; PHPUnit protects Laravel. Tests use fake secrets and must never use the real notebook database.
 
 ## Architecture Decisions
@@ -98,6 +98,10 @@ Laravel now owns bearer-authenticated `POST /api/capture` in the session-free AP
 ### Decision: Laravel structured logging and privacy
 
 Laravel writes JSON events to stderr through Monolog. Auth events contain no submitted password; note success/rejection events contain IDs and reasons only; note read/write failures catch `QueryException` before framework reporting can serialize private search, title, or body bindings and log only the exception class. AI recall candidate-query failures return a generic response and the same safe metadata boundary. AI recall always emits completion metadata for local or model results, while search/provider failures emit error-level `ai.recall_failed`; contexts contain model, duration, candidate/match counts, OpenAI-use flag, outcome, status/error class, and token counts when available, never questions, note text, snippets, prompts, API keys, or raw output. Capture keeps the same metadata-only boundary. Privacy behavior is protected by feature tests.
+
+### Decision: Laravel SQLite recovery
+
+Laravel uses PHP's SQLite online backup API for consistent copies. `notebook:backup` verifies source/backup note counts and backup integrity. `notebook:restore` requires `--force`, validates the chosen backup before touching the target, creates a verified pre-restore safety backup, removes stale WAL/SHM sidecars, restores, and verifies integrity/count. Three feature tests rehearse these behaviors only on temporary physical SQLite files.
 
 ### Decision: V1 stack
 

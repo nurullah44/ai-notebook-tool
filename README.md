@@ -35,6 +35,15 @@ npm run backup
 
 `npm run backup` creates a timestamped SQLite backup in the git-ignored `backups/` directory and verifies its integrity. Restore instructions live in `docs/OPERATIONS.md`.
 
+Laravel migration recovery commands run from `laravel/`:
+
+```powershell
+php artisan notebook:backup
+php artisan notebook:restore storage/app/private/backups/notebook-<timestamp>.db --force
+```
+
+Restore must run while the app is stopped. It validates the chosen backup and preserves the current database as a verified safety backup before replacement.
+
 ## Project Guide
 
 - `docs/inner-voice.html`: stage map

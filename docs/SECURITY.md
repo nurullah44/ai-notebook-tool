@@ -29,6 +29,7 @@ Prototype
 - Laravel catches note read/write and AI candidate-query `QueryException` failures before framework reporting can serialize private search, question, title, or body SQL bindings; failure events contain only operation metadata and exception class.
 - Capture logs may include text length, duration, model or title source, and error name, but never the bearer token, selected text, or generated title
 - Capture persistence generates UUID note IDs and UTC timestamps; unexpected failures return a safe `500` without leaking private content or internals
+- Laravel backup/restore uses consistent SQLite copies, validates integrity and note count, requires explicit `--force` for restore, and preserves the previous target as a private safety backup before replacement
 
 ## AI-Specific Risks
 
@@ -49,7 +50,7 @@ Prototype
 - Production capture is not enabled: update both the extension host permission and configured app domain only after deployment is defined.
 - Laravel serves on the unchanged extension's exact localhost origin, 19 extension tests pass with Node's built-in runner, and isolated direct plus unpacked-Chrome live captures persisted without touching the real notebook.
 - Note bodies are private data. Do not log full note text unless a future debugging policy explicitly allows redacted logging.
-- Deleting a note is permanent until backups or revision history exist.
+- Deleting a note is recoverable only when an older verified backup exists; there is no revision history.
 - AI Recall V1 sends selected private note snippets to OpenAI only after the user explicitly configures `OPENAI_API_KEY`. Requests use `store: false`.
 - Log retention, rotation, and access control are not configured yet. Decide this during VPS deployment.
 - Backup encryption, off-server storage, retention, and access control are not configured yet. Decide these during VPS deployment.

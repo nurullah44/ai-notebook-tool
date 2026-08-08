@@ -1242,6 +1242,26 @@
         <h3>What Comes Next</h3>
         <p>Keep Stage 4 open. Replace the Node backup path with verified Artisan backup and restore commands.</p>
       </article>
+      <article>
+        <h2>2026-08-08: Laravel Backup And Restore Parity</h2>
+        <h3>Concept</h3>
+        <p>A backup is only useful when it is consistent, independently checked, and rehearsed through a safe restore path.</p>
+        <h3>What Changed</h3>
+        <ul>
+          <li>Added <code>notebook:backup</code> using SQLite's online backup API with integrity and source/backup note-count checks.</li>
+          <li>Added forced <code>notebook:restore</code>, which validates the chosen backup before mutation and preserves the current target as a verified safety backup.</li>
+          <li>Restore handles stale WAL/SHM sidecars and verifies the restored database again.</li>
+          <li>Updated recovery, deployment, security, architecture, memory, and active workflow documentation.</li>
+        </ul>
+        <h3>How It Was Verified</h3>
+        <ul>
+          <li>Three recovery tests used temporary physical SQLite files only: active-WAL backup, forced restore, safety backup, and invalid-backup rejection.</li>
+          <li>Forty-six Laravel tests passed with 227 assertions; Laravel Pint passed.</li>
+          <li>No real notebook or paid OpenAI request was used.</li>
+        </ul>
+        <h3>What Comes Next</h3>
+        <p>Stage 4 is complete. Enter Stage 5 with deployment, smoke-test, traffic-switch, observation-window, and rollback gates.</p>
+      </article>
     </main>
   </body>
 </html>

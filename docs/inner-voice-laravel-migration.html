@@ -215,10 +215,10 @@
             </div>
           </li>
 
-          <li class="stage current">
-            <input type="checkbox" disabled aria-label="AI extension and operations parity pending" />
+          <li class="stage">
+            <input type="checkbox" checked disabled aria-label="AI extension and operations parity complete" />
             <div>
-              <span class="status">In progress</span>
+              <span class="status">Done</span>
               <h3>4. Restore AI, Extension, And Operations Parity</h3>
               <p>Reconnect paid and operational boundaries only after core behavior is stable.</p>
               <ul>
@@ -227,15 +227,15 @@
                 <li>done: connect the unchanged extension by serving Laravel on <code>http://localhost:3000</code>, then convert its 19 tests from Vitest to Node built-in tests without changing extension behavior</li>
                 <li>done: verify direct and unpacked-Chrome live capture-title requests against isolated data; both returned <code>201</code> and persisted successfully</li>
                 <li>done: port structured JSON logs and privacy rules, including local/failure recall metadata and safe note persistence failures</li>
-                <li>replace Node backup with verified Artisan backup and restore commands</li>
+                <li>done: replace Node backup with verified Artisan backup and restore commands; temporary physical SQLite rehearsals verify consistency, safety backup, count, integrity, and invalid-input rejection</li>
               </ul>
             </div>
           </li>
 
-          <li class="stage">
+          <li class="stage current">
             <input type="checkbox" disabled aria-label="Cutover pending" />
             <div>
-              <span class="status">Pending</span>
+              <span class="status">Next</span>
               <h3>5. Cut Over With A Rollback Gate</h3>
               <p>Switch only after behavior, data, deployment, and recovery evidence pass.</p>
               <ul>
@@ -293,7 +293,7 @@
       </section>
 
       <footer>
-        Next checkpoint: replace the Node backup path with verified Artisan backup and restore commands.
+        Next checkpoint: prepare the Laravel deployment, smoke checks, traffic switch, observation window, and rollback rehearsal without retiring Next.js early.
       </footer>
     </main>
   </body>
