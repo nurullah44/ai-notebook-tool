@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -36,16 +37,42 @@ class AiRecallController extends Controller
             ], 400);
         }
 
-        $candidates = $this->searchCandidates($question);
+        $startedAt = hrtime(true);
+
+        try {
+            $candidates = $this->searchCandidates($question);
+        } catch (QueryException $exception) {
+            $this->logAiCall(
+                'local',
+                $startedAt,
+                0,
+                0,
+                'search_error',
+                false,
+                errorType: $exception::class,
+                failed: true,
+            );
+
+            return response()->json(['error' => 'Ideas could not be searched.'], 500);
+        }
+
         $localResult = $this->localResult($candidates);
         $apiKey = (string) config('services.openai.key', '');
 
         if ($apiKey === '' || $candidates->isEmpty()) {
+            $this->logAiCall(
+                'local',
+                $startedAt,
+                $candidates->count(),
+                count($localResult['matches']),
+                'local',
+                false,
+            );
+
             return response()->json($localResult);
         }
 
         $model = (string) config('services.openai.model', 'gpt-5.4-mini');
-        $startedAt = hrtime(true);
 
         try {
             $response = Http::withToken($apiKey)
@@ -103,20 +130,50 @@ class AiRecallController extends Controller
                 ]);
 
             if (! $response->successful()) {
-                $this->logAiCall($model, $startedAt, $candidates->count(), 'http_error', $response->json(), $response->status());
+                $failedResult = $this->failedAiResult($candidates);
+                $this->logAiCall(
+                    $model,
+                    $startedAt,
+                    $candidates->count(),
+                    count($failedResult['matches']),
+                    'http_error',
+                    true,
+                    $response->json(),
+                    $response->status(),
+                    failed: true,
+                );
 
-                return response()->json($this->failedAiResult($candidates));
+                return response()->json($failedResult);
             }
 
             $payload = $response->json();
             $parsed = $this->parseAiResult($this->extractOutputText($payload), $candidates);
-            $this->logAiCall($model, $startedAt, $candidates->count(), $parsed === null ? 'invalid_output' : 'success', $payload);
+            $result = $parsed ?? $localResult;
+            $this->logAiCall(
+                $model,
+                $startedAt,
+                $candidates->count(),
+                count($result['matches']),
+                $parsed === null ? 'invalid_output' : 'success',
+                true,
+                $payload,
+            );
 
-            return response()->json($parsed ?? $localResult);
+            return response()->json($result);
         } catch (ConnectionException $exception) {
-            $this->logAiCall($model, $startedAt, $candidates->count(), 'connection_error', null, null, $exception::class);
+            $failedResult = $this->failedAiResult($candidates);
+            $this->logAiCall(
+                $model,
+                $startedAt,
+                $candidates->count(),
+                count($failedResult['matches']),
+                'connection_error',
+                true,
+                errorType: $exception::class,
+                failed: true,
+            );
 
-            return response()->json($this->failedAiResult($candidates));
+            return response()->json($failedResult);
         }
     }
 
@@ -277,19 +334,39 @@ class AiRecallController extends Controller
         ];
     }
 
-    private function logAiCall(string $model, int $startedAt, int $candidateCount, string $outcome, mixed $payload = null, ?int $status = null, ?string $errorType = null): void
-    {
+    private function logAiCall(
+        string $model,
+        int $startedAt,
+        int $candidateCount,
+        int $matchCount,
+        string $outcome,
+        bool $usedOpenAI,
+        mixed $payload = null,
+        ?int $status = null,
+        ?string $errorType = null,
+        bool $failed = false,
+    ): void {
         $usage = is_array($payload) && is_array($payload['usage'] ?? null) ? $payload['usage'] : [];
 
-        Log::info('ai.recall_completed', array_filter([
+        $context = array_filter([
             'model' => $model,
             'durationMs' => (int) ((hrtime(true) - $startedAt) / 1_000_000),
             'candidateCount' => $candidateCount,
+            'matchCount' => $matchCount,
+            'usedOpenAI' => $usedOpenAI,
             'outcome' => $outcome,
             'status' => $status,
             'errorType' => $errorType,
             'inputTokens' => is_int($usage['input_tokens'] ?? null) ? $usage['input_tokens'] : null,
             'outputTokens' => is_int($usage['output_tokens'] ?? null) ? $usage['output_tokens'] : null,
-        ], fn (mixed $value): bool => $value !== null));
+        ], fn (mixed $value): bool => $value !== null);
+
+        if ($failed) {
+            Log::error('ai.recall_failed', $context);
+
+            return;
+        }
+
+        Log::info('ai.recall_completed', $context);
     }
 }

@@ -79,6 +79,24 @@ class NoteSearchTest extends TestCase
             ->assertDontSee('match-0', false);
     }
 
+    public function test_keyword_search_failure_logs_without_the_private_query(): void
+    {
+        Log::spy();
+        DB::statement('DROP TABLE notes');
+
+        $this->withSession(['founder_authenticated' => true])
+            ->get('/?q=private%20search%20phrase')
+            ->assertStatus(500);
+
+        Log::shouldHaveReceived('error')->withArgs(function (string $event, array $context): bool {
+            $encoded = json_encode($context, JSON_THROW_ON_ERROR);
+
+            return $event === 'notes.search_failed'
+                && $context['errorType'] === 'Illuminate\\Database\\QueryException'
+                && ! str_contains($encoded, 'private search phrase');
+        });
+    }
+
     public function test_ai_recall_requires_a_private_session_and_a_valid_question(): void
     {
         $this->post('/api/ai/recall', ['question' => 'private idea'], ['CONTENT_TYPE' => 'application/json'])
@@ -98,6 +116,7 @@ class NoteSearchTest extends TestCase
 
     public function test_ai_recall_returns_ranked_local_candidates_without_an_api_key(): void
     {
+        Log::spy();
         DB::table('notes')->insert([
             $this->note('title-match', 'Tool buying habit', 'Choose products carefully', '2026-08-01T10:00:00.000Z'),
             $this->note('body-match', 'Product thought', 'I keep buying tools too early', '2026-08-03T10:00:00.000Z'),
@@ -110,6 +129,19 @@ class NoteSearchTest extends TestCase
         $response->assertOk()
             ->assertJsonPath('matches.0.noteId', 'title-match')
             ->assertJsonMissing(['noteId' => 'unrelated']);
+
+        Log::shouldHaveReceived('info')->withArgs(function (string $event, array $context): bool {
+            $encoded = json_encode($context, JSON_THROW_ON_ERROR);
+
+            return $event === 'ai.recall_completed'
+                && $context['model'] === 'local'
+                && $context['candidateCount'] === 2
+                && $context['matchCount'] === 2
+                && $context['usedOpenAI'] === false
+                && isset($context['durationMs'])
+                && ! str_contains($encoded, 'tool buying habit')
+                && ! str_contains($encoded, 'Choose products carefully');
+        });
     }
 
     public function test_ai_recall_sends_only_candidates_and_rejects_unknown_model_ids(): void
@@ -159,7 +191,66 @@ class NoteSearchTest extends TestCase
         Log::shouldHaveReceived('info')->withArgs(fn (string $event, array $context): bool => $event === 'ai.recall_completed'
             && $context['model'] === 'test-model'
             && $context['outcome'] === 'invalid_output'
+            && $context['candidateCount'] === 5
+            && $context['matchCount'] === 5
+            && $context['usedOpenAI'] === true
             && isset($context['durationMs']));
+    }
+
+    public function test_ai_recall_logs_provider_failure_without_private_context(): void
+    {
+        Log::spy();
+        config()->set('services.openai.key', 'private-test-api-key');
+        config()->set('services.openai.model', 'test-model');
+        DB::table('notes')->insert(
+            $this->note('candidate-1', 'Private launch title', 'Private launch body', '2026-08-03T10:00:00.000Z'),
+        );
+        Http::fake(['api.openai.com/*' => Http::response(['error' => 'raw-provider-output'], 500)]);
+
+        $this->withSession(['founder_authenticated' => true])
+            ->postJson('/api/ai/recall', ['question' => 'private launch question'])
+            ->assertOk()
+            ->assertJsonPath('matches.0.noteId', 'candidate-1');
+
+        Log::shouldHaveReceived('error')->withArgs(function (string $event, array $context): bool {
+            $encoded = json_encode($context, JSON_THROW_ON_ERROR);
+
+            return $event === 'ai.recall_failed'
+                && $context['model'] === 'test-model'
+                && $context['candidateCount'] === 1
+                && $context['matchCount'] === 1
+                && $context['usedOpenAI'] === true
+                && $context['outcome'] === 'http_error'
+                && $context['status'] === 500
+                && isset($context['durationMs'])
+                && ! str_contains($encoded, 'private launch')
+                && ! str_contains($encoded, 'private-test-api-key')
+                && ! str_contains($encoded, 'raw-provider-output');
+        });
+    }
+
+    public function test_ai_recall_candidate_failure_logs_without_the_private_question(): void
+    {
+        Log::spy();
+        DB::statement('DROP TABLE notes');
+
+        $this->withSession(['founder_authenticated' => true])
+            ->postJson('/api/ai/recall', ['question' => 'private recall question'])
+            ->assertStatus(500)
+            ->assertExactJson(['error' => 'Ideas could not be searched.']);
+
+        Log::shouldHaveReceived('error')->withArgs(function (string $event, array $context): bool {
+            $encoded = json_encode($context, JSON_THROW_ON_ERROR);
+
+            return $event === 'ai.recall_failed'
+                && $context['model'] === 'local'
+                && $context['candidateCount'] === 0
+                && $context['matchCount'] === 0
+                && $context['usedOpenAI'] === false
+                && $context['outcome'] === 'search_error'
+                && $context['errorType'] === 'Illuminate\\Database\\QueryException'
+                && ! str_contains($encoded, 'private recall question');
+        });
     }
 
     public function test_ai_recall_falls_back_when_model_output_is_malformed(): void

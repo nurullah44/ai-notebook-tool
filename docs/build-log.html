@@ -1222,6 +1222,26 @@
         <h3>What Comes Next</h3>
         <p>Keep Stage 4 open. Finish structured logging and privacy parity, then add verified Artisan backup and restore commands.</p>
       </article>
+      <article>
+        <h2>2026-08-08: Laravel Logging And Privacy Parity</h2>
+        <h3>Concept</h3>
+        <p>Useful logs describe an operation without copying the private data that caused it.</p>
+        <h3>What Changed</h3>
+        <ul>
+          <li>AI recall now logs completion metadata for local fallback as well as model output, including candidate count, match count, duration, and OpenAI use.</li>
+          <li>Provider HTTP and connection failures now emit error-level <code>ai.recall_failed</code> events with safe status or exception-class metadata.</li>
+          <li>Note writes catch query exceptions before Laravel can report SQL bindings containing private title/body text.</li>
+          <li>Keyword search and AI candidate reads also catch query exceptions before private search or question bindings can reach framework logs.</li>
+          <li>Auth, note, recall, and capture tests now enforce representative secret/private-text deny lists.</li>
+        </ul>
+        <h3>How It Was Verified</h3>
+        <ul>
+          <li>Forty-three Laravel tests passed with 203 assertions.</li>
+          <li>Laravel Pint and whitespace checks passed; OpenAI requests remained faked.</li>
+        </ul>
+        <h3>What Comes Next</h3>
+        <p>Keep Stage 4 open. Replace the Node backup path with verified Artisan backup and restore commands.</p>
+      </article>
     </main>
   </body>
 </html>
