@@ -33,9 +33,9 @@ Production retention is deferred to the Deployment Slice. On the VPS, these logs
 - The unpacked extension targets exactly `http://localhost:3000` and has no production host permission.
 - The badge shows `...` while saving, a check mark after success, and `!` after failure. Its tooltip gives the current status or safe error message.
 - There is no automatic retry. After correcting the app URL, token, server, or input problem, retry the context-menu action intentionally.
-- The 10-valid-captures-per-minute limit is held in one server process and resets when that process restarts.
+- Laravel holds the 10-valid-captures-per-minute limit in an atomic cache-backed sliding window shared by server workers.
 
-Verification recorded on 2026-07-17: 22 focused auth/capture-route tests passed; 19 extension pure/service-worker/options tests passed; a live localhost API request used configured OpenAI and created a SQLite note; and the options page was visually inspected. Installing the unpacked extension and completing the selected-text context-menu workflow in Chrome remains a manual check because browser automation cannot access `chrome://extensions`.
+Verification recorded on 2026-08-08: 39 Laravel tests with 184 assertions passed; 19 extension tests passed with Node's built-in runner; direct and unpacked-Chrome live capture requests used configured OpenAI, returned `201`, and persisted only to isolated temporary SQLite. The real notebook was not opened for writes. Browser automation could not inspect `chrome://extensions` or the native success badge/tooltip, so independent manual observation of that visual feedback remains pending.
 
 ## Backups
 
