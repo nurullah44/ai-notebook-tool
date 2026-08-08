@@ -18,7 +18,7 @@ Stable facts future Codex sessions should remember. Keep short.
 - Required active documents:
   - `docs/LARAVEL_MIGRATION_CONTRACT.md`
   - `docs/LARAVEL_MIGRATION_BASELINE.md`
-- Status: Stage 3 core-product parity is complete. In Stage 4, Laravel owns the extension capture path and structured logging/privacy parity. Local and OpenAI recall branches log safe completion metadata; provider failures use error-level failure events; note persistence exceptions cannot expose SQL bindings. The combined reference/extension suite passes 49 tests, and Laravel passes 41 tests with 196 assertions.
+- Status: Stage 3 core-product parity is complete. In Stage 4, Laravel owns the extension capture path and structured logging/privacy parity. Local and OpenAI recall branches log safe completion metadata; provider failures use error-level failure events; note read/write exceptions cannot expose private SQL bindings. The combined reference/extension suite passes 49 tests, and Laravel passes 43 tests with 203 assertions.
 - Current stage: 4 - Restore AI, Extension, And Operations Parity (in progress)
 - Next checkpoint: replace the Node backup path with verified Artisan backup and restore commands.
 
@@ -97,7 +97,7 @@ Laravel now owns bearer-authenticated `POST /api/capture` in the session-free AP
 
 ### Decision: Laravel structured logging and privacy
 
-Laravel writes JSON events to stderr through Monolog. Auth events contain no submitted password; note success/rejection events contain IDs and reasons only; note persistence failures catch `QueryException` before framework reporting can serialize private SQL bindings and log only the exception class. AI recall always emits completion metadata for local or model results, while HTTP/connection failures emit error-level `ai.recall_failed`; contexts contain model, duration, candidate/match counts, OpenAI-use flag, outcome, status/error class, and token counts when available, never questions, note text, snippets, prompts, API keys, or raw output. Capture keeps the same metadata-only boundary. Privacy behavior is protected by feature tests.
+Laravel writes JSON events to stderr through Monolog. Auth events contain no submitted password; note success/rejection events contain IDs and reasons only; note read/write failures catch `QueryException` before framework reporting can serialize private search, title, or body bindings and log only the exception class. AI recall candidate-query failures return a generic response and the same safe metadata boundary. AI recall always emits completion metadata for local or model results, while search/provider failures emit error-level `ai.recall_failed`; contexts contain model, duration, candidate/match counts, OpenAI-use flag, outcome, status/error class, and token counts when available, never questions, note text, snippets, prompts, API keys, or raw output. Capture keeps the same metadata-only boundary. Privacy behavior is protected by feature tests.
 
 ### Decision: V1 stack
 

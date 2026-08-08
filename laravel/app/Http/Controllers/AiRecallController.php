@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -37,7 +38,24 @@ class AiRecallController extends Controller
         }
 
         $startedAt = hrtime(true);
-        $candidates = $this->searchCandidates($question);
+
+        try {
+            $candidates = $this->searchCandidates($question);
+        } catch (QueryException $exception) {
+            $this->logAiCall(
+                'local',
+                $startedAt,
+                0,
+                0,
+                'search_error',
+                false,
+                errorType: $exception::class,
+                failed: true,
+            );
+
+            return response()->json(['error' => 'Ideas could not be searched.'], 500);
+        }
+
         $localResult = $this->localResult($candidates);
         $apiKey = (string) config('services.openai.key', '');
 

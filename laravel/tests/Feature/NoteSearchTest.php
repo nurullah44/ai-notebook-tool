@@ -79,6 +79,24 @@ class NoteSearchTest extends TestCase
             ->assertDontSee('match-0', false);
     }
 
+    public function test_keyword_search_failure_logs_without_the_private_query(): void
+    {
+        Log::spy();
+        DB::statement('DROP TABLE notes');
+
+        $this->withSession(['founder_authenticated' => true])
+            ->get('/?q=private%20search%20phrase')
+            ->assertStatus(500);
+
+        Log::shouldHaveReceived('error')->withArgs(function (string $event, array $context): bool {
+            $encoded = json_encode($context, JSON_THROW_ON_ERROR);
+
+            return $event === 'notes.search_failed'
+                && $context['errorType'] === 'Illuminate\\Database\\QueryException'
+                && ! str_contains($encoded, 'private search phrase');
+        });
+    }
+
     public function test_ai_recall_requires_a_private_session_and_a_valid_question(): void
     {
         $this->post('/api/ai/recall', ['question' => 'private idea'], ['CONTENT_TYPE' => 'application/json'])
@@ -208,6 +226,30 @@ class NoteSearchTest extends TestCase
                 && ! str_contains($encoded, 'private launch')
                 && ! str_contains($encoded, 'private-test-api-key')
                 && ! str_contains($encoded, 'raw-provider-output');
+        });
+    }
+
+    public function test_ai_recall_candidate_failure_logs_without_the_private_question(): void
+    {
+        Log::spy();
+        DB::statement('DROP TABLE notes');
+
+        $this->withSession(['founder_authenticated' => true])
+            ->postJson('/api/ai/recall', ['question' => 'private recall question'])
+            ->assertStatus(500)
+            ->assertExactJson(['error' => 'Ideas could not be searched.']);
+
+        Log::shouldHaveReceived('error')->withArgs(function (string $event, array $context): bool {
+            $encoded = json_encode($context, JSON_THROW_ON_ERROR);
+
+            return $event === 'ai.recall_failed'
+                && $context['model'] === 'local'
+                && $context['candidateCount'] === 0
+                && $context['matchCount'] === 0
+                && $context['usedOpenAI'] === false
+                && $context['outcome'] === 'search_error'
+                && $context['errorType'] === 'Illuminate\\Database\\QueryException'
+                && ! str_contains($encoded, 'private recall question');
         });
     }
 

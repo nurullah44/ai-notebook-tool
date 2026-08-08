@@ -26,7 +26,7 @@ Prototype
 - User-provided note and selected text is not trusted as instructions
 - Dangerous actions require human approval
 - Logs include operational metadata only and avoid passwords, full notes, AI prompts, note snippets, API keys, and raw model responses
-- Laravel catches note-write `QueryException` failures before framework reporting can serialize private title/body SQL bindings; failure events contain only operation metadata and exception class.
+- Laravel catches note read/write and AI candidate-query `QueryException` failures before framework reporting can serialize private search, question, title, or body SQL bindings; failure events contain only operation metadata and exception class.
 - Capture logs may include text length, duration, model or title source, and error name, but never the bearer token, selected text, or generated title
 - Capture persistence generates UUID note IDs and UTC timestamps; unexpected failures return a safe `500` without leaking private content or internals
 

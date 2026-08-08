@@ -7,7 +7,7 @@
 - Note logs: create, update, delete, and rejected empty-note attempts. Logs include note IDs only.
 - AI recall logs: `ai.recall_completed` for local/model results and error-level `ai.recall_failed` for provider failures, with model, candidate count, returned match count, duration, OpenAI use, outcome, status/error class, and token counts when available.
 - Capture logs: rejection/fallback/completion/failure plus safe metadata such as text length, duration, model, title source, reason, or error name.
-- Error logs: safe metadata only. Note persistence catches query exceptions before SQL bindings can expose submitted title/body. Do not log passwords, capture tokens, full notes, selected text, generated titles, AI questions/prompts, note snippets, API keys, or raw model responses.
+- Error logs: safe metadata only. Note reads, keyword search, AI candidate retrieval, and note writes catch query exceptions before SQL bindings can expose searches, questions, titles, or bodies. Do not log passwords, capture tokens, full notes, selected text, generated titles, AI questions/prompts, note snippets, API keys, or raw model responses.
 
 Example log shape:
 

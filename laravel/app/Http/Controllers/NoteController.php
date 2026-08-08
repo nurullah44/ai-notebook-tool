@@ -168,13 +168,21 @@ class NoteController extends Controller
             $query->whereRaw("(title LIKE ? ESCAPE '\\' OR body LIKE ? ESCAPE '\\')", [$pattern, $pattern]);
         }
 
-        return $query->limit(100)
-            ->get()
-            ->map(function (object $idea): object {
-                $idea->updated_at_label = $this->updatedAtLabel($idea->updated_at);
+        try {
+            return $query->limit(100)
+                ->get()
+                ->map(function (object $idea): object {
+                    $idea->updated_at_label = $this->updatedAtLabel($idea->updated_at);
 
-                return $idea;
-            });
+                    return $idea;
+                });
+        } catch (QueryException $exception) {
+            Log::error($searchQuery === '' ? 'notes.read_failed' : 'notes.search_failed', [
+                'errorType' => $exception::class,
+            ]);
+
+            abort(500, 'Ideas could not be loaded.');
+        }
     }
 
     private function updatedAtLabel(string $isoDate): string
