@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 
 class AuthTest extends TestCase
@@ -11,6 +12,7 @@ class AuthTest extends TestCase
         parent::setUp();
 
         config()->set('founder.password', 'correct-horse-battery-staple');
+        Log::spy();
     }
 
     public function test_guest_is_redirected_from_home_to_login(): void
@@ -32,6 +34,8 @@ class AuthTest extends TestCase
         $this->post('/api/login', ['password' => 'wrong-password'])
             ->assertRedirect('/login?error=wrong')
             ->assertSessionMissing('founder_authenticated');
+
+        Log::shouldHaveReceived('warning')->once()->with('auth.login_failed');
     }
 
     public function test_correct_password_authenticates_and_regenerates_the_session(): void
@@ -43,6 +47,7 @@ class AuthTest extends TestCase
             ->assertSessionHas('founder_authenticated', true);
 
         $this->assertNotSame($sessionIdBeforeLogin, session()->getId());
+        Log::shouldHaveReceived('info')->once()->with('auth.login_success');
     }
 
     public function test_authenticated_user_is_redirected_away_from_login(): void
@@ -58,5 +63,7 @@ class AuthTest extends TestCase
             ->post('/api/logout')
             ->assertRedirect('/login')
             ->assertSessionMissing('founder_authenticated');
+
+        Log::shouldHaveReceived('info')->once()->with('auth.logout');
     }
 }

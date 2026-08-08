@@ -127,6 +127,27 @@ class NoteCrudTest extends TestCase
             ->assertDontSee('Edit idea');
     }
 
+    public function test_note_persistence_failure_logs_only_safe_metadata(): void
+    {
+        DB::statement('DROP TABLE notes');
+
+        $this->withSession(['founder_authenticated' => true])
+            ->post('/api/notes', [
+                'title' => 'Private title must not enter logs',
+                'body' => 'Private body must not enter logs',
+            ])
+            ->assertStatus(500);
+
+        Log::shouldHaveReceived('error')->withArgs(function (string $event, array $context): bool {
+            $encoded = json_encode($context, JSON_THROW_ON_ERROR);
+
+            return $event === 'notes.create_failed'
+                && $context['errorType'] === 'Illuminate\\Database\\QueryException'
+                && ! str_contains($encoded, 'Private title')
+                && ! str_contains($encoded, 'Private body');
+        });
+    }
+
     /** @return array{id: string, title: string, body: string, created_at: string, updated_at: string} */
     private function note(): array
     {

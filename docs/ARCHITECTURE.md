@@ -11,9 +11,9 @@ Keep this document factual and short. Update it only after decisions are stable.
 - Auth: Next.js and Laravel both preserve founder-only login; Laravel uses `AUTH_PASSWORD`, encrypted cookie sessions, CSRF-protected forms, and founder route middleware
 - AI: OpenAI Responses API for rough-memory note lookup and capture-title generation, defaulting to `gpt-5.4-mini`
 - Capture API: Laravel owns the dedicated bearer-authenticated `POST /api/capture` endpoint and serves locally on the unchanged extension's exact `http://localhost:3000` origin; isolated direct and unpacked-Chrome live captures passed
-- Logging: structured JSON stdout/stderr logs with metadata only; Laravel AI recall records model, latency, outcome, candidate count, token usage when available, HTTP status, and error type without private content
+- Logging: Laravel writes structured JSON stderr events with metadata only. AI recall records local/model completion or provider failure with model, latency, candidate/match counts, OpenAI use, outcome, token usage when available, HTTP status, and error type. Note persistence catches `QueryException` before private SQL bindings can reach framework logs.
 - Backup: manual verified SQLite backup through `npm run backup`, stored locally in ignored `backups/`
-- Tests: Vitest protects the read-only Next.js reference; Node's built-in runner protects 19 extension tests; PHPUnit protects Laravel using isolated test state. The combined reference/extension suite passes 49 tests, and Laravel passes 39 tests with 184 assertions.
+- Tests: Vitest protects the read-only Next.js reference; Node's built-in runner protects 19 extension tests; PHPUnit protects Laravel using isolated test state. The combined reference/extension suite passes 49 tests, and Laravel passes 41 tests with 196 assertions.
 - Deployment: Hetzner VPS, reached through Tailscale for admin access and Cloudflare Tunnel for web traffic
 
 ## Boundaries

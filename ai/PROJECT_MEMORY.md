@@ -18,16 +18,16 @@ Stable facts future Codex sessions should remember. Keep short.
 - Required active documents:
   - `docs/LARAVEL_MIGRATION_CONTRACT.md`
   - `docs/LARAVEL_MIGRATION_BASELINE.md`
-- Status: Stage 3 core-product parity is complete. In Stage 4, Laravel owns the bearer-authenticated `POST /api/capture` contract and serves locally on the extension's unchanged `http://localhost:3000` origin. The 19 extension tests use Node's built-in runner; the combined reference/extension suite passes 49 tests, and Laravel passes 39 tests with 184 assertions. An isolated direct live OpenAI capture and an unpacked Chrome context-menu capture both returned `201` and persisted only to temporary SQLite.
+- Status: Stage 3 core-product parity is complete. In Stage 4, Laravel owns the extension capture path and structured logging/privacy parity. Local and OpenAI recall branches log safe completion metadata; provider failures use error-level failure events; note persistence exceptions cannot expose SQL bindings. The combined reference/extension suite passes 49 tests, and Laravel passes 41 tests with 196 assertions.
 - Current stage: 4 - Restore AI, Extension, And Operations Parity (in progress)
-- Next checkpoint: finish Laravel structured logging and privacy parity, then replace the Node backup path with verified Artisan backup and restore commands.
+- Next checkpoint: replace the Node backup path with verified Artisan backup and restore commands.
 
 ## Current Execution Constraints
 
 - Migration work changes Laravel only. The Next.js implementation is read-only reference code.
 - Normal `AGENTS.md` branch, review, documentation, and learning workflow is restored.
 - Playwright is forbidden. Manual browser verification uses the provided Chrome integration only.
-- Work one Stage 4 vertical slice at a time; the next slice closes structured logging and privacy parity.
+- Work one Stage 4 vertical slice at a time; the next slice ports backup and restore verification to Artisan.
 
 ## Learning Goal
 
@@ -94,6 +94,10 @@ Laravel owns URL keyword search, wildcard escaping, newest-first results, local 
 ### Decision: Laravel extension capture API
 
 Laravel now owns bearer-authenticated `POST /api/capture` in the session-free API route group. Missing capture-token configuration returns `503`; an invalid bearer token returns `401` before JSON parsing. Input follows JavaScript Unicode trim/length behavior and is limited to 3-5,000 UTF-16 code units. An atomic Laravel-cache sliding window permits 10 valid requests per minute across workers. Title generation uses OpenAI strict structured output for 4-10 words and at most 80 characters, with `store: false` and a 25-second timeout; invalid output or provider failure uses a safe fallback. Successful persistence writes a UUID and UTC timestamps to SQLite. Logs contain metadata only, and unexpected failures return a safe `500`. Laravel serves locally on the unchanged extension's exact localhost origin, and its 19 tests use Node's built-in runner. Direct and unpacked-Chrome live capture requests both returned `201` and wrote only to isolated temporary SQLite.
+
+### Decision: Laravel structured logging and privacy
+
+Laravel writes JSON events to stderr through Monolog. Auth events contain no submitted password; note success/rejection events contain IDs and reasons only; note persistence failures catch `QueryException` before framework reporting can serialize private SQL bindings and log only the exception class. AI recall always emits completion metadata for local or model results, while HTTP/connection failures emit error-level `ai.recall_failed`; contexts contain model, duration, candidate/match counts, OpenAI-use flag, outcome, status/error class, and token counts when available, never questions, note text, snippets, prompts, API keys, or raw output. Capture keeps the same metadata-only boundary. Privacy behavior is protected by feature tests.
 
 ### Decision: V1 stack
 

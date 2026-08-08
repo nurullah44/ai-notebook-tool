@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Database\QueryException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -69,13 +70,19 @@ class NoteController extends Controller
         $id = (string) Str::uuid();
         $timestamp = now('UTC')->toISOString();
 
-        DB::table('notes')->insert([
-            'id' => $id,
-            'title' => $title,
-            'body' => $body,
-            'created_at' => $timestamp,
-            'updated_at' => $timestamp,
-        ]);
+        try {
+            DB::table('notes')->insert([
+                'id' => $id,
+                'title' => $title,
+                'body' => $body,
+                'created_at' => $timestamp,
+                'updated_at' => $timestamp,
+            ]);
+        } catch (QueryException $exception) {
+            Log::error('notes.create_failed', ['errorType' => $exception::class]);
+
+            abort(500, 'Idea could not be saved.');
+        }
 
         Log::info('notes.created', ['noteId' => $id]);
 
@@ -98,13 +105,22 @@ class NoteController extends Controller
             return redirect('/notes/'.$id.'?mode=edit&error=empty-note');
         }
 
-        $updated = DB::table('notes')
-            ->where('id', $id)
-            ->update([
-                'title' => $title,
-                'body' => $body,
-                'updated_at' => now('UTC')->toISOString(),
+        try {
+            $updated = DB::table('notes')
+                ->where('id', $id)
+                ->update([
+                    'title' => $title,
+                    'body' => $body,
+                    'updated_at' => now('UTC')->toISOString(),
+                ]);
+        } catch (QueryException $exception) {
+            Log::error('notes.update_failed', [
+                'noteId' => $id,
+                'errorType' => $exception::class,
             ]);
+
+            abort(500, 'Idea could not be saved.');
+        }
 
         if ($updated === 0) {
             Log::warning('notes.update_missing', ['noteId' => $id]);
@@ -119,7 +135,16 @@ class NoteController extends Controller
 
     public function destroy(string $id): RedirectResponse
     {
-        $deleted = DB::table('notes')->where('id', $id)->delete();
+        try {
+            $deleted = DB::table('notes')->where('id', $id)->delete();
+        } catch (QueryException $exception) {
+            Log::error('notes.delete_failed', [
+                'noteId' => $id,
+                'errorType' => $exception::class,
+            ]);
+
+            abort(500, 'Idea could not be deleted.');
+        }
 
         if ($deleted === 0) {
             Log::warning('notes.delete_missing', ['noteId' => $id]);
