@@ -1206,6 +1206,22 @@
         <h3>What Comes Next</h3>
         <p>Keep Stage 4 open. Verify unpacked Chrome capture and one approved live OpenAI capture-title call against isolated data.</p>
       </article>
+      <article>
+        <h2>2026-08-08: Laravel Live Extension Capture Verified</h2>
+        <h3>Concept</h3>
+        <p>External and browser checks should prove the real boundary while isolating persistent user data.</p>
+        <h3>What Was Verified</h3>
+        <ul>
+          <li>A direct bearer-authenticated Laravel capture returned <code>201</code>, used <code>gpt-5.4-mini</code>, generated a valid title, and persisted to temporary SQLite.</li>
+          <li>The unchanged unpacked Chrome context-menu action sent selected text to the same Laravel endpoint and persisted a second isolated note.</li>
+          <li>Structured logs recorded model, latency, token counts, text length, title source, and outcome without recording selected text, bearer token, prompt, API key, or raw model output.</li>
+          <li>The temporary database contained exactly the two expected verification records; the real notebook was not opened for writes.</li>
+        </ul>
+        <h3>Operational Note</h3>
+        <p>Both verification requests used the configured OpenAI key. An attempted empty process override did not suppress Laravel's configured key, so the Chrome request was also a paid live call.</p>
+        <h3>What Comes Next</h3>
+        <p>Keep Stage 4 open. Finish structured logging and privacy parity, then add verified Artisan backup and restore commands.</p>
+      </article>
     </main>
   </body>
 </html>

@@ -212,13 +212,14 @@
             <div>
               <span class="status">Current</span>
               <h3>5. Local End-To-End Verification</h3>
-              <p>Automated boundaries, the live API, and the settings UI are verified; the real unpacked Chrome workflow remains.</p>
+              <p>Automated boundaries, the live API, settings UI, and unpacked context-menu request/persistence path are verified; manual badge/tooltip observation remains.</p>
               <ul>
                 <li>done: 22 focused auth/capture-route tests passed</li>
                 <li>done: 19 extension pure/service-worker/options tests passed</li>
                 <li>done: live localhost API call used configured OpenAI and created a note</li>
                 <li>done: options page visually inspected</li>
-                <li>pending: load unpacked in Chrome, capture selected text from the context menu, confirm badge/tooltip feedback, and see the saved idea after refresh</li>
+                <li>done: unpacked Chrome context-menu capture returned <code>201</code> and persisted selected text to isolated Laravel SQLite</li>
+                <li>pending: independently observe the success badge/tooltip in Chrome</li>
               </ul>
             </div>
           </li>
@@ -276,7 +277,7 @@
       </section>
 
       <footer>
-        Next checkpoint: load the extension unpacked in Chrome and complete one selected-text context-menu capture against <code>http://localhost:3000</code>. Production permission and domain work remains deferred.
+        Next checkpoint: independently observe the success badge/tooltip in Chrome. Production permission and domain work remains deferred.
       </footer>
     </main>
   </body>

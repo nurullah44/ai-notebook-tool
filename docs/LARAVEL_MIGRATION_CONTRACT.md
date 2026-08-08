@@ -334,7 +334,7 @@ Before porting each affected slice, explicitly choose preserve or fix. Do not ch
 - A backup was created, restored into an isolated path, and hash-checked.
 - Keyword, lexical recall, AI, capture, and recovery golden cases were recorded.
 - Evidence is recorded in `docs/LARAVEL_MIGRATION_BASELINE.md`.
-- Manual unpacked Chrome context-menu capture remains explicitly deferred to cutover.
+- On 2026-08-08, an unpacked Chrome context-menu capture returned `201` through Laravel and persisted selected text to isolated temporary SQLite. Independent manual observation of the success badge/tooltip remains pending.
 
 ## Migration Acceptance
 
