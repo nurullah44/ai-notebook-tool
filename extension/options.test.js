@@ -1,4 +1,5 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import assert from "node:assert/strict";
+import { afterEach, beforeEach, describe, it, mock } from "node:test";
 
 let submitListener;
 let appUrlInput;
@@ -7,9 +8,13 @@ let saveButton;
 let status;
 let storageGet;
 let storageSet;
+let originalChrome;
+let originalDocument;
+let importNumber = 0;
 
 async function loadOptions() {
-  await import("./options.js");
+  importNumber += 1;
+  await import(`./options.js?test=${importNumber}`);
 
   for (let attempt = 0; attempt < 10; attempt += 1) {
     await Promise.resolve();
@@ -18,20 +23,21 @@ async function loadOptions() {
 
 describe("Idea Store extension options", () => {
   beforeEach(() => {
-    vi.resetModules();
+    originalChrome = globalThis.chrome;
+    originalDocument = globalThis.document;
     submitListener = undefined;
     appUrlInput = { value: "" };
     captureTokenInput = { value: "" };
     saveButton = { disabled: false };
     status = {
       textContent: "",
-      classList: { toggle: vi.fn() },
+      classList: { toggle: mock.fn() },
     };
     const form = {
-      addEventListener: vi.fn((_event, listener) => {
+      addEventListener: mock.fn((_event, listener) => {
         submitListener = listener;
       }),
-      querySelector: vi.fn(() => saveButton),
+      querySelector: mock.fn(() => saveButton),
     };
     const elements = new Map([
       ["#settings-form", form],
@@ -39,29 +45,30 @@ describe("Idea Store extension options", () => {
       ["#capture-token", captureTokenInput],
       ["#status", status],
     ]);
-    storageGet = vi.fn().mockResolvedValue({
+    storageGet = mock.fn(async () => ({
       appUrl: "http://localhost:3000",
       captureToken: "stored-capture-token",
-    });
-    storageSet = vi.fn().mockResolvedValue(undefined);
+    }));
+    storageSet = mock.fn(async () => undefined);
 
-    vi.stubGlobal("document", {
-      querySelector: vi.fn((selector) => elements.get(selector)),
-    });
-    vi.stubGlobal("chrome", {
+    globalThis.document = {
+      querySelector: mock.fn((selector) => elements.get(selector)),
+    };
+    globalThis.chrome = {
       storage: { local: { get: storageGet, set: storageSet } },
-    });
+    };
   });
 
   afterEach(() => {
-    vi.unstubAllGlobals();
+    globalThis.chrome = originalChrome;
+    globalThis.document = originalDocument;
   });
 
   it("loads saved URL and token from local extension storage", async () => {
     await loadOptions();
 
-    expect(appUrlInput.value).toBe("http://localhost:3000");
-    expect(captureTokenInput.value).toBe("stored-capture-token");
+    assert.equal(appUrlInput.value, "http://localhost:3000");
+    assert.equal(captureTokenInput.value, "stored-capture-token");
   });
 
   it("trims and saves valid settings", async () => {
@@ -69,24 +76,27 @@ describe("Idea Store extension options", () => {
     appUrlInput.value = "  http://localhost:3000  ";
     captureTokenInput.value = "  new-capture-token  ";
 
-    await submitListener({ preventDefault: vi.fn() });
+    await submitListener({ preventDefault: mock.fn() });
 
-    expect(storageSet).toHaveBeenCalledWith({
+    assert.deepEqual(storageSet.mock.calls[0].arguments, [{
       appUrl: "http://localhost:3000",
       captureToken: "new-capture-token",
-    });
-    expect(status.textContent).toBe("Settings saved.");
-    expect(saveButton.disabled).toBe(false);
+    }]);
+    assert.equal(status.textContent, "Settings saved.");
+    assert.equal(saveButton.disabled, false);
   });
 
   it("rejects an empty capture token", async () => {
     await loadOptions();
     captureTokenInput.value = "   ";
 
-    await submitListener({ preventDefault: vi.fn() });
+    await submitListener({ preventDefault: mock.fn() });
 
-    expect(storageSet).not.toHaveBeenCalled();
-    expect(status.textContent).toBe("Capture token is required.");
-    expect(status.classList.toggle).toHaveBeenLastCalledWith("error", true);
+    assert.equal(storageSet.mock.calls.length, 0);
+    assert.equal(status.textContent, "Capture token is required.");
+    assert.deepEqual(status.classList.toggle.mock.calls.at(-1).arguments, [
+      "error",
+      true,
+    ]);
   });
 });
