@@ -4,17 +4,18 @@ Keep this document factual and short. Update it only after decisions are stable.
 
 ## Current Shape
 
-- Product reference: the working Next.js and TypeScript app remains authoritative until cutover
-- Migration runtime: Laravel 13 with Blade and normal static assets runs side-by-side in `laravel/`; founder authentication, note CRUD, migrated UI parity, keyword search, and AI recall have passed Stage 3 parity verification.
+- Primary local runtime: Laravel 13 with Blade and normal static assets; `composer start` requires readiness before serving on localhost port 3000
+- Passive reference: Next.js and TypeScript remain installed but stopped unless an intentional build-then-start comparison is needed
 - Extension: unpacked Manifest V3 Chrome extension in `extension/`, implemented in plain JavaScript
-- Database: the Next.js reference uses SQLite through `better-sqlite3`; Laravel uses Query Builder over PDO SQLite against a configured compatible database path
-- Auth: Next.js and Laravel both preserve founder-only login; Laravel uses `AUTH_PASSWORD`, encrypted cookie sessions, CSRF-protected forms, and founder route middleware
+- Database: Laravel uses Query Builder over PDO SQLite against the configured physical compatible database path
+- Auth: Laravel uses `AUTH_PASSWORD`, encrypted cookie sessions, CSRF-protected forms, and founder route middleware
 - AI: OpenAI Responses API for rough-memory note lookup and capture-title generation, defaulting to `gpt-5.4-mini`
 - Capture API: Laravel owns the dedicated bearer-authenticated `POST /api/capture` endpoint and serves locally on the unchanged extension's exact `http://localhost:3000` origin; isolated direct and unpacked-Chrome live captures passed
 - Logging: Laravel writes structured JSON stderr events with metadata only. AI recall records local/model completion or search/provider failure with model, latency, candidate/match counts, OpenAI use, outcome, token usage when available, HTTP status, and error type. Note read/write paths catch `QueryException` before private search, title, or body bindings can reach framework logs.
 - Backup: Laravel `notebook:backup` and `notebook:restore` use SQLite's online backup API, verify integrity/count, and store private copies in ignored storage. Restore requires explicit force and preserves a pre-restore safety backup.
-- Tests: Vitest protects the read-only Next.js reference; Node's built-in runner protects 19 extension tests; PHPUnit protects Laravel using isolated test state. The combined reference/extension suite passes 49 tests, and Laravel passes 47 tests with 231 assertions.
-- Deployment: Hetzner VPS, reached through Tailscale for admin access and Cloudflare Tunnel for web traffic
+- Readiness: `notebook:ready` checks required configuration, SQLite support/schema/integrity/writability, and private storage without printing secrets; `--production` adds environment, debug, HTTPS, and Secure-cookie gates
+- Tests: Vitest protects the passive Next.js reference; Node's built-in runner protects 19 extension tests; PHPUnit protects Laravel using isolated test state. The combined reference/extension suite passes 49 tests, and Laravel passes 51 tests with 250 assertions.
+- Deployment: deferred; Hetzner, Tailscale, Cloudflare Tunnel, HTTPS server/process manager, and traffic switching remain future decisions
 
 ## Boundaries
 
@@ -28,7 +29,7 @@ Keep this document factual and short. Update it only after decisions are stable.
 - Laravel note writes: protected, CSRF-checked POST routes create UUID notes, update existing rows, and delete by text ID; empty bodies never write
 - Laravel search/AI: `/?q=...` performs parameterized title/body search, and protected `POST /api/ai/recall` retrieves bounded local candidates before any optional OpenAI call. Strict output validation, local fallback, Chrome parity, and an approved live call are verified.
 - Laravel capture: `POST /api/capture` checks capture-token configuration and bearer auth before parsing JSON, validates 3-5,000 trimmed characters, applies a Laravel cache-backed sliding limit of 10 valid requests per minute, generates a bounded title, and writes a UUID note with UTC timestamps to SQLite. Missing configuration returns `503`, bad auth returns `401`, and unexpected failures return a content-safe `500`.
-- Logs: Server-only operational metadata through `src/lib/logger.ts`; capture logs never include the token, selected text, or generated title
+- Logs: Laravel Monolog writes server-only operational metadata; capture logs never include the token, selected text, or generated title
 
 ## Decisions
 
@@ -43,6 +44,23 @@ Reason:
 Tradeoff:
 Date:
 ```
+
+### Decision: Laravel primary local runtime with deferred deployment
+
+Context:
+Laravel parity and recovery gates are complete, but no VPS/domain deployment is authorized. The founder wants to use Laravel locally before revisiting deployment.
+
+Decision:
+Use Laravel as the primary local runtime through `composer start`, which runs the secret-safe `notebook:ready` gate before serving. Keep Next.js installed but stopped/passive. Deployment, traffic switching, and Next.js retirement require a new explicit decision.
+
+Reason:
+This begins real-use observation without pretending the PHP development server is a production server or forcing irreversible cleanup.
+
+Tradeoff:
+Two runtimes remain in the repository, and production server, HTTPS, rate-limit, logging-retention, and off-server-backup choices remain unresolved.
+
+Date:
+2026-08-08
 
 ### Decision: V1 stack
 

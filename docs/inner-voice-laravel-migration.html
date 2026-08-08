@@ -233,18 +233,18 @@
           </li>
 
           <li class="stage current">
-            <input type="checkbox" disabled aria-label="Cutover pending" />
+            <input type="checkbox" disabled aria-label="Local Laravel observation active" />
             <div>
-              <span class="status">Next</span>
-              <h3>5. Cut Over With A Rollback Gate</h3>
-              <p>Switch only after behavior, data, deployment, and recovery evidence pass.</p>
+              <span class="status">Local observation</span>
+              <h3>5. Promote Laravel Locally; Defer Deployment</h3>
+              <p>Use Laravel as the primary local runtime while keeping Next.js installed and passive.</p>
               <ul>
-                <li>run full PHP and extension test suites</li>
-                <li>compare old/new UI and golden search/AI cases</li>
-                <li>backup real SQLite, deploy Laravel beside current service, and run smoke tests</li>
-                <li>switch traffic while preserving old release and database backup</li>
-                <li>remove Next.js runtime only after an observation window and restore rehearsal</li>
-                <li>update architecture, security, deployment, operations, project memory, README, and canonical stage map</li>
+                <li>done: add secret-safe local and production readiness checks</li>
+                <li>done: make <code>composer start</code> run readiness before Laravel serves on port 3000</li>
+                <li>done: keep Next.js installed, stopped, and available only through build then start</li>
+                <li>active: use Laravel locally and record real-use observations</li>
+                <li>deferred: VPS, domain, HTTPS, production extension permission, traffic switch, and rollback rehearsal</li>
+                <li>decision: do not remove Next.js unless the human explicitly revisits that choice</li>
               </ul>
             </div>
           </li>
@@ -259,7 +259,7 @@
           <li>No paid AI call in broad automated tests.</li>
           <li>No extension secret enters client logs or source.</li>
           <li>No production cutover without tested backup restore.</li>
-          <li>No deletion of Next.js reference before rollback window ends.</li>
+          <li>No deletion of the passive Next.js reference without a new explicit decision.</li>
           <li>No new product features during migration.</li>
           <li>No framework extras without a proven requirement.</li>
         </ul>
@@ -273,13 +273,13 @@
       <section>
         <h2>Definition Of Done</h2>
         <ul>
-          <li>Laravel is the only production application runtime.</li>
+          <li>Laravel is the primary local application runtime.</li>
           <li>Existing SQLite data opens without lost or rewritten notes.</li>
           <li>Auth, CRUD, keyword search, AI recall, and Chrome capture preserve approved behavior.</li>
           <li>PHPUnit and extension tests pass; critical workflows pass manually.</li>
-          <li>Logs, backup, restore, deployment, and rollback instructions are verified.</li>
+          <li>Logs, backup, restore, local start, and readiness instructions are verified; deployment remains deferred.</li>
           <li>No excluded framework or infrastructure dependency was introduced.</li>
-          <li>Current documentation describes Laravel, not the retired Next.js architecture.</li>
+          <li>Current documentation describes Laravel as primary and Next.js as passive, not retired.</li>
         </ul>
       </section>
 
@@ -293,7 +293,7 @@
       </section>
 
       <footer>
-        Next checkpoint: prepare the Laravel deployment, smoke checks, traffic switch, observation window, and rollback rehearsal without retiring Next.js early.
+        Next checkpoint: use Laravel locally through composer start and collect observations. Deployment remains deferred until explicitly resumed.
       </footer>
     </main>
   </body>
