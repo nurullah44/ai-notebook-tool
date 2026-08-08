@@ -18,7 +18,7 @@ Stable facts future Codex sessions should remember. Keep short.
 - Required active documents:
   - `docs/LARAVEL_MIGRATION_CONTRACT.md`
   - `docs/LARAVEL_MIGRATION_BASELINE.md`
-- Status: Stage 5 local-promotion gate is implemented. `notebook:ready` checks required configuration, physical SQLite schema/integrity/writability, PHP SQLite support, and private storage without exposing secrets; `composer start` makes readiness mandatory before local serving. Next.js stays stopped/passive. Deployment/cutover is not active.
+- Status: Stage 5 local-promotion gate is implemented. `notebook:ready` checks a usable APP_KEY, required configuration, the resolved default SQLite connection, physical schema/integrity/file and parent-directory writability, PHP SQLite support, and private storage without exposing secrets; `composer start` makes readiness mandatory before local serving. The current local environment passes. Next.js stays stopped/passive. Deployment/cutover is not active.
 - Current stage: 5 - Local Laravel Observation (active; deployment deferred)
 - Next checkpoint: use Laravel locally through `composer start`; collect real-use observations. Revisit VPS/domain/HTTPS/cutover only when explicitly chosen.
 

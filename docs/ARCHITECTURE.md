@@ -14,7 +14,7 @@ Keep this document factual and short. Update it only after decisions are stable.
 - Logging: Laravel writes structured JSON stderr events with metadata only. AI recall records local/model completion or search/provider failure with model, latency, candidate/match counts, OpenAI use, outcome, token usage when available, HTTP status, and error type. Note read/write paths catch `QueryException` before private search, title, or body bindings can reach framework logs.
 - Backup: Laravel `notebook:backup` and `notebook:restore` use SQLite's online backup API, verify integrity/count, and store private copies in ignored storage. Restore requires explicit force and preserves a pre-restore safety backup.
 - Readiness: `notebook:ready` checks required configuration, SQLite support/schema/integrity/writability, and private storage without printing secrets; `--production` adds environment, debug, HTTPS, and Secure-cookie gates
-- Tests: Vitest protects the passive Next.js reference; Node's built-in runner protects 19 extension tests; PHPUnit protects Laravel using isolated test state. The combined reference/extension suite passes 49 tests, and Laravel passes 50 tests with 246 assertions.
+- Tests: Vitest protects the passive Next.js reference; Node's built-in runner protects 19 extension tests; PHPUnit protects Laravel using isolated test state. The combined reference/extension suite passes 49 tests, and Laravel passes 51 tests with 250 assertions.
 - Deployment: deferred; Hetzner, Tailscale, Cloudflare Tunnel, HTTPS server/process manager, and traffic switching remain future decisions
 
 ## Boundaries

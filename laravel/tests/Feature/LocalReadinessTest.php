@@ -25,10 +25,12 @@ class LocalReadinessTest extends TestCase
         $database->exec('CREATE INDEX idx_notes_updated_at ON notes(updated_at DESC)');
         $database->close();
 
-        config()->set('app.key', 'base64:test-app-key');
+        config()->set('app.key', 'base64:'.base64_encode(str_repeat('k', 32)));
+        config()->set('app.cipher', 'AES-256-CBC');
         config()->set('app.env', 'local');
         config()->set('app.debug', true);
         config()->set('app.url', 'http://localhost:3000');
+        config()->set('database.default', 'sqlite');
         config()->set('database.connections.sqlite.database', $databasePath);
         config()->set('founder.password', 'test-password');
         config()->set('services.extension.capture_token', 'test-capture-token');
@@ -58,7 +60,8 @@ class LocalReadinessTest extends TestCase
             ->expectsOutputToContain('Laravel is ready for local primary use.')
             ->doesntExpectOutputToContain('test-password')
             ->doesntExpectOutputToContain('test-capture-token')
-            ->doesntExpectOutputToContain('test-app-key');
+            ->expectsOutputToContain('PASS default SQLite connection')
+            ->expectsOutputToContain('PASS SQLite parent directory');
     }
 
     public function test_readiness_rejects_missing_required_config_and_memory_database(): void
@@ -70,6 +73,21 @@ class LocalReadinessTest extends TestCase
             ->assertFailed()
             ->expectsOutputToContain('FAIL AUTH_PASSWORD')
             ->expectsOutputToContain('FAIL physical SQLite database');
+    }
+
+    public function test_readiness_rejects_an_unusable_app_key_and_non_sqlite_default_connection(): void
+    {
+        config()->set('app.key', 'base64:not-a-valid-laravel-key');
+        config()->set('database.default', 'alternate');
+        config()->set('database.connections.alternate', [
+            'driver' => 'sqlite',
+            'database' => ':memory:',
+        ]);
+
+        $this->artisan('notebook:ready')
+            ->assertFailed()
+            ->expectsOutputToContain('FAIL usable APP_KEY')
+            ->expectsOutputToContain('FAIL default SQLite connection');
     }
 
     public function test_production_readiness_requires_production_https_without_debug(): void

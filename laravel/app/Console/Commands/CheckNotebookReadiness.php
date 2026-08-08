@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Encryption\Encrypter;
 use PDO;
 use SQLite3;
 use Throwable;
@@ -17,12 +18,14 @@ class CheckNotebookReadiness extends Command
     public function handle(): int
     {
         $checks = [
-            'APP_KEY' => $this->hasString(config('app.key')),
+            'usable APP_KEY' => $this->appKeyIsUsable(),
             'AUTH_PASSWORD' => $this->hasString(config('founder.password')),
             'EXTENSION_CAPTURE_TOKEN' => $this->hasString(config('services.extension.capture_token')),
             'PDO SQLite driver' => in_array('sqlite', PDO::getAvailableDrivers(), true),
             'SQLite3 extension' => class_exists(SQLite3::class),
+            'default SQLite connection' => config('database.default') === 'sqlite',
             'physical SQLite database' => $this->databaseIsReady(),
+            'SQLite parent directory' => $this->databaseParentIsWritable(),
             'private storage' => $this->privateStorageIsReady(),
         ];
 
@@ -66,7 +69,7 @@ class CheckNotebookReadiness extends Command
 
     private function databaseIsReady(): bool
     {
-        $path = config('database.connections.sqlite.database');
+        $path = $this->databasePath();
         if (! is_string($path) || $path === '' || $path === ':memory:' || ! is_file($path) || ! is_readable($path) || ! is_writable($path)) {
             return false;
         }
@@ -91,6 +94,45 @@ class CheckNotebookReadiness extends Command
             } finally {
                 $database->close();
             }
+        } catch (Throwable) {
+            return false;
+        }
+    }
+
+    private function databaseParentIsWritable(): bool
+    {
+        $path = $this->databasePath();
+
+        return is_string($path) && $path !== '' && $path !== ':memory:' && is_writable(dirname($path));
+    }
+
+    private function databasePath(): mixed
+    {
+        $connection = config('database.default');
+
+        return is_string($connection) ? config('database.connections.'.$connection.'.database') : null;
+    }
+
+    private function appKeyIsUsable(): bool
+    {
+        $configuredKey = config('app.key');
+        $cipher = config('app.cipher');
+        if (! is_string($configuredKey) || ! is_string($cipher)) {
+            return false;
+        }
+
+        $key = str_starts_with($configuredKey, 'base64:')
+            ? base64_decode(substr($configuredKey, 7), true)
+            : $configuredKey;
+
+        if (! is_string($key)) {
+            return false;
+        }
+
+        try {
+            new Encrypter($key, $cipher);
+
+            return true;
         } catch (Throwable) {
             return false;
         }
