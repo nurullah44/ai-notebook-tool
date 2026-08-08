@@ -25,20 +25,27 @@ describe("capture endpoint", () => {
   it("builds the local V1 endpoint", () => {
     assert.equal(
       getCaptureEndpoint(`  ${DEFAULT_APP_URL}  `),
-      "http://localhost:3000/api/capture",
+      "http://localhost:4318/api/capture",
+    );
+  });
+
+  it("moves the stored legacy port to the dedicated local port", () => {
+    assert.equal(
+      getCaptureEndpoint("http://localhost:3000"),
+      "http://localhost:4318/api/capture",
     );
   });
 
   for (const appUrl of [
-    "http://localhost:3000/",
-    "https://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:3001",
+    "http://localhost:4318/",
+    "https://localhost:4318",
+    "http://127.0.0.1:4318",
+    "http://localhost:4319",
   ]) {
     it(`rejects unsupported app URL ${appUrl}`, () => {
       assert.throws(
         () => getCaptureEndpoint(appUrl),
-        /App URL must be exactly http:\/\/localhost:3000\./,
+        /App URL must be exactly http:\/\/localhost:4318\./,
       );
     });
   }

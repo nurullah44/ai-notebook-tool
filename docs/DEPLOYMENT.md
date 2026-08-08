@@ -40,9 +40,9 @@ These steps are a deferred plan, not completed deployment evidence:
 
 ## Chrome Extension Deployment
 
-The current unpacked extension is local-only and permits only `http://localhost:3000/*`. Do not treat capture as production-ready until a production app domain is chosen and both the manifest host permission and extension app URL are updated together. Chrome Web Store distribution is not part of this slice.
+The current unpacked extension is local-only and permits only `http://localhost:4318/*`. Do not treat capture as production-ready until a production app domain is chosen and both the manifest host permission and extension app URL are updated together. Chrome Web Store distribution is not part of this slice.
 
-For current local use, run Laravel with `composer start` from `laravel/`; it binds to `http://localhost:3000`, matching the unchanged extension permission and saved app URL exactly.
+For current local use, run Laravel with `composer start` from `laravel/`; it binds to `http://localhost:4318`, matching the extension permission and app URL exactly.
 
 ## Migration Notes
 

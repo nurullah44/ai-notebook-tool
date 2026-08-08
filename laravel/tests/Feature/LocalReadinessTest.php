@@ -29,7 +29,7 @@ class LocalReadinessTest extends TestCase
         config()->set('app.cipher', 'AES-256-CBC');
         config()->set('app.env', 'local');
         config()->set('app.debug', true);
-        config()->set('app.url', 'http://localhost:3000');
+        config()->set('app.url', 'http://localhost:4318');
         config()->set('database.default', 'sqlite');
         config()->set('database.connections.sqlite.database', $databasePath);
         config()->set('founder.password', 'test-password');

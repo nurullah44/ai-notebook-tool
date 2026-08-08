@@ -31,14 +31,14 @@ Production retention is deferred to the Deployment Slice. On the VPS, these logs
 ## Local Primary Run
 
 1. Double-click `Idea Store.lnk` on the desktop. It starts Laravel only when the Idea Store identity check fails, then opens Chrome.
-2. Manual alternative: from `laravel/`, run `php artisan notebook:ready`, then `composer start` and open `http://localhost:3000`.
+2. Manual alternative: from `laravel/`, run `php artisan notebook:ready`, then `composer start` and open `http://localhost:4318`.
 3. Verify login, recent notes, keyword search, AI recall, and extension capture.
 
 `composer start` uses Laravel's development server for local observation only. It is not the future production server. `notebook:ready --production` validates production-shaped configuration but performs no deployment.
 
 ## Local Chrome Capture
 
-- The unpacked extension targets exactly `http://localhost:3000` and has no production host permission.
+- The unpacked extension targets exactly `http://localhost:4318` and has no production host permission. A stored legacy 3000 value is mapped to the dedicated port.
 - The badge shows `...` while saving, a check mark after success, and `!` after failure. Its tooltip gives the current status or safe error message.
 - There is no automatic retry. After correcting the app URL, token, server, or input problem, retry the context-menu action intentionally.
 - Laravel holds the 10-valid-captures-per-minute limit in an atomic cache-backed sliding window shared by server workers.

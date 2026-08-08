@@ -12,7 +12,7 @@ Laravel is the only active application runtime. It uses the original notebook at
 4. If the database already contains notes, run `php artisan notebook:backup` before promoting Laravel.
 5. Start Laravel with `composer start`.
 
-Open `http://localhost:3000`, or double-click `Idea Store.lnk` on the desktop. The shortcut starts Laravel only when needed and then opens Chrome.
+Open `http://localhost:4318`, or double-click `Idea Store.lnk` on the desktop. The shortcut starts Laravel only when needed and then opens Chrome.
 
 `composer start` runs the secret-safe readiness gate before serving. It is the local-primary command, not a production web server. Future deployment must first pass `php artisan notebook:ready --production` and use an HTTPS-capable production server stack.
 
@@ -28,11 +28,11 @@ npm run start
 
 ## Local Chrome Extension
 
-Run Laravel from `laravel/` with `composer start`; it keeps the existing extension contract available at exactly `http://localhost:3000`.
+Run Laravel from `laravel/` with `composer start`; it keeps the extension contract available at exactly `http://localhost:4318`.
 
-1. Start Laravel and keep it available at exactly `http://localhost:3000`.
+1. Start Laravel and keep it available at exactly `http://localhost:4318`.
 2. Open `chrome://extensions`, enable Developer mode, choose **Load unpacked**, and select the `extension/` folder.
-3. Set one identical `EXTENSION_CAPTURE_TOKEN` value in `laravel/.env` and the extension options. Keep the app URL exactly `http://localhost:3000`.
+3. Set one identical `EXTENSION_CAPTURE_TOKEN` value in `laravel/.env` and the extension options. Keep the app URL exactly `http://localhost:4318`.
 4. Highlight 3-5,000 characters on a web page, right-click, and choose **Save to Idea Store**.
 
 After editing files under `extension/`, return to `chrome://extensions` and reload the extension before testing the change.

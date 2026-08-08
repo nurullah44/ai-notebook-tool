@@ -58,16 +58,16 @@ The Chrome capture stage map is `docs/inner-voice-extension.html`: stages 1-4 ar
 
 ## Stack Decisions
 
-- Primary local runtime: Laravel 13 with Blade; `composer start` runs readiness then serves `http://localhost:3000`
+- Primary local runtime: Laravel 13 with Blade; `composer start` runs readiness then serves the dedicated `http://localhost:4318`
 - Retired reference: the Next.js source is isolated at `../idea-store-nextjs-archive` and starts only after `npm run build`, using `npm run start`
 - Database/storage: Laravel Query Builder/PDO over the configured physical SQLite notebook
 - Auth: founder-only one-password login with Laravel encrypted cookie session
 - AI provider: OpenAI Responses API for rough-memory note lookup and capture-title generation, default model `gpt-5.4-mini`
-- Extension: local unpacked Manifest V3 client in plain JavaScript; selection-only context menu, settings in `chrome.storage.local`, and host permission only for `http://localhost:3000/*`
+- Extension: local unpacked Manifest V3 client in plain JavaScript; selection-only context menu, settings in `chrome.storage.local`, and host permission only for `http://localhost:4318/*`
 - Deployment: Hetzner VPS planned, with Tailscale admin access and Cloudflare Tunnel web access
 - Logging: Laravel structured JSON stderr logs with metadata only
 - Backup: `php artisan notebook:backup` creates an integrity/count-checked SQLite copy in ignored Laravel private storage; `notebook:restore --force` validates the chosen backup, preserves the current target as a safety backup, and restores with count/integrity verification. Scheduling and off-server storage are deferred to deployment.
-- Testing: the archive retains its own Vitest checks; Node's built-in runner protects the 19 extension checks; PHPUnit protects Laravel. Tests use fake secrets and must never use the real notebook database.
+- Testing: the archive retains its own Vitest checks; Node's built-in runner protects the 20 extension checks; PHPUnit protects Laravel. Tests use fake secrets and must never use the real notebook database.
 
 ## Architecture Decisions
 

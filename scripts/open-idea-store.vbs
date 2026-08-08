@@ -8,7 +8,7 @@ Function IdeaStoreIsReady()
   On Error Resume Next
   Set request = CreateObject("MSXML2.ServerXMLHTTP.6.0")
   request.setTimeouts 500, 500, 500, 500
-  request.open "GET", "http://localhost:3000/login", False
+  request.open "GET", "http://localhost:4318/login", False
   request.send
   IdeaStoreIsReady = (Err.Number = 0 And request.status = 200 And InStr(request.responseText, "Idea Store") > 0)
   Err.Clear
@@ -26,7 +26,7 @@ If Not IdeaStoreIsReady() Then
 End If
 
 If IdeaStoreIsReady() Then
-  shell.Run """C:\Program Files\Google\Chrome\Application\chrome.exe"" http://localhost:3000", 1, False
+  shell.Run """C:\Program Files\Google\Chrome\Application\chrome.exe"" http://localhost:4318", 1, False
 Else
   MsgBox "Idea Store baslatilamadi. Hatayi gormek icin laravel klasorunde composer start calistir.", vbCritical, "Idea Store"
 End If

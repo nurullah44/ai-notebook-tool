@@ -34,12 +34,12 @@
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
-            "@php artisan serve --host=localhost --port=3000"
+            "@php artisan serve --host=localhost --port=4318"
         ],
         "start": [
             "Composer\\Config::disableProcessTimeout",
             "@php artisan notebook:ready",
-            "@php artisan serve --host=localhost --port=3000"
+            "@php artisan serve --host=localhost --port=4318"
         ],
         "test": [
             "@php artisan config:clear --ansi",

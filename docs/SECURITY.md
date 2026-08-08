@@ -17,7 +17,7 @@ Prototype
 - SQLite backup files are ignored by git and treated as private notebook data
 - Inputs are validated
 - Laravel extension capture uses a dedicated bearer token, not the founder password or website session; missing server token configuration returns `503`, and invalid auth returns `401` before the request JSON is parsed
-- The unpacked extension can reach only `http://localhost:3000/*`
+- The unpacked extension can reach only `http://localhost:4318/*`
 - Capture uses JavaScript-compatible Unicode trimming and 3-5,000 UTF-16 code-unit limits; an atomic Laravel-cache sliding window permits 10 valid captures per minute across workers
 - Search uses parameterized SQLite queries
 - Delete note requires authentication, CSRF protection, and browser confirmation

@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "Save selected text to a local Idea Store.",
   "permissions": ["contextMenus", "storage"],
-  "host_permissions": ["http://localhost:3000/*"],
+  "host_permissions": ["http://localhost:4318/*"],
   "background": {
     "service_worker": "background.js",
     "type": "module"
