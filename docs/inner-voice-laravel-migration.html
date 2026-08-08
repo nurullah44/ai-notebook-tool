@@ -237,14 +237,15 @@
             <div>
               <span class="status">Local observation</span>
               <h3>5. Promote Laravel Locally; Defer Deployment</h3>
-              <p>Use Laravel as the primary local runtime while keeping Next.js installed and passive.</p>
+              <p>Use Laravel as the sole active local runtime while preserving Next.js in a separate archive.</p>
               <ul>
                 <li>done: add secret-safe local and production readiness checks</li>
                 <li>done: make <code>composer start</code> run readiness before Laravel serves on port 3000</li>
-                <li>done: keep Next.js installed, stopped, and available only through build then start</li>
+                <li>done: archive Next.js outside the active project with no shared database</li>
+                <li>done: connect Laravel to the verified original nine-note database and add a desktop launcher</li>
                 <li>active: use Laravel locally and record real-use observations</li>
                 <li>deferred: VPS, domain, HTTPS, production extension permission, traffic switch, and rollback rehearsal</li>
-                <li>decision: do not remove Next.js unless the human explicitly revisits that choice</li>
+                <li>decision: keep the retired archive for historical comparison; it is not an operational fallback</li>
               </ul>
             </div>
           </li>
@@ -259,7 +260,7 @@
           <li>No paid AI call in broad automated tests.</li>
           <li>No extension secret enters client logs or source.</li>
           <li>No production cutover without tested backup restore.</li>
-          <li>No deletion of the passive Next.js reference without a new explicit decision.</li>
+          <li>No deletion of the external Next.js archive without a new explicit decision.</li>
           <li>No new product features during migration.</li>
           <li>No framework extras without a proven requirement.</li>
         </ul>
@@ -279,7 +280,7 @@
           <li>PHPUnit and extension tests pass; critical workflows pass manually.</li>
           <li>Logs, backup, restore, local start, and readiness instructions are verified; deployment remains deferred.</li>
           <li>No excluded framework or infrastructure dependency was introduced.</li>
-          <li>Current documentation describes Laravel as primary and Next.js as passive, not retired.</li>
+          <li>Current documentation describes Laravel as active and Next.js as retired to an external archive.</li>
         </ul>
       </section>
 
@@ -293,7 +294,7 @@
       </section>
 
       <footer>
-        Next checkpoint: use Laravel locally through composer start and collect observations. Deployment remains deferred until explicitly resumed.
+        Next checkpoint: use Laravel locally through the desktop shortcut or composer start and collect observations. Deployment remains deferred until explicitly resumed.
       </footer>
     </main>
   </body>

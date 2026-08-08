@@ -4,7 +4,7 @@ A private, founder-only notebook that saves text notes, searches them, and uses 
 
 ## Local Setup
 
-Laravel is now the primary local runtime. Next.js remains installed but passive for later comparison or fallback.
+Laravel is the only active application runtime. It uses the original notebook at `data/notebook.db`.
 
 1. Enter `laravel/` and run `composer setup`.
 2. Configure `laravel/.env`, including a physical `SQLITE_DB_PATH`, `AUTH_PASSWORD`, and `EXTENSION_CAPTURE_TOKEN`.
@@ -12,16 +12,16 @@ Laravel is now the primary local runtime. Next.js remains installed but passive 
 4. If the database already contains notes, run `php artisan notebook:backup` before promoting Laravel.
 5. Start Laravel with `composer start`.
 
-Open `http://localhost:3000`.
+Open `http://localhost:3000`, or double-click `Idea Store.lnk` on the desktop. The shortcut starts Laravel only when needed and then opens Chrome.
 
 `composer start` runs the secret-safe readiness gate before serving. It is the local-primary command, not a production web server. Future deployment must first pass `php artisan notebook:ready --production` and use an HTTPS-capable production server stack.
 
-## Passive Next.js Reference
+## Retired Next.js Archive
 
-Next.js is not deleted and should remain stopped while Laravel owns port 3000. When comparison is needed, build it first and start it explicitly:
+The retired implementation is outside this project at `../idea-store-nextjs-archive`. It has no shared live database. If comparison is ever needed, work inside that archive and build before starting:
 
 ```powershell
-npm install
+npm ci
 npm run build
 npm run start
 ```
@@ -39,23 +39,14 @@ After editing files under `extension/`, return to `chrome://extensions` and relo
 
 ## Commands
 
-```powershell
-npm run dev
-npm test
-npm run lint
-npm run build
-npm run backup
-```
-
-`npm test` runs the Next.js reference tests with Vitest and the 19 extension tests with Node's built-in runner.
-
-`npm run backup` creates a timestamped SQLite backup in the git-ignored `backups/` directory and verifies its integrity. Restore instructions live in `docs/OPERATIONS.md`.
-
-Laravel migration recovery commands run from `laravel/`:
+Laravel commands run from `laravel/`; extension tests run from the project root:
 
 ```powershell
+composer start
+composer test
 php artisan notebook:backup
 php artisan notebook:restore storage/app/private/backups/notebook-<timestamp>.db --force
+node --test extension/background.test.js extension/capture.test.js extension/options.test.js
 ```
 
 Restore must run while the app is stopped. It validates the chosen backup and preserves the current database as a verified safety backup before replacement.

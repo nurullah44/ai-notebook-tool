@@ -2,7 +2,7 @@
 
 ## Logs
 
-- Primary Laravel logs: JSON lines written to stderr through Laravel Monolog and `JsonFormatter`. The passive Next.js logger is reference-only.
+- Primary Laravel logs: JSON lines written to stderr through Laravel Monolog and `JsonFormatter`.
 - Auth logs: login success, login failure, and logout.
 - Note logs: create, update, delete, and rejected empty-note attempts. Logs include note IDs only.
 - AI recall logs: `ai.recall_completed` for local/model results and error-level `ai.recall_failed` for provider failures, with model, candidate count, returned match count, duration, OpenAI use, outcome, status/error class, and token counts when available.
@@ -30,11 +30,9 @@ Production retention is deferred to the Deployment Slice. On the VPS, these logs
 
 ## Local Primary Run
 
-1. Keep Next.js stopped so port 3000 and SQLite writes have one owner.
-2. From `laravel/`, run `php artisan notebook:ready`.
-3. Before first use with an existing notebook, run `php artisan notebook:backup`.
-4. Run `composer start` and open `http://localhost:3000`.
-5. Verify login, recent notes, keyword search, AI recall, and extension capture.
+1. Double-click `Idea Store.lnk` on the desktop. It starts Laravel only when the Idea Store identity check fails, then opens Chrome.
+2. Manual alternative: from `laravel/`, run `php artisan notebook:ready`, then `composer start` and open `http://localhost:3000`.
+3. Verify login, recent notes, keyword search, AI recall, and extension capture.
 
 `composer start` uses Laravel's development server for local observation only. It is not the future production server. `notebook:ready --production` validates production-shaped configuration but performs no deployment.
 
@@ -69,7 +67,7 @@ Deleted notes can be restored only from a backup created before the deletion. Fo
 ## Rollback
 
 - Last known good deploy:
-- Local fallback: stop Laravel before intentionally running the passive Next.js reference; never let both runtimes write the same SQLite database concurrently.
+- Local fallback: restore a verified SQLite backup. The external Next.js archive has no live-database role.
 - Future deployment rollback: stop the app, restore the previous Laravel release and chosen SQLite backup, restart, then run the verification checklist above.
 
 ## Incident Notes

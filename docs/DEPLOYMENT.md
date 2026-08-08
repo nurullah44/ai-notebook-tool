@@ -7,7 +7,7 @@
 - Domain: undecided
 - Application: Laravel/PHP with SQLite
 - Web server/process manager: undecided
-- Next.js: retained as a stopped, passive reference; deletion is not planned
+- Next.js: retired to the separate local `../idea-store-nextjs-archive`; it is not part of deployment
 
 ## Environment Variables
 
@@ -23,7 +23,7 @@ APP_DEBUG
 APP_URL
 ```
 
-`OPENAI_MODEL` defaults to `gpt-5.4-mini`. Keep `EXTENSION_CAPTURE_TOKEN` separate from the founder password and `APP_KEY`. `SESSION_SECRET` remains relevant only to the passive Next.js reference.
+`OPENAI_MODEL` defaults to `gpt-5.4-mini`. Keep `EXTENSION_CAPTURE_TOKEN` separate from the founder password and `APP_KEY`.
 
 Before any future deployment, `APP_ENV=production`, `APP_DEBUG=false`, an HTTPS `APP_URL`, and secure session cookies must make `php artisan notebook:ready --production` pass.
 
@@ -48,7 +48,7 @@ For current local use, run Laravel with `composer start` from `laravel/`; it bin
 
 - Fresh Laravel database migration command: `php artisan migrate`; existing compatible notebook data must not be recreated or reshaped.
 - Database backup command: `cd laravel && php artisan notebook:backup`.
-- Local fallback: stop Laravel; keep Next.js source passive unless an intentional comparison/fallback run is needed.
+- Local fallback: stop Laravel and restore a verified SQLite backup; the retired Next.js archive is not a data fallback.
 - Future rollback plan: stop the app, restore the previous Laravel release and chosen SQLite backup, restart, then verify critical flows. Git rollback is not database rollback.
 
 ## Verification

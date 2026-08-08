@@ -5,7 +5,7 @@ Keep this document factual and short. Update it only after decisions are stable.
 ## Current Shape
 
 - Primary local runtime: Laravel 13 with Blade and normal static assets; `composer start` requires readiness before serving on localhost port 3000
-- Passive reference: Next.js and TypeScript remain installed but stopped unless an intentional build-then-start comparison is needed
+- Retired reference: Next.js and TypeScript are isolated outside the active repository at `../idea-store-nextjs-archive`
 - Extension: unpacked Manifest V3 Chrome extension in `extension/`, implemented in plain JavaScript
 - Database: Laravel uses Query Builder over PDO SQLite against the configured physical compatible database path
 - Auth: Laravel uses `AUTH_PASSWORD`, encrypted cookie sessions, CSRF-protected forms, and founder route middleware
@@ -14,7 +14,7 @@ Keep this document factual and short. Update it only after decisions are stable.
 - Logging: Laravel writes structured JSON stderr events with metadata only. AI recall records local/model completion or search/provider failure with model, latency, candidate/match counts, OpenAI use, outcome, token usage when available, HTTP status, and error type. Note read/write paths catch `QueryException` before private search, title, or body bindings can reach framework logs.
 - Backup: Laravel `notebook:backup` and `notebook:restore` use SQLite's online backup API, verify integrity/count, and store private copies in ignored storage. Restore requires explicit force and preserves a pre-restore safety backup.
 - Readiness: `notebook:ready` checks required configuration, SQLite support/schema/integrity/writability, and private storage without printing secrets; `--production` adds environment, debug, HTTPS, and Secure-cookie gates
-- Tests: Vitest protects the passive Next.js reference; Node's built-in runner protects 19 extension tests; PHPUnit protects Laravel using isolated test state. The combined reference/extension suite passes 49 tests, and Laravel passes 51 tests with 250 assertions.
+- Tests: the retired archive retains 30 Vitest checks; Node's built-in runner protects 19 extension tests; PHPUnit protects Laravel using isolated test state. Laravel passes 51 tests with 250 assertions.
 - Deployment: deferred; Hetzner, Tailscale, Cloudflare Tunnel, HTTPS server/process manager, and traffic switching remain future decisions
 
 ## Boundaries
@@ -51,10 +51,10 @@ Context:
 Laravel parity and recovery gates are complete, but no VPS/domain deployment is authorized. The founder wants to use Laravel locally before revisiting deployment.
 
 Decision:
-Use Laravel as the primary local runtime through `composer start`, which runs the secret-safe `notebook:ready` gate before serving. Keep Next.js installed but stopped/passive. Deployment, traffic switching, and Next.js retirement require a new explicit decision.
+Use Laravel as the sole active local runtime through `composer start`, which runs the secret-safe `notebook:ready` gate before serving. Keep the retired Next.js implementation in a separate local archive with no shared database. Deployment and traffic switching require a new explicit decision.
 
 Reason:
-This begins real-use observation without pretending the PHP development server is a production server or forcing irreversible cleanup.
+This begins real-use observation without pretending the PHP development server is a production server, while preserving the retired implementation outside the active project.
 
 Tradeoff:
 Two runtimes remain in the repository, and production server, HTTPS, rate-limit, logging-retention, and off-server-backup choices remain unresolved.

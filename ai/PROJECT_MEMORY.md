@@ -9,7 +9,7 @@ Stable facts future Codex sessions should remember. Keep short.
 - Audience: founder-only V1
 - Real problem: user remembers rough shape of ideas but not exact note wording or location
 - Smallest useful version: login, create/read/edit/delete notes, search notes, ask AI about own notes, logs, backups, targeted tests, deployment notes
-- Current stage: Prototype; Laravel migration Stage 4 is complete and Laravel is prepared as the primary local runtime. Next.js remains installed but passive. Deployment is deferred.
+- Current stage: Prototype; Laravel is the sole active local runtime and uses the original `data/notebook.db`. Next.js is retired to a separate local archive. Deployment is deferred.
 
 ## Active Workflow
 
@@ -18,16 +18,16 @@ Stable facts future Codex sessions should remember. Keep short.
 - Required active documents:
   - `docs/LARAVEL_MIGRATION_CONTRACT.md`
   - `docs/LARAVEL_MIGRATION_BASELINE.md`
-- Status: Stage 5 local-promotion gate is implemented. `notebook:ready` checks a usable APP_KEY, required configuration, the resolved default SQLite connection, physical schema/integrity/file and parent-directory writability, PHP SQLite support, and private storage without exposing secrets; `composer start` makes readiness mandatory before local serving. The current local environment passes. Next.js stays stopped/passive. Deployment/cutover is not active.
+- Status: Stage 5 local promotion is active. Laravel passes readiness against the original nine-note `data/notebook.db`; a verified pre-switch backup exists. The retired Next.js runtime is isolated at `../idea-store-nextjs-archive`, and the desktop `Idea Store.lnk` starts Laravel on demand. Deployment is not active.
 - Current stage: 5 - Local Laravel Observation (active; deployment deferred)
-- Next checkpoint: use Laravel locally through `composer start`; collect real-use observations. Revisit VPS/domain/HTTPS/cutover only when explicitly chosen.
+- Next checkpoint: use Laravel locally through the desktop shortcut or `composer start` and collect real-use observations. Revisit deployment only when explicitly chosen.
 
 ## Current Execution Constraints
 
-- Migration work changes Laravel only. The Next.js implementation is read-only reference code.
+- The active repository contains Laravel, the extension, documentation, and notebook data; the retired Next.js code is outside it.
 - Normal `AGENTS.md` branch, review, documentation, and learning workflow is restored.
 - Playwright is forbidden. Manual browser verification uses the provided Chrome integration only.
-- Do not deploy, switch external traffic, or retire Next.js until the human explicitly resumes deployment work.
+- Do not deploy or switch external traffic until the human explicitly resumes deployment work.
 
 ## Learning Goal
 
@@ -59,7 +59,7 @@ The Chrome capture stage map is `docs/inner-voice-extension.html`: stages 1-4 ar
 ## Stack Decisions
 
 - Primary local runtime: Laravel 13 with Blade; `composer start` runs readiness then serves `http://localhost:3000`
-- Passive reference: Next.js App Router with TypeScript remains installed and starts only through `npm run build` then `npm run start`
+- Retired reference: the Next.js source is isolated at `../idea-store-nextjs-archive` and starts only after `npm run build`, using `npm run start`
 - Database/storage: Laravel Query Builder/PDO over the configured physical SQLite notebook
 - Auth: founder-only one-password login with Laravel encrypted cookie session
 - AI provider: OpenAI Responses API for rough-memory note lookup and capture-title generation, default model `gpt-5.4-mini`
@@ -67,13 +67,13 @@ The Chrome capture stage map is `docs/inner-voice-extension.html`: stages 1-4 ar
 - Deployment: Hetzner VPS planned, with Tailscale admin access and Cloudflare Tunnel web access
 - Logging: Laravel structured JSON stderr logs with metadata only
 - Backup: `php artisan notebook:backup` creates an integrity/count-checked SQLite copy in ignored Laravel private storage; `notebook:restore --force` validates the chosen backup, preserves the current target as a safety backup, and restores with count/integrity verification. Scheduling and off-server storage are deferred to deployment.
-- Testing: Vitest protects the read-only Next.js reference; Node's built-in runner protects the 19 extension checks; PHPUnit protects Laravel. Tests use fake secrets and must never use the real notebook database.
+- Testing: the archive retains its own Vitest checks; Node's built-in runner protects the 19 extension checks; PHPUnit protects Laravel. Tests use fake secrets and must never use the real notebook database.
 
 ## Architecture Decisions
 
 ### Decision: Laravel migration foundation
 
-Laravel 13 runs side-by-side in `laravel/` on PHP 8.5 with Blade, normal static assets, SQLite, encrypted cookie sessions, JSON stderr logging, and PHPUnit. Vite, Tailwind, queues, database-backed sessions, and default user/cache/jobs tables are excluded. Until cutover, the Next.js app remains the product behavior reference.
+Laravel 13 is the sole active runtime in `laravel/` on PHP 8.5 with Blade, normal static assets, SQLite, encrypted cookie sessions, JSON stderr logging, and PHPUnit. Vite, Tailwind, queues, database-backed sessions, and default user/cache/jobs tables are excluded. Historical parity evidence remains in the migration documents and retired archive.
 
 ### Decision: Laravel founder authentication
 
@@ -131,7 +131,7 @@ Use a plain-JavaScript Manifest V3 extension as a separate local client. It send
 - Chrome capture: `extension/background.js` registers one selection-only context menu and shows `...`, check, or `!` badge state with a tooltip; there is no popup, content script, retry, URL, page title, HTML, or tag capture
 - Capture API: Laravel `POST /api/capture` uses `EXTENSION_CAPTURE_TOKEN`, rejects missing configuration with `503`, rejects invalid bearer auth with `401` before parsing JSON, trims and validates 3-5,000 characters, and limits 10 valid captures per minute with a Laravel cache-backed sliding window. It saves UUID notes with UTC timestamps using an OpenAI or safe fallback title unless persistence itself fails.
 - Logging: Laravel Monolog writes safe JSON stderr events for auth, note operations, capture, and AI recall metadata
-- Backup: Laravel `notebook:backup` and `notebook:restore` provide verified SQLite recovery; the Node script remains passive reference code
+- Backup: Laravel `notebook:backup` and `notebook:restore` provide verified SQLite recovery; the retired Node script exists only in the external archive
 - AI Recall V1 non-goals: no whole-notebook dump, no LLM tool calling, no vector database, no chat history, no streaming, no advisor behavior yet
 - Styling: CSS modules with restrained blue idea cards, focused hover, 3D flip, and blurred fullscreen search/composer overlays
 - Deferred UI: the idea body/editor field still feels narrow; expand it in a later frontend refinement, not the extension slice
