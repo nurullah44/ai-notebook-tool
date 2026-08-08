@@ -26,11 +26,12 @@ class RestoreNotebook extends Command
 
         $backupPath = (string) $this->argument('backup');
         $targetPath = (string) ($this->option('database') ?: config('database.connections.sqlite.database'));
+        $safetyBackupDirectory = storage_path('app/private/backups');
 
         DB::purge('sqlite');
 
         try {
-            $restore = $recovery->restore($backupPath, $targetPath);
+            $restore = $recovery->restore($backupPath, $targetPath, $safetyBackupDirectory);
         } catch (Throwable $exception) {
             $this->error('Restore failed: '.$exception->getMessage());
 

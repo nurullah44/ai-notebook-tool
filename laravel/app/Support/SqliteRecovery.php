@@ -24,13 +24,13 @@ class SqliteRecovery
     }
 
     /** @return array{path: string, safetyBackupPath: ?string, integrity: string, noteCount: int} */
-    public function restore(string $backupPath, string $targetPath): array
+    public function restore(string $backupPath, string $targetPath, string $safetyBackupDirectory): array
     {
         $backup = $this->inspect($backupPath);
         $safetyBackupPath = null;
 
         if (is_file($targetPath)) {
-            $safety = $this->backup($targetPath, dirname($targetPath), 'notebook-pre-restore');
+            $safety = $this->backup($targetPath, $safetyBackupDirectory, 'notebook-pre-restore');
             $safetyBackupPath = $safety['path'];
         }
 
@@ -65,7 +65,9 @@ class SqliteRecovery
     /** @return array{path: string, integrity: string, noteCount: int} */
     private function copyAndVerify(string $sourcePath, string $destinationPath, bool $overwrite = false): array
     {
-        $source = $this->inspect($sourcePath);
+        if (! is_file($sourcePath)) {
+            throw new RuntimeException('SQLite database file does not exist.');
+        }
 
         if (! $overwrite && file_exists($destinationPath)) {
             throw new RuntimeException('Backup destination already exists.');
@@ -97,12 +99,15 @@ class SqliteRecovery
             $sourceDatabase?->close();
         }
 
-        $copy = $this->inspect($destinationPath);
-        if ($copy['noteCount'] !== $source['noteCount']) {
-            throw new RuntimeException('Backup note count does not match the source.');
-        }
+        try {
+            return $this->inspect($destinationPath);
+        } catch (Throwable $exception) {
+            if (! $overwrite && is_file($destinationPath)) {
+                unlink($destinationPath);
+            }
 
-        return $copy;
+            throw $exception;
+        }
     }
 
     /** @return array{path: string, integrity: string, noteCount: int} */

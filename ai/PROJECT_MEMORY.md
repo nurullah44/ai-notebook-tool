@@ -18,7 +18,7 @@ Stable facts future Codex sessions should remember. Keep short.
 - Required active documents:
   - `docs/LARAVEL_MIGRATION_CONTRACT.md`
   - `docs/LARAVEL_MIGRATION_BASELINE.md`
-- Status: Stage 4 operations parity is complete. Laravel owns the extension capture path, structured logging/privacy, and verified Artisan SQLite backup/restore. The combined reference/extension suite passes 49 tests, and Laravel passes 46 tests with 227 assertions.
+- Status: Stage 4 operations parity is complete. Laravel owns the extension capture path, structured logging/privacy, and verified Artisan SQLite backup/restore. The combined reference/extension suite passes 49 tests, and Laravel passes 47 tests with 231 assertions.
 - Current stage: 5 - Cut Over With A Rollback Gate (next)
 - Next checkpoint: prepare the Laravel VPS deployment, smoke checks, traffic switch, observation window, and rollback rehearsal without retiring Next.js early.
 
@@ -101,7 +101,7 @@ Laravel writes JSON events to stderr through Monolog. Auth events contain no sub
 
 ### Decision: Laravel SQLite recovery
 
-Laravel uses PHP's SQLite online backup API for consistent copies. `notebook:backup` verifies source/backup note counts and backup integrity. `notebook:restore` requires `--force`, validates the chosen backup before touching the target, creates a verified pre-restore safety backup, removes stale WAL/SHM sidecars, restores, and verifies integrity/count. Three feature tests rehearse these behaviors only on temporary physical SQLite files.
+Laravel uses PHP's SQLite online backup API for consistent copies. `notebook:backup` verifies integrity and reads the note count from the completed backup snapshot, avoiding a race with concurrent source writes; failed verification removes the incomplete artifact. `notebook:restore` requires `--force`, validates the chosen backup before touching the target, stores a verified pre-restore safety backup in ignored private storage, removes stale WAL/SHM sidecars, restores, and verifies integrity/count. Four feature tests rehearse these behaviors only on temporary physical SQLite files.
 
 ### Decision: V1 stack
 

@@ -41,7 +41,7 @@ Verification recorded on 2026-08-08: 39 Laravel tests with 184 assertions passed
 
 - Run `php artisan notebook:backup` from `laravel/`.
 - The command reads Laravel's configured SQLite path and defaults output to `storage/app/private/backups/`.
-- It uses SQLite's online backup API, creates a timestamped `notebook-*.db`, runs an integrity check, and refuses a source/backup note-count mismatch.
+- It uses SQLite's online backup API, creates a timestamped `notebook-*.db`, then reads integrity and note count from that completed snapshot. Failed verification removes the incomplete artifact.
 - Laravel private storage is ignored by git because backup files contain private notebook data.
 - Backup schedule: manual for local development; automate it during the Deployment Slice when the VPS scheduler is chosen.
 
@@ -49,12 +49,12 @@ Verification recorded on 2026-08-08: 39 Laravel tests with 184 assertions passed
 
 1. Stop the app so it cannot write to SQLite during restore.
 2. Run `php artisan notebook:restore storage/app/private/backups/notebook-<timestamp>.db --force` from `laravel/`.
-3. The command validates the chosen backup before touching the target, creates a verified `notebook-pre-restore-*.db` safety backup beside the target, removes stale `-wal`/`-shm` sidecars, restores, and verifies integrity plus note count.
+3. The command validates the chosen backup before touching the target, creates a verified `notebook-pre-restore-*.db` safety backup under ignored `storage/app/private/backups/`, removes stale `-wal`/`-shm` sidecars, restores, and verifies integrity plus note count.
 4. Keep both the chosen backup and pre-restore safety backup until verification and the observation window finish.
 5. Start the app.
 6. Verify login, recent notes, keyword search, AI recall, and extension capture.
 
-Deleted notes can be restored only from a backup created before the deletion. Three Laravel tests rehearse consistent backup, forced restore with a safety copy, and invalid-backup rejection on temporary physical SQLite files; the real notebook is never used.
+Deleted notes can be restored only from a backup created before the deletion. Four Laravel tests rehearse consistent backup, forced restore with an ignored safety copy, invalid-backup rejection, and failed-artifact cleanup on temporary physical SQLite files; the real notebook is never used.
 
 ## Rollback
 

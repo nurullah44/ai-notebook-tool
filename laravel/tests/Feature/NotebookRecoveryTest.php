@@ -63,6 +63,7 @@ class NotebookRecoveryTest extends TestCase
         $directory = $this->temporaryDirectory();
         $backupPath = $directory.'/chosen-backup.sqlite';
         $targetPath = $directory.'/restore-target.sqlite';
+        $this->app->useStoragePath($directory.'/storage');
         $backup = $this->createDatabase($backupPath, ['first', 'second']);
         $target = $this->createDatabase($targetPath, ['temporary']);
         $backup->close();
@@ -92,9 +93,10 @@ class NotebookRecoveryTest extends TestCase
         $this->assertSame(2, $restored->querySingle('SELECT COUNT(*) FROM notes'));
         $restored->close();
 
-        $safetyBackups = glob($directory.'/notebook-pre-restore-*.db');
+        $safetyBackups = glob($directory.'/storage/app/private/backups/notebook-pre-restore-*.db');
         $this->assertIsArray($safetyBackups);
         $this->assertCount(1, $safetyBackups);
+        $this->assertSame([], glob($directory.'/notebook-pre-restore-*.db'));
 
         $safety = new SQLite3($safetyBackups[0], SQLITE3_OPEN_READONLY);
         $this->assertSame(1, $safety->querySingle('SELECT COUNT(*) FROM notes'));
@@ -123,6 +125,25 @@ class NotebookRecoveryTest extends TestCase
         $this->assertSame('untouched', $unchanged->querySingle('SELECT id FROM notes'));
         $unchanged->close();
         $this->assertSame([], glob($directory.'/notebook-pre-restore-*.db'));
+    }
+
+    public function test_failed_backup_verification_removes_the_ambiguous_artifact(): void
+    {
+        $directory = $this->temporaryDirectory();
+        $sourcePath = $directory.'/invalid-source.sqlite';
+        $backupDirectory = $directory.'/backups';
+        mkdir($backupDirectory);
+        $source = new SQLite3($sourcePath);
+        $source->exec('CREATE TABLE unrelated (id TEXT PRIMARY KEY)');
+        $source->close();
+
+        $this->artisan('notebook:backup', [
+            '--database' => $sourcePath,
+            '--destination' => $backupDirectory,
+        ])->assertFailed()
+            ->expectsOutputToContain('Backup failed:');
+
+        $this->assertSame([], glob($backupDirectory.'/notebook-*.db'));
     }
 
     /** @param array<int, string> $ids */

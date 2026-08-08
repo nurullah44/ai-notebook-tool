@@ -13,7 +13,7 @@ Keep this document factual and short. Update it only after decisions are stable.
 - Capture API: Laravel owns the dedicated bearer-authenticated `POST /api/capture` endpoint and serves locally on the unchanged extension's exact `http://localhost:3000` origin; isolated direct and unpacked-Chrome live captures passed
 - Logging: Laravel writes structured JSON stderr events with metadata only. AI recall records local/model completion or search/provider failure with model, latency, candidate/match counts, OpenAI use, outcome, token usage when available, HTTP status, and error type. Note read/write paths catch `QueryException` before private search, title, or body bindings can reach framework logs.
 - Backup: Laravel `notebook:backup` and `notebook:restore` use SQLite's online backup API, verify integrity/count, and store private copies in ignored storage. Restore requires explicit force and preserves a pre-restore safety backup.
-- Tests: Vitest protects the read-only Next.js reference; Node's built-in runner protects 19 extension tests; PHPUnit protects Laravel using isolated test state. The combined reference/extension suite passes 49 tests, and Laravel passes 46 tests with 227 assertions.
+- Tests: Vitest protects the read-only Next.js reference; Node's built-in runner protects 19 extension tests; PHPUnit protects Laravel using isolated test state. The combined reference/extension suite passes 49 tests, and Laravel passes 47 tests with 231 assertions.
 - Deployment: Hetzner VPS, reached through Tailscale for admin access and Cloudflare Tunnel for web traffic
 
 ## Boundaries
@@ -282,7 +282,7 @@ Context:
 Laravel cannot depend on the retiring Node backup runtime, and recovery must be executable before cutover.
 
 Decision:
-Use `php artisan notebook:backup` for consistent, timestamped SQLite copies with source/backup count and integrity verification. Use `php artisan notebook:restore <backup> --force` only while writes are stopped; it validates the input first, preserves a safety backup of the current target, handles WAL/SHM sidecars, restores, and rechecks integrity/count.
+Use `php artisan notebook:backup` for consistent, timestamped SQLite copies; integrity and note count are read from the completed SQLite backup snapshot so concurrent source writes cannot create a false mismatch. Failed verification removes the incomplete artifact. Use `php artisan notebook:restore <backup> --force` only while writes are stopped; it validates the input first, preserves a safety backup of the current target in ignored private storage, handles WAL/SHM sidecars, restores, and rechecks integrity/count.
 
 Tradeoff:
 Backups remain manual and on the same machine until Stage 5 defines scheduling, encrypted off-server storage, retention, and production restore rehearsal.
