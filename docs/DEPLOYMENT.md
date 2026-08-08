@@ -47,7 +47,7 @@ For migration verification, run Laravel with `composer dev` from `laravel/`; it 
 - Login works:
 - Notes flow works:
 - AI call works:
-- Capture API works with the dedicated token:
-- Unpacked extension context-menu capture works in Chrome: manual and still pending locally
+- Capture API works with the dedicated token: passed locally on 2026-08-08 against isolated SQLite
+- Unpacked extension context-menu capture works in Chrome: request and persistence passed locally on 2026-08-08; success badge/tooltip observation remains pending
 - Logs visible:
 - `npm run backup` succeeds and the backup passes its integrity check:

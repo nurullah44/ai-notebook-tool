@@ -9,7 +9,7 @@ Stable facts future Codex sessions should remember. Keep short.
 - Audience: founder-only V1
 - Real problem: user remembers rough shape of ideas but not exact note wording or location
 - Smallest useful version: login, create/read/edit/delete notes, search notes, ask AI about own notes, logs, backups, targeted tests, deployment notes
-- Current stage: Prototype; Laravel migration Stage 4 is in progress. Founder auth, note CRUD, UI, keyword search, and AI recall have parity evidence, and the Laravel capture API contract now passes focused automated tests.
+- Current stage: Prototype; Laravel migration Stage 4 is in progress. Founder auth, note CRUD, UI, keyword search, AI recall, and the extension capture path have parity evidence.
 
 ## Active Workflow
 
@@ -18,16 +18,16 @@ Stable facts future Codex sessions should remember. Keep short.
 - Required active documents:
   - `docs/LARAVEL_MIGRATION_CONTRACT.md`
   - `docs/LARAVEL_MIGRATION_BASELINE.md`
-- Status: Stage 3 core-product parity is complete. In Stage 4, Laravel owns the bearer-authenticated `POST /api/capture` contract and now serves locally on the extension's unchanged `http://localhost:3000` origin. The 19 extension tests use Node's built-in runner; the combined reference/extension suite passes 49 tests, and Laravel passes 39 tests with 184 assertions. Chrome and live capture-title API verification remain pending.
+- Status: Stage 3 core-product parity is complete. In Stage 4, Laravel owns the bearer-authenticated `POST /api/capture` contract and serves locally on the extension's unchanged `http://localhost:3000` origin. The 19 extension tests use Node's built-in runner; the combined reference/extension suite passes 49 tests, and Laravel passes 39 tests with 184 assertions. An isolated direct live OpenAI capture and an unpacked Chrome context-menu capture both returned `201` and persisted only to temporary SQLite.
 - Current stage: 4 - Restore AI, Extension, And Operations Parity (in progress)
-- Next checkpoint: verify the unchanged unpacked extension against Laravel in Chrome, including one approved live OpenAI capture-title call against isolated data.
+- Next checkpoint: finish Laravel structured logging and privacy parity, then replace the Node backup path with verified Artisan backup and restore commands.
 
 ## Current Execution Constraints
 
 - Migration work changes Laravel only. The Next.js implementation is read-only reference code.
 - Normal `AGENTS.md` branch, review, documentation, and learning workflow is restored.
 - Playwright is forbidden. Manual browser verification uses the provided Chrome integration only.
-- Work one Stage 4 vertical slice at a time; the next slice manually verifies the connected extension and live capture-title path.
+- Work one Stage 4 vertical slice at a time; the next slice closes structured logging and privacy parity.
 
 ## Learning Goal
 
@@ -54,7 +54,7 @@ Follow `docs/inner-voice.html` as the stage map.
    - notes/search tests using temporary SQLite - done
    - AI request/output safety and backup integrity tests - done
 
-The Chrome capture stage map is `docs/inner-voice-extension.html`: stages 1-4 are done. Stage 5 manual unpacked context-menu verification remains pending but is not the active workflow. Stage 6 production domain setup is deferred.
+The Chrome capture stage map is `docs/inner-voice-extension.html`: stages 1-4 are done. Stage 5's unpacked context-menu request and persistence path passed against isolated Laravel data; manual badge/tooltip observation remains pending. Stage 6 production domain setup is deferred.
 
 ## Stack Decisions
 
@@ -93,7 +93,7 @@ Laravel owns URL keyword search, wildcard escaping, newest-first results, local 
 
 ### Decision: Laravel extension capture API
 
-Laravel now owns bearer-authenticated `POST /api/capture` in the session-free API route group. Missing capture-token configuration returns `503`; an invalid bearer token returns `401` before JSON parsing. Input follows JavaScript Unicode trim/length behavior and is limited to 3-5,000 UTF-16 code units. An atomic Laravel-cache sliding window permits 10 valid requests per minute across workers. Title generation uses OpenAI strict structured output for 4-10 words and at most 80 characters, with `store: false` and a 25-second timeout; invalid output or provider failure uses a safe fallback. Successful persistence writes a UUID and UTC timestamps to SQLite. Logs contain metadata only, and unexpected failures return a safe `500`. Laravel serves locally on the unchanged extension's exact localhost origin, and its 19 tests now use Node's built-in runner. Chrome and live capture-title API verification remain pending.
+Laravel now owns bearer-authenticated `POST /api/capture` in the session-free API route group. Missing capture-token configuration returns `503`; an invalid bearer token returns `401` before JSON parsing. Input follows JavaScript Unicode trim/length behavior and is limited to 3-5,000 UTF-16 code units. An atomic Laravel-cache sliding window permits 10 valid requests per minute across workers. Title generation uses OpenAI strict structured output for 4-10 words and at most 80 characters, with `store: false` and a 25-second timeout; invalid output or provider failure uses a safe fallback. Successful persistence writes a UUID and UTC timestamps to SQLite. Logs contain metadata only, and unexpected failures return a safe `500`. Laravel serves locally on the unchanged extension's exact localhost origin, and its 19 tests use Node's built-in runner. Direct and unpacked-Chrome live capture requests both returned `201` and wrote only to isolated temporary SQLite.
 
 ### Decision: V1 stack
 

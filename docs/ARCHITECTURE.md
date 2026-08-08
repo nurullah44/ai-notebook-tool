@@ -10,7 +10,7 @@ Keep this document factual and short. Update it only after decisions are stable.
 - Database: the Next.js reference uses SQLite through `better-sqlite3`; Laravel uses Query Builder over PDO SQLite against a configured compatible database path
 - Auth: Next.js and Laravel both preserve founder-only login; Laravel uses `AUTH_PASSWORD`, encrypted cookie sessions, CSRF-protected forms, and founder route middleware
 - AI: OpenAI Responses API for rough-memory note lookup and capture-title generation, defaulting to `gpt-5.4-mini`
-- Capture API: Laravel owns the dedicated bearer-authenticated `POST /api/capture` endpoint and serves locally on the unchanged extension's exact `http://localhost:3000` origin; Chrome/live capture verification remains pending
+- Capture API: Laravel owns the dedicated bearer-authenticated `POST /api/capture` endpoint and serves locally on the unchanged extension's exact `http://localhost:3000` origin; isolated direct and unpacked-Chrome live captures passed
 - Logging: structured JSON stdout/stderr logs with metadata only; Laravel AI recall records model, latency, outcome, candidate count, token usage when available, HTTP status, and error type without private content
 - Backup: manual verified SQLite backup through `npm run backup`, stored locally in ignored `backups/`
 - Tests: Vitest protects the read-only Next.js reference; Node's built-in runner protects 19 extension tests; PHPUnit protects Laravel using isolated test state. The combined reference/extension suite passes 49 tests, and Laravel passes 39 tests with 184 assertions.
@@ -307,7 +307,7 @@ Reason:
 This keeps extension power narrow and keeps authentication, validation, AI cost, private-data handling, and persistence on the server. Badge text and tooltips provide loading, success, or failure feedback without adding a popup, content script, retry queue, or second data model.
 
 Tradeoff:
-V1 is local and unpacked. Laravel intentionally replaces the reference process-local limiter with an atomic cache-backed sliding window shared by server workers, preventing concurrent paid-call bypasses. The capture token is stored in the Chrome profile. Laravel serves locally on port 3000 so the unchanged extension source and host permission connect without translation, and its 19 tests run with Node's built-in runner. The actual unpacked context-menu workflow and live capture-title API still need explicit verification. Production domain and host-permission changes remain deferred until deployment.
+V1 is local and unpacked. Laravel intentionally replaces the reference process-local limiter with an atomic cache-backed sliding window shared by server workers, preventing concurrent paid-call bypasses. The capture token is stored in the Chrome profile. Laravel serves locally on port 3000 so the unchanged extension source and host permission connect without translation, and its 19 tests run with Node's built-in runner. Isolated direct and unpacked-Chrome live captures returned `201`, generated AI titles, and persisted successfully without touching the real notebook. Production domain and host-permission changes remain deferred until deployment.
 
 Date:
 2026-07-17
