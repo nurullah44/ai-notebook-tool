@@ -67,19 +67,19 @@ describe("Idea Store extension options", () => {
   it("loads saved URL and token from local extension storage", async () => {
     await loadOptions();
 
-    assert.equal(appUrlInput.value, "http://localhost:3000");
+    assert.equal(appUrlInput.value, "http://localhost:4318");
     assert.equal(captureTokenInput.value, "stored-capture-token");
   });
 
   it("trims and saves valid settings", async () => {
     await loadOptions();
-    appUrlInput.value = "  http://localhost:3000  ";
+    appUrlInput.value = "  http://localhost:4318  ";
     captureTokenInput.value = "  new-capture-token  ";
 
     await submitListener({ preventDefault: mock.fn() });
 
     assert.deepEqual(storageSet.mock.calls[0].arguments, [{
-      appUrl: "http://localhost:3000",
+      appUrl: "http://localhost:4318",
       captureToken: "new-capture-token",
     }]);
     assert.equal(status.textContent, "Settings saved.");

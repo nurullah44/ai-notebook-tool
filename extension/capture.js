@@ -1,4 +1,5 @@
-export const DEFAULT_APP_URL = "http://localhost:3000";
+export const DEFAULT_APP_URL = "http://localhost:4318";
+const LEGACY_APP_URL = "http://localhost:3000";
 export const MIN_SELECTION_LENGTH = 3;
 export const MAX_SELECTION_LENGTH = 5000;
 
@@ -18,6 +19,10 @@ export function normalizeSelection(value) {
 
 export function normalizeAppUrl(value) {
   const appUrl = typeof value === "string" ? value.trim() : "";
+
+  if (appUrl === LEGACY_APP_URL) {
+    return DEFAULT_APP_URL;
+  }
 
   if (appUrl !== DEFAULT_APP_URL) {
     throw new Error(`App URL must be exactly ${DEFAULT_APP_URL}.`);

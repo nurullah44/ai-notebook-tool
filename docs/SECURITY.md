@@ -17,7 +17,7 @@ Prototype
 - SQLite backup files are ignored by git and treated as private notebook data
 - Inputs are validated
 - Laravel extension capture uses a dedicated bearer token, not the founder password or website session; missing server token configuration returns `503`, and invalid auth returns `401` before the request JSON is parsed
-- The unpacked extension can reach only `http://localhost:3000/*`
+- The unpacked extension can reach only `http://localhost:4318/*`
 - Capture uses JavaScript-compatible Unicode trimming and 3-5,000 UTF-16 code-unit limits; an atomic Laravel-cache sliding window permits 10 valid captures per minute across workers
 - Search uses parameterized SQLite queries
 - Delete note requires authentication, CSRF protection, and browser confirmation
@@ -31,7 +31,7 @@ Prototype
 - Capture persistence generates UUID note IDs and UTC timestamps; unexpected failures return a safe `500` without leaking private content or internals
 - Laravel backup/restore uses consistent SQLite copies, validates integrity and note count, requires explicit `--force` for restore, and preserves the previous target as a private safety backup before replacement
 - `notebook:ready` reports only named pass/fail checks; it never prints secret values or private note content
-- Local primary use keeps Next.js stopped so two runtimes cannot write the same SQLite database concurrently
+- The retired Next.js archive has no shared database; Laravel is the only runtime allowed to write `data/notebook.db`
 
 ## AI-Specific Risks
 
@@ -43,7 +43,7 @@ Prototype
 
 ## Open Risks
 
-- `npm audit` reports a moderate PostCSS advisory through Next.js 16.2.9. The suggested forced fix would make a breaking Next.js downgrade, so keep Next.js updated and recheck rather than applying `npm audit fix --force` blindly.
+- The retired Next.js archive reported six high-severity dependency advisories during its final reproducibility check. It must remain offline/passive unless its dependencies are deliberately updated and reverified.
 - `AUTH_PASSWORD` is stored as a plain environment variable for prototype simplicity. Before real production use, consider switching to a password hash.
 - Laravel production must run behind HTTPS with `APP_ENV=production`; otherwise browsers cannot safely return Secure session cookies.
 - Login has no application-level rate limit yet. Before accepting public traffic, add app throttling or enforce an equivalent proxy-level limit.

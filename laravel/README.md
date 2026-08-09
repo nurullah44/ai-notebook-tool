@@ -25,7 +25,7 @@ php artisan notebook:backup
 composer start
 ```
 
-Open `http://localhost:3000`.
+Open `http://localhost:4318`.
 
 `composer start` runs `notebook:ready` before serving Laravel. Use `composer dev` only when intentionally bypassing the local-primary readiness gate during development.
 
@@ -37,7 +37,7 @@ php artisan notebook:ready --production
 
 This checks production configuration but does not deploy or replace a real web server/process manager.
 
-The unpacked extension already permits exactly `http://localhost:3000/*`, so keeping Laravel on port 3000 preserves the extension contract without changing its production files. In the extension options, keep the app URL as `http://localhost:3000` and use the same `EXTENSION_CAPTURE_TOKEN` configured in this Laravel runtime.
+The unpacked extension permits exactly `http://localhost:4318/*`. In the extension options, keep the app URL as `http://localhost:4318` and use the same `EXTENSION_CAPTURE_TOKEN` configured in this Laravel runtime. A stored legacy port-3000 value is mapped to the dedicated port automatically.
 
 ## Test
 

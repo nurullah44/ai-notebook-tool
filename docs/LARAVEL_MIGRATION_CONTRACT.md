@@ -243,12 +243,12 @@ Other documented `400`, `401`, `429`, and `503` responses remain JSON errors usa
 
 - Manifest V3 remains plain JavaScript.
 - Permissions remain `contextMenus` and `storage` only.
-- Local host permission remains `http://localhost:3000/*` until production-domain work.
+- Local host permission is `http://localhost:4318/*` until production-domain work.
 - Context menu remains selection-only and named `Save to Idea Store`.
 - Only trimmed selected text is sent; no URL, page title, HTML, cookies, tags, or browsing history.
 - Settings remain `appUrl` and trimmed `captureToken` in `chrome.storage.local`.
 - Token input remains password-masked and required.
-- Local URL validation currently accepts exactly `http://localhost:3000` without trailing slash.
+- Local URL validation accepts exactly `http://localhost:4318` without trailing slash; a stored legacy 3000 value maps to it.
 - Capture is single-flight; duplicate click is ignored while one request is active.
 - Badge shows `...` while saving, a green check on success, and red `!` on failure.
 - Tooltip describes status and clears after three seconds.

@@ -4,17 +4,17 @@ Keep this document factual and short. Update it only after decisions are stable.
 
 ## Current Shape
 
-- Primary local runtime: Laravel 13 with Blade and normal static assets; `composer start` requires readiness before serving on localhost port 3000
-- Passive reference: Next.js and TypeScript remain installed but stopped unless an intentional build-then-start comparison is needed
+- Primary local runtime: Laravel 13 with Blade and normal static assets; `composer start` requires readiness before serving on dedicated localhost port 4318
+- Retired reference: Next.js and TypeScript are isolated outside the active repository at `../idea-store-nextjs-archive`
 - Extension: unpacked Manifest V3 Chrome extension in `extension/`, implemented in plain JavaScript
 - Database: Laravel uses Query Builder over PDO SQLite against the configured physical compatible database path
 - Auth: Laravel uses `AUTH_PASSWORD`, encrypted cookie sessions, CSRF-protected forms, and founder route middleware
 - AI: OpenAI Responses API for rough-memory note lookup and capture-title generation, defaulting to `gpt-5.4-mini`
-- Capture API: Laravel owns the dedicated bearer-authenticated `POST /api/capture` endpoint and serves locally on the unchanged extension's exact `http://localhost:3000` origin; isolated direct and unpacked-Chrome live captures passed
+- Capture API: Laravel owns the dedicated bearer-authenticated `POST /api/capture` endpoint and serves locally on the extension's exact `http://localhost:4318` origin; isolated direct and unpacked-Chrome live captures passed
 - Logging: Laravel writes structured JSON stderr events with metadata only. AI recall records local/model completion or search/provider failure with model, latency, candidate/match counts, OpenAI use, outcome, token usage when available, HTTP status, and error type. Note read/write paths catch `QueryException` before private search, title, or body bindings can reach framework logs.
 - Backup: Laravel `notebook:backup` and `notebook:restore` use SQLite's online backup API, verify integrity/count, and store private copies in ignored storage. Restore requires explicit force and preserves a pre-restore safety backup.
 - Readiness: `notebook:ready` checks required configuration, SQLite support/schema/integrity/writability, and private storage without printing secrets; `--production` adds environment, debug, HTTPS, and Secure-cookie gates
-- Tests: Vitest protects the passive Next.js reference; Node's built-in runner protects 19 extension tests; PHPUnit protects Laravel using isolated test state. The combined reference/extension suite passes 49 tests, and Laravel passes 51 tests with 250 assertions.
+- Tests: the retired archive retains 30 Vitest checks; Node's built-in runner protects 20 extension tests; PHPUnit protects Laravel using isolated test state. Laravel passes 51 tests with 250 assertions.
 - Deployment: deferred; Hetzner, Tailscale, Cloudflare Tunnel, HTTPS server/process manager, and traffic switching remain future decisions
 
 ## Boundaries
@@ -51,10 +51,10 @@ Context:
 Laravel parity and recovery gates are complete, but no VPS/domain deployment is authorized. The founder wants to use Laravel locally before revisiting deployment.
 
 Decision:
-Use Laravel as the primary local runtime through `composer start`, which runs the secret-safe `notebook:ready` gate before serving. Keep Next.js installed but stopped/passive. Deployment, traffic switching, and Next.js retirement require a new explicit decision.
+Use Laravel as the sole active local runtime through `composer start`, which runs the secret-safe `notebook:ready` gate before serving. Keep the retired Next.js implementation in a separate local archive with no shared database. Deployment and traffic switching require a new explicit decision.
 
 Reason:
-This begins real-use observation without pretending the PHP development server is a production server or forcing irreversible cleanup.
+This begins real-use observation without pretending the PHP development server is a production server, while preserving the retired implementation outside the active project.
 
 Tradeoff:
 Two runtimes remain in the repository, and production server, HTTPS, rate-limit, logging-retention, and off-server-backup choices remain unresolved.
@@ -331,7 +331,7 @@ Context:
 Capturing a useful idea from another page required copying text, switching tabs, naming it, and saving it manually. The extension is a separate client and must not receive website sessions or paid API secrets.
 
 Decision:
-Use an unpacked plain-JavaScript Manifest V3 extension in `extension/`. It registers one selected-text context-menu action, stores `appUrl` and the capture token in `chrome.storage.local`, and has host permission only for `http://localhost:3000/*`. It sends only trimmed selected text to `POST /api/capture`; it does not send a page URL, page title, HTML, tags, or browsing data.
+Use an unpacked plain-JavaScript Manifest V3 extension in `extension/`. It registers one selected-text context-menu action, stores `appUrl` and the capture token in `chrome.storage.local`, and has host permission only for `http://localhost:4318/*`. It sends only trimmed selected text to `POST /api/capture`; it does not send a page URL, page title, HTML, tags, or browsing data.
 
 The Laravel server requires capture-token configuration, authenticates a dedicated bearer token before parsing JSON, accepts 3-5,000 trimmed characters, and permits 10 valid captures per minute through a Laravel cache-backed sliding window. Missing configuration returns `503`, invalid auth returns `401`, and unexpected failures return a safe `500`. It asks the OpenAI Responses API for a strict 4-10 word title no longer than 80 characters, using `gpt-5.4-mini` by default, `store: false`, prompt-injection protection, and a 25-second timeout. Invalid AI output, timeout, or provider failure uses a safe fallback title and still saves the note with a UUID and UTC timestamps to SQLite. Capture logs contain metadata only: text length, duration, model or source, and error name.
 

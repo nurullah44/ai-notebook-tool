@@ -64,7 +64,7 @@ describe("Idea Store extension service worker", () => {
       storage: {
         local: {
           get: mock.fn(async () => ({
-            appUrl: "http://localhost:3000",
+            appUrl: "http://localhost:4318",
             captureToken: "test-capture-token",
           })),
         },
@@ -110,7 +110,7 @@ describe("Idea Store extension service worker", () => {
     await waitForCall(fetchMock);
 
     assert.deepEqual(fetchMock.mock.calls[0].arguments, [
-      "http://localhost:3000/api/capture",
+      "http://localhost:4318/api/capture",
       {
         method: "POST",
         headers: {

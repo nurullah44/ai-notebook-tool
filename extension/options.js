@@ -20,7 +20,7 @@ async function loadSettings() {
       captureToken: "",
     });
 
-    appUrlInput.value = settings.appUrl;
+    appUrlInput.value = normalizeAppUrl(settings.appUrl);
     captureTokenInput.value = settings.captureToken;
   } catch {
     showStatus("Could not load settings.", true);

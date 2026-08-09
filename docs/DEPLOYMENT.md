@@ -7,7 +7,7 @@
 - Domain: undecided
 - Application: Laravel/PHP with SQLite
 - Web server/process manager: undecided
-- Next.js: retained as a stopped, passive reference; deletion is not planned
+- Next.js: retired to the separate local `../idea-store-nextjs-archive`; it is not part of deployment
 
 ## Environment Variables
 
@@ -23,7 +23,7 @@ APP_DEBUG
 APP_URL
 ```
 
-`OPENAI_MODEL` defaults to `gpt-5.4-mini`. Keep `EXTENSION_CAPTURE_TOKEN` separate from the founder password and `APP_KEY`. `SESSION_SECRET` remains relevant only to the passive Next.js reference.
+`OPENAI_MODEL` defaults to `gpt-5.4-mini`. Keep `EXTENSION_CAPTURE_TOKEN` separate from the founder password and `APP_KEY`.
 
 Before any future deployment, `APP_ENV=production`, `APP_DEBUG=false`, an HTTPS `APP_URL`, and secure session cookies must make `php artisan notebook:ready --production` pass.
 
@@ -40,15 +40,15 @@ These steps are a deferred plan, not completed deployment evidence:
 
 ## Chrome Extension Deployment
 
-The current unpacked extension is local-only and permits only `http://localhost:3000/*`. Do not treat capture as production-ready until a production app domain is chosen and both the manifest host permission and extension app URL are updated together. Chrome Web Store distribution is not part of this slice.
+The current unpacked extension is local-only and permits only `http://localhost:4318/*`. Do not treat capture as production-ready until a production app domain is chosen and both the manifest host permission and extension app URL are updated together. Chrome Web Store distribution is not part of this slice.
 
-For current local use, run Laravel with `composer start` from `laravel/`; it binds to `http://localhost:3000`, matching the unchanged extension permission and saved app URL exactly.
+For current local use, run Laravel with `composer start` from `laravel/`; it binds to `http://localhost:4318`, matching the extension permission and app URL exactly.
 
 ## Migration Notes
 
 - Fresh Laravel database migration command: `php artisan migrate`; existing compatible notebook data must not be recreated or reshaped.
 - Database backup command: `cd laravel && php artisan notebook:backup`.
-- Local fallback: stop Laravel; keep Next.js source passive unless an intentional comparison/fallback run is needed.
+- Local fallback: stop Laravel and restore a verified SQLite backup; the retired Next.js archive is not a data fallback.
 - Future rollback plan: stop the app, restore the previous Laravel release and chosen SQLite backup, restart, then verify critical flows. Git rollback is not database rollback.
 
 ## Verification
